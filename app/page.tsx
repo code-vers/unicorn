@@ -1,3 +1,4 @@
+import FAQSection from "@/components/home/FAQSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import HeroSection from "@/components/home/HeroSection";
 import PromoBanner from "@/components/home/PromoBanner";
@@ -16,6 +17,7 @@ export default function Home() {
       <StatsSection />
       <TipsSection />
       <RequirementsSection />
+      <FAQSection />
     </div>
   );
 }

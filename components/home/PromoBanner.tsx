@@ -4,13 +4,13 @@ const PromoBanner: React.FC = () => {
   return (
     <section className='w-full'>
       <div
-        className='relative w-full h-[200px] md:h-[160px] bg-cover bg-center flex items-center'
+        className='relative w-full h-[300px] bg-cover bg-center flex items-center'
         style={{ backgroundImage: "url('/Home/promoImg.png')" }}>
         {/* Dark Overlay - ensures text is readable on all screen sizes */}
         <div className='absolute inset-0 bg-black/50'></div>
 
         {/* Content Container - Adjusted for full-width alignment */}
-        <div className='relative z-10 w-full max-w-[1440px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
+        <div className='relative z-10 w-full max-w-[1440px] mx-auto px-4 md:px-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
           {/* Text Content */}
           <div className='flex flex-col'>
             <h2 className='text-white text-xl md:text-2xl lg:text-3xl font-bold tracking-tight'>

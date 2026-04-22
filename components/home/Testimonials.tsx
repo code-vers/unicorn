@@ -94,10 +94,8 @@ const Testimonials: React.FC = () => {
 
   return (
     <div className='w-full bg-white'>
-      {" "}
       {/* Full Width Background */}
-      <section className='py-16 max-w-[1440px] mx-auto overflow-hidden'>
-        {" "}
+      <section className='py-16 max-w-[1440px] px-4 md:px-0 mx-auto overflow-hidden'>
         {/* Centered Content */}
         <h2 className='text-[28px] font-bold text-[#111827] mb-10'>
           What Our Clients Say About Us

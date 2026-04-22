@@ -26,7 +26,7 @@ const RequirementsSection: React.FC = () => {
 
   return (
     <div className='w-full bg-white py-16'>
-      <section className='max-w-[1440px] mx-auto'>
+      <section className='max-w-[1440px] mx-auto px-4 md:px-0'>
         {/* Main Heading */}
         <h2 className='text-[28px] md:text-[32px] font-bold text-[#111827] mb-10 text-left'>
           Ready to Grab Your Keys? Here&apos;s What to Bring
