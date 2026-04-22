@@ -35,7 +35,7 @@ const TipsSection: React.FC = () => {
 
   return (
     <section className='w-full bg-white py-20'>
-      <div className='max-w-[1440px] mx-auto text-center'>
+      <div className='max-w-[1440px] mx-auto px-4 md:px-0 text-center'>
         {/* Heading */}
         <h2 className='text-[32px] md:text-[40px] font-bold text-[#111827] mb-6'>
           Get the Most Out of Your Unicorn Ride!
