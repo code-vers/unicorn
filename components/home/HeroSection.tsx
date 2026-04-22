@@ -5,7 +5,7 @@ const HeroSection: React.FC = () => {
   return (
     <section
       className='relative w-full min-h-screen bg-cover bg-center flex items-center justify-center'
-      style={{ backgroundImage: "url('/home/heroCar.png')" }}>
+      style={{ backgroundImage: "url('/Home/heroCar.png')" }}>
       {/* Darker Overlay for better text readability */}
       <div className='absolute top-0 left-0 w-full h-full bg-black/60'></div>
 
