@@ -5,7 +5,7 @@ const PromoBanner: React.FC = () => {
     <section className='w-full'>
       <div
         className='relative w-full h-[200px] md:h-[160px] bg-cover bg-center flex items-center'
-        style={{ backgroundImage: "url('/home/promoImg.png')" }}>
+        style={{ backgroundImage: "url('/Home/promoImg.png')" }}>
         {/* Dark Overlay - ensures text is readable on all screen sizes */}
         <div className='absolute inset-0 bg-black/50'></div>
 
