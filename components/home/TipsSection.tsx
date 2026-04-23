@@ -28,7 +28,7 @@ const TipsSection: React.FC = () => {
       title: "Simple Mileage",
       description:
         "This is the really good part! With Unicorn, you get unlimited mileage. Seriously, explore to your heart's content! For fuel, it's just 'full-to-full' - you pick it up with a full tank and bring it back full. Easy peasy, no guessing games.",
-      imageSrc: "/home/phone.png",
+      imageSrc: "/Home/phone.png",
       bgColor: "bg-[#E0E7FF]", // Light Purple
     },
   ];
