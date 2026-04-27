@@ -47,7 +47,7 @@ const ContactUs: React.FC = () => {
       </div>
       {/* Mobile Responisive*/}
 
-      <div className='md:hidden px-8'>
+      <div className='md:hidden pt-16 px-8'>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
           <InfoCard
             icon={<MapPin className='text-white' size={32} />}
