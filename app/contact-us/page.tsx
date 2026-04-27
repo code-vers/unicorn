@@ -143,7 +143,13 @@ const ContactUs: React.FC = () => {
 };
 
 /* --- HELPER COMPONENT FOR INFO CARDS --- */
-const InfoCard = ({ icon, title, lines }) => {
+
+type InfoCardProps = {
+  icon: React.ReactNode;
+  title: string;
+  lines: string[];
+};
+const InfoCard = ({ icon, title, lines }: InfoCardProps) => {
   return (
     <div className='relative flex flex-col items-center pt-12 pb-8 px-4 bg-[#f0f5fa] rounded-lg h-full'>
       {/* Orange Icon Circle */}
