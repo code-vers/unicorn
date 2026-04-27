@@ -8,8 +8,7 @@ const ContactUs: React.FC = () => {
       <div
         className='relative h-[400px] w-full bg-cover bg-center'
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1440')",
+          backgroundImage: "url('/contact/road.png')",
         }}>
         <div className='absolute inset-0 bg-black/40 flex items-center justify-center'>
           <h1 className='text-white text-[48px] font-bold'>Contact Us</h1>
