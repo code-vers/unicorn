@@ -66,16 +66,16 @@ export default function DocumentsContent() {
           <h3 className="text-[#0A1413] text-xl font-bold font-['Montserrat'] leading-[1.6]">Recent Uploads</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-[#FAFBFC] border-b border-[#E8ECF0] h-[50px]">
                 <th className="px-[11px] py-[9px] w-[50px]">
                   <div className="bg-white border border-[#E8ECF0] rounded-[4px] size-[15px] cursor-pointer" />
                 </th>
-                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] w-[200px]">CUSTOMER</th>
-                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] w-[250px]">DOCUMENT TYPE</th>
-                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] w-[200px]">UPLOAD DATE</th>
-                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] w-[200px]">STATUS</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">CUSTOMER</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">DOCUMENT TYPE</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">UPLOAD DATE</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">STATUS</th>
                 <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] px-[14px]">ACTIONS</th>
               </tr>
             </thead>
@@ -83,7 +83,7 @@ export default function DocumentsContent() {
               {recentUploads.map((upload, index) => (
                 <tr 
                   key={index} 
-                  className={`${index % 2 === 1 ? 'bg-[#FAFBFC]' : 'bg-white'} h-[50px] hover:bg-gray-50 transition-colors group`}
+                  className={`${index % 2 === 1 ? 'bg-[#FAFBFC]' : 'bg-white'} h-[50px] border border-[#F4F6F8] hover:bg-gray-50 transition-colors`}
                 >
                   <td className="px-[11px] py-[9px]">
                     <div className="bg-white border border-[#E8ECF0] rounded-[4px] size-[15px] cursor-pointer" />
@@ -91,20 +91,20 @@ export default function DocumentsContent() {
                   <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.customer}</td>
                   <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.type}</td>
                   <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.date}</td>
-                  <td className="py-[15px]">
+                  <td className="py-[12px]">
                     <span className={`px-[7px] py-[2px] rounded-[5px] text-[10px] font-['Lato'] inline-flex items-center justify-center ${
                       upload.status === 'Approved' ? 'bg-[#EBF7ED] text-[#3FA34D]' : 'bg-[#FFFAE0] text-[#D8A500]'
                     }`}>
                       {upload.status}
                     </span>
                   </td>
-                  <td className="px-[14px] py-[11px]">
-                    <div className="flex gap-[4px] opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="bg-[#EBF7ED] text-[#3FA34D] p-1.5 rounded-[5px] hover:bg-[#d8eedb] transition-all transform hover:scale-105">
-                        <Check size={12} />
+                  <td className="px-[14px] py-[11.5px]">
+                    <div className="flex gap-[4px]">
+                      <button className="bg-[#EBF7ED] text-[#3FA34D] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#d8eedb] transition-all transform hover:scale-105">
+                        <Check size={12} strokeWidth={3} />
                       </button>
-                      <button className="bg-[#FFF0F0] text-[#DC2626] p-1.5 rounded-[5px] hover:bg-[#ffe0e0] transition-all transform hover:scale-105">
-                        <X size={12} />
+                      <button className="bg-[#FFF0F0] border border-[#F6F6F6] text-[#DC2626] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#ffe0e0] transition-all transform hover:scale-105">
+                        <X size={12} strokeWidth={3} />
                       </button>
                     </div>
                   </td>
