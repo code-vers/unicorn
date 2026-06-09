@@ -16,6 +16,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -140,23 +141,13 @@ export default function DashboardSidebar() {
         }`}
       >
         {/* Logo Section */}
-        <div className='h-28 flex-shrink-0 flex items-center justify-center border-b border-gray-100 p-4'>
+        <div className='h-28 flex-shrink-0 flex items-center justify-center border-b p-4'>
           <Link href='/' className='flex flex-col items-center gap-2'>
             {/* Replace src with your actual logo path */}
-            <div className='relative w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden'>
+            <div className='relative w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden'>
               <span className='text-xl font-bold text-green-700'>U</span>
-              {/* <Image
-                   src="/logo.png"
-                   alt="Unicorn Logo"
-                   fill
-                   className="object-contain"
-                   priority
-                 />
-               */}
+              <Image src='/unicorn.png' alt='Unicorn Logo' fill className='object-contain' />
             </div>
-            <span className='text-[10px] font-bold text-green-600 tracking-widest uppercase'>
-              Unicorn <span className='text-orange-400'>Rent A Car</span>
-            </span>
           </Link>
         </div>
 
