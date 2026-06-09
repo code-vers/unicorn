@@ -6,9 +6,54 @@ import {
   TodayAtGlance,
   PerformanceScore,
   RecentBooking,
+  Driver,
+  Customer,
+  Location,
+  Payment,
+  PricingConfig,
+  DropOffCharge,
+  BookingTrend,
+  RevenueGrowth,
+  VehicleDistribution,
+  ReportMetric,
+  Notification,
 } from '@/types/dashboard';
 
-// Mock data - Replace with actual API calls
+// ... (existing functions)
+
+export const getNotifications = (): Notification[] => {
+  return [
+    {
+      id: '1',
+      type: 'Booking',
+      title: 'Booking',
+      description: 'New booking request from John Doe',
+      time: '5 minutes ago',
+    },
+    {
+      id: '2',
+      type: 'Payment',
+      title: 'Payment',
+      description: 'Payment received for booking #1234',
+      time: '5 minutes ago',
+    },
+    {
+      id: '3',
+      type: 'Rental',
+      title: 'Rental',
+      description: 'Payment received for booking #1234',
+      time: '5 minutes ago',
+    },
+    {
+      id: '4',
+      type: 'Overdue',
+      title: 'Overdue',
+      description: 'Overdue rental: Honda Accord - Jane Smith',
+      time: '5 minutes ago',
+    },
+  ];
+};
+
 export const getDashboardMetrics = (): DashboardMetrics => {
   return {
     totalRevenue: 754000,
@@ -149,81 +194,543 @@ export const getPerformanceScore = (): PerformanceScore => {
 export const getRecentBookings = (): RecentBooking[] => {
   return [
     {
-      id: 'BK-4021',
-      customer: { name: 'James Okafor', id: 'BK-4021', initials: 'JO', avatarColor: '#EBF7ED' },
-      vehicle: 'Mercedes C-Class',
-      pickupDate: '12 May',
-      dropoffDate: '15 May',
-      type: 'Chauffeur',
-      status: 'In Progress',
-      paymentStatus: 'Paid',
-      amount: 480,
-    },
-    {
-      id: 'BK-4020',
-      customer: { name: 'Amira Diallo', id: 'BK-4020', initials: 'AD', avatarColor: '#FFF3E8' },
-      vehicle: 'BMW 5 Series',
-      pickupDate: '12 May',
-      dropoffDate: '14 May',
-      type: 'Self-drive',
-      status: 'Completed',
-      paymentStatus: 'Paid',
-      amount: 310,
-    },
-    {
-      id: 'BK-4019',
-      customer: { name: 'Sophie Turner', id: 'BK-4019', initials: 'ST', avatarColor: '#EBE9F5' },
+      id: '#1001',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1001', 
+        initials: 'JD', 
+        avatarColor: '#EBF7ED',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
       vehicle: 'Toyota Camry',
-      pickupDate: '13 May',
-      dropoffDate: '17 May',
-      type: 'Chauffeur',
-      status: 'Pending',
-      paymentStatus: 'Pending',
-      amount: 620,
-    },
-    {
-      id: 'BK-4018',
-      customer: { name: 'Felix Mensah', id: 'BK-4018', initials: 'FM', avatarColor: '#E0F7FF' },
-      vehicle: 'Ford Explorer',
-      pickupDate: '11 May',
-      dropoffDate: '13 May',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
       type: 'Self-drive',
       status: 'Completed',
-      paymentStatus: 'Refunded',
-      amount: 275,
+      paymentStatus: 'Paid',
+      amount: 250,
     },
     {
-      id: 'BK-4017',
-      customer: { name: 'Laila Nasser', id: 'BK-4017', initials: 'LN', avatarColor: '#FFF9E0' },
-      vehicle: 'Hyundai Sonata',
-      pickupDate: '14 May',
-      dropoffDate: '16 May',
+      id: '#1002',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1002', 
+        initials: 'JD', 
+        avatarColor: '#FFF3E8',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
+      type: 'Chauffeur',
+      status: 'Completed',
+      paymentStatus: 'Paid',
+      amount: 250,
+    },
+    {
+      id: '#1003',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1003', 
+        initials: 'JD', 
+        avatarColor: '#EBE9F5',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
       type: 'Self-drive',
       status: 'Pending',
       paymentStatus: 'Pending',
-      amount: 240,
+      amount: 250,
     },
     {
-      id: 'BK-4016',
-      customer: { name: 'Marcus Blaine', id: 'BK-4016', initials: 'MB', avatarColor: '#FFF0F0' },
-      vehicle: 'Nissan Altima',
-      pickupDate: '10 May',
-      dropoffDate: '11 May',
-      type: 'Chauffeur',
-      status: 'Cancelled',
-      paymentStatus: 'Refunded',
-      amount: 190,
-    },
-    {
-      id: 'BK-4015',
-      customer: { name: 'Priya Sharma', id: 'BK-4015', initials: 'PS', avatarColor: '#EBF7ED' },
-      vehicle: 'BMW 5 Series',
-      pickupDate: '15 May',
-      dropoffDate: '18 May',
-      type: 'Chauffeur',
-      status: 'In Progress',
+      id: '#1004',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1004', 
+        initials: 'JD', 
+        avatarColor: '#E0F7FF',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
+      type: 'Self-drive',
+      status: 'Pending',
       paymentStatus: 'Paid',
-      amount: 540,
+      amount: 250,
     },
+    {
+      id: '#1005',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1005', 
+        initials: 'JD', 
+        avatarColor: '#FFF9E0',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
+      type: 'Chauffeur',
+      status: 'Completed',
+      paymentStatus: 'Pending',
+      amount: 250,
+    },
+    {
+      id: '#1006',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1006', 
+        initials: 'JD', 
+        avatarColor: '#FFF0F0',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
+      type: 'Chauffeur',
+      status: 'Pending',
+      paymentStatus: 'Partial',
+      amount: 250,
+    },
+    {
+      id: '#1007',
+      customer: { 
+        name: 'John Doe', 
+        id: '#1007', 
+        initials: 'JD', 
+        avatarColor: '#EBF7ED',
+        phone: '+254 712 345 678',
+        email: 'john@example.com'
+      },
+      vehicle: 'Toyota Camry',
+      pickupDate: '2026-05-20',
+      dropoffDate: '2026-05-25',
+      type: 'Chauffeur',
+      status: 'Completed',
+      paymentStatus: 'Pending',
+      amount: 250,
+    },
+  ];
+};
+
+export const getDrivers = (): Driver[] => {
+  return [
+    {
+      id: '1',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Mercedes C-Class',
+      availability: 'Available',
+    },
+    {
+      id: '2',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Mercedes C-Class',
+      availability: 'Available',
+    },
+    {
+      id: '3',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Toyota Camry',
+      availability: 'On Duty',
+    },
+    {
+      id: '4',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Mercedes C-Class',
+      availability: 'Available',
+    },
+    {
+      id: '5',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Mercedes C-Class',
+      availability: 'Available',
+    },
+    {
+      id: '6',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Toyota Camry',
+      availability: 'On Duty',
+    },
+    {
+      id: '7',
+      name: 'James Kamau',
+      initials: 'JK',
+      phone: '+254 712 345 678',
+      whatsapp: '+254 712 345 678',
+      license: 'DL-123456',
+      assignedVehicle: 'Toyota Camry',
+      availability: 'On Duty',
+    },
+  ];
+};
+
+export const getCustomers = (): Customer[] => {
+  return [
+    {
+      id: '1',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 5,
+      status: 'Available',
+    },
+    {
+      id: '2',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 3,
+      status: 'Available',
+    },
+    {
+      id: '3',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 2,
+      status: 'Available',
+    },
+    {
+      id: '4',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 5,
+      status: 'Available',
+    },
+    {
+      id: '5',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 3,
+      status: 'Available',
+    },
+    {
+      id: '6',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 3,
+      status: 'Available',
+    },
+    {
+      id: '7',
+      name: 'John Doe',
+      initials: 'JD',
+      email: 'john@example.com',
+      phone: '+254 712 345 678',
+      totalBookings: 2,
+      status: 'Available',
+    },
+  ];
+};
+
+export const getLocations = (): Location[] => {
+  return [
+    {
+      id: '1',
+      name: 'Nairobi Office',
+      address: '66 Muthithi Road',
+      city: 'Nairobi',
+      type: 'Office',
+      status: 'Paid',
+    },
+    {
+      id: '2',
+      name: 'Jomo Kenyatta Airport',
+      address: 'Kisumu',
+      city: 'Mombasa',
+      type: 'Office',
+      status: 'Paid',
+    },
+    {
+      id: '3',
+      name: 'Mombasa Airport',
+      address: 'Mombasa',
+      city: 'Nairobi',
+      type: 'Office',
+      status: 'Pending',
+    },
+    {
+      id: '4',
+      name: 'Kisumu Airport',
+      address: 'Kisumu',
+      city: 'Nairobi',
+      type: 'Airport',
+      status: 'Pending',
+    },
+    {
+      id: '5',
+      name: 'Mombasa Airport',
+      address: '66 Muthithi Road',
+      city: 'Kisumu',
+      type: 'Airport',
+      status: 'Paid',
+    },
+    {
+      id: '6',
+      name: 'Jomo Kenyatta Airport',
+      address: '66 Muthithi Road',
+      city: 'Kisumu',
+      type: 'Airport',
+      status: 'Paid',
+    },
+    {
+      id: '7',
+      name: 'Kisumu Airport',
+      address: 'Mombasa',
+      city: 'Mombasa',
+      type: 'Office',
+      status: 'Partial',
+    },
+  ];
+};
+
+export const getPayments = (): Payment[] => {
+  return [
+    {
+      id: '1',
+      bookingId: '#1001',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 250,
+      status: 'Paid',
+    },
+    {
+      id: '2',
+      bookingId: '#1002',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 400,
+      status: 'Paid',
+    },
+    {
+      id: '3',
+      bookingId: '#1001',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 250,
+      status: 'Pending',
+    },
+    {
+      id: '4',
+      bookingId: '#1002',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 400,
+      status: 'Pending',
+    },
+    {
+      id: '5',
+      bookingId: '#1001',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 840,
+      status: 'Paid',
+    },
+    {
+      id: '6',
+      bookingId: '#1002',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 250,
+      status: 'Paid',
+    },
+    {
+      id: '7',
+      bookingId: '#1001',
+      customerEmail: 'john@example.com',
+      invoiceNumber: '+254 712 345 678',
+      date: '2026-05-15',
+      amount: 840,
+      status: 'Partial',
+    },
+  ];
+};
+
+export const getPricingConfig = (): PricingConfig => {
+  return {
+    baseRates: {
+      daily: 50,
+      weekly: 300,
+      monthly: 1000,
+    },
+    serviceType: {
+      selfDrive: 50,
+      chauffeur: 80,
+      seasonalMultiplier: 1.5,
+    },
+    additionalCharges: {
+      extraDay: 45,
+      lateReturn: 10,
+      securityDeposit: 200,
+      deliveryCollection: 25,
+      airportPickupDrop: 30,
+      extraMileage: 0.5,
+    },
+    specialOffers: {
+      discountPercentage: 10,
+      validUntil: '2026-12-31',
+    },
+  };
+};
+
+export const getDropOffCharges = (): DropOffCharge[] => {
+  return [
+    {
+      id: '1',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Mombasa Airport',
+      vehicleCategory: 'Sedan',
+      vehicleCarType: 'Toyota Axio',
+      chargeType: 'Fixed',
+      amount: 'KES 5,000',
+      status: 'Paid',
+    },
+    {
+      id: '2',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Jomo Kenyatta Airport',
+      vehicleCategory: 'SUV',
+      vehicleCarType: 'Prado',
+      chargeType: 'Fixed',
+      amount: 'KES 10,000',
+      status: 'Paid',
+    },
+    {
+      id: '3',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Jomo Kenyatta Airport',
+      vehicleCategory: 'Sedan',
+      vehicleCarType: 'Land Cruiser',
+      chargeType: 'Fixed',
+      amount: 'KES 0.5/km',
+      status: 'Pending',
+    },
+    {
+      id: '4',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Kisumu Airport',
+      vehicleCategory: 'SUV',
+      vehicleCarType: 'Land Cruiser',
+      chargeType: 'Fixed',
+      amount: 'KES 5,000',
+      status: 'Pending',
+    },
+    {
+      id: '5',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Mombasa Airport',
+      vehicleCategory: 'Sedan',
+      vehicleCarType: 'Toyota Axio',
+      chargeType: 'Fixed',
+      amount: 'KES 0.5/km',
+      status: 'Paid',
+    },
+    {
+      id: '6',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Jomo Kenyatta Airport',
+      vehicleCategory: 'Sedan',
+      vehicleCarType: 'All Sedans',
+      chargeType: 'Fixed',
+      amount: 'KES 0.5/km',
+      status: 'Paid',
+    },
+    {
+      id: '7',
+      pickupLocation: 'Nairobi Airport',
+      dropOffLocation: 'Mombasa Airport',
+      vehicleCategory: 'SUV',
+      vehicleCarType: 'Toyota Axio',
+      chargeType: 'Fixed',
+      amount: 'KES 2,500',
+      status: 'Partial',
+    },
+  ];
+};
+
+export const getBookingTrends = (): BookingTrend[] => {
+  return [
+    { month: 'Jan', bookings: 45 },
+    { month: 'Feb', bookings: 52 },
+    { month: 'Mar', bookings: 48 },
+    { month: 'Apr', bookings: 60 },
+    { month: 'May', bookings: 55 },
+    { month: 'Jun', bookings: 65 },
+  ];
+};
+
+export const getRevenueGrowth = (): RevenueGrowth[] => {
+  return [
+    { month: 'Jan', revenue: 45000 },
+    { month: 'Feb', revenue: 52000 },
+    { month: 'Mar', revenue: 48000 },
+    { month: 'Apr', revenue: 62000 },
+    { month: 'May', revenue: 55000 },
+    { month: 'Jun', revenue: 68000 },
+  ];
+};
+
+export const getVehicleDistribution = (): VehicleDistribution[] => {
+  return [
+    { category: 'Sedan', count: 40, color: '#3FA34D' },
+    { category: 'SUV', count: 30, color: '#FF7815' },
+    { category: 'Luxury', count: 20, color: '#FFB800' },
+    { category: 'Van', count: 10, color: '#9CA3AF' },
+  ];
+};
+
+export const getReportMetrics = (): ReportMetric[] => {
+  return [
+    { label: 'Average Booking Value', value: '$328' },
+    { label: 'Customer Retention Rate', value: '78%' },
+    { label: 'Fleet Utilization', value: '85%' },
   ];
 };

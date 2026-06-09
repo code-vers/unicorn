@@ -87,12 +87,119 @@ export interface RecentBooking {
     id: string;
     initials: string;
     avatarColor: string;
+    phone?: string;
+    email?: string;
   };
   vehicle: string;
   pickupDate: string;
   dropoffDate: string;
   type: 'Chauffeur' | 'Self-drive';
   status: 'In Progress' | 'Completed' | 'Pending' | 'Cancelled';
-  paymentStatus: 'Paid' | 'Pending' | 'Refunded';
+  paymentStatus: 'Paid' | 'Pending' | 'Refunded' | 'Partial';
   amount: number;
+}
+
+export interface Driver {
+  id: string;
+  name: string;
+  initials: string;
+  phone: string;
+  whatsapp: string;
+  license: string;
+  assignedVehicle: string;
+  availability: 'Available' | 'On Duty' | 'Off Duty';
+}
+
+export interface Customer {
+  id: string;
+  name: string;
+  initials: string;
+  email: string;
+  phone: string;
+  totalBookings: number;
+  status: 'Available' | 'Active' | 'Inactive';
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  type: 'Office' | 'Airport';
+  status: 'Paid' | 'Pending' | 'Partial';
+}
+
+export interface Payment {
+  id: string;
+  bookingId: string;
+  customerEmail: string;
+  invoiceNumber: string;
+  date: string;
+  amount: number;
+  status: 'Paid' | 'Pending' | 'Partial';
+}
+
+export interface PricingConfig {
+  baseRates: {
+    daily: number;
+    weekly: number;
+    monthly: number;
+  };
+  serviceType: {
+    selfDrive: number;
+    chauffeur: number;
+    seasonalMultiplier: number;
+  };
+  additionalCharges: {
+    extraDay: number;
+    lateReturn: number;
+    securityDeposit: number;
+    deliveryCollection: number;
+    airportPickupDrop: number;
+    extraMileage: number;
+  };
+  specialOffers: {
+    discountPercentage: number;
+    validUntil: string;
+  };
+}
+
+export interface DropOffCharge {
+  id: string;
+  pickupLocation: string;
+  dropOffLocation: string;
+  vehicleCategory: string;
+  vehicleCarType: string;
+  chargeType: 'Fixed' | 'Per KM';
+  amount: string;
+  status: 'Paid' | 'Pending' | 'Partial';
+}
+
+export interface BookingTrend {
+  month: string;
+  bookings: number;
+}
+
+export interface RevenueGrowth {
+  month: string;
+  revenue: number;
+}
+
+export interface VehicleDistribution {
+  category: string;
+  count: number;
+  color: string;
+}
+
+export interface ReportMetric {
+  label: string;
+  value: string | number;
+}
+
+export interface Notification {
+  id: string;
+  type: 'Booking' | 'Payment' | 'Rental' | 'Overdue';
+  title: string;
+  description: string;
+  time: string;
 }

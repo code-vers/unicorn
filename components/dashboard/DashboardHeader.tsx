@@ -21,6 +21,7 @@ interface DashboardHeaderProps {
   breadcrumbs?: Breadcrumb[];
   lastUpdated?: string;
   hasUnreadNotifications?: boolean;
+  completedToday?: number;
   user?: UserProfile;
   onSearch?: (query: string) => void;
   onToggleSidebar?: () => void;
