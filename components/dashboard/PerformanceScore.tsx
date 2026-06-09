@@ -1,0 +1,46 @@
+'use client';
+
+import { getPerformanceScore } from '@/lib/dashboard-data';
+import { Star } from 'lucide-react';
+
+export default function PerformanceScore() {
+  const data = getPerformanceScore();
+
+  return (
+    <div className='bg-gradient-to-br from-[#3FA34D] to-[#2E7A39] rounded-[16px] p-5 text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] flex flex-col justify-between'>
+      <div>
+        <div className='flex items-center gap-2 mb-4'>
+          <Star size={12} fill='white' className='text-white' />
+          <h3 className='text-[10px] font-bold tracking-wider uppercase opacity-70'>
+            PERFORMANCE SCORE
+          </h3>
+        </div>
+
+        <div className='mb-2'>
+          <h2 className='text-[24px] font-bold font-montserrat'>{data.score}%</h2>
+          <p className='text-[12px] opacity-65 font-lato'>
+            Based on {data.reviewsCount} customer reviews this month
+          </p>
+        </div>
+
+        <div className='flex items-center gap-1 mb-4'>
+          {[1, 2, 3, 4].map((i) => (
+            <Star key={i} size={13} fill='white' className='text-white' />
+          ))}
+          <Star size={13} className='text-white' />
+          <span className='ml-2 text-[12px] font-lato opacity-70'>{data.rating} / 5.0</span>
+        </div>
+      </div>
+
+      <div className='space-y-2'>
+        <div className='w-full bg-white/20 h-1 rounded-full overflow-hidden'>
+          <div className='bg-white h-full rounded-full' style={{ width: `${data.score}%` }} />
+        </div>
+        <div className='flex items-center justify-between text-[10px] opacity-45 font-lato'>
+          <span>0%</span>
+          <span>100%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
