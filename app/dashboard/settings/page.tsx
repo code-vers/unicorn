@@ -2,6 +2,7 @@
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import SettingsForm from '@/components/dashboard/SettingsForm';
 
 export default function SettingsPage() {
   return (
@@ -10,10 +11,7 @@ export default function SettingsPage() {
       <div className='flex-1 overflow-auto md:ml-0'>
         <DashboardHeader completedToday={12} />
         <div className='p-6'>
-          <div className='bg-white rounded-xl border border-gray-200 p-8'>
-            <h2 className='text-2xl font-bold text-gray-900'>Settings</h2>
-            <p className='text-gray-600 mt-2'>Coming soon - Manage your settings here</p>
-          </div>
+          <SettingsForm />
         </div>
       </div>
     </div>
