@@ -2,15 +2,15 @@
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
-import StatsGrid from '@/components/dashboard/StatsGrid';
-import RevenueAnalysis from '@/components/dashboard/RevenueAnalysis';
 import MostBookedVehicles from '@/components/dashboard/MostBookedVehicles';
-import RecentBookingsTable from '@/components/dashboard/RecentBookingsTable';
-import PerformanceScore from '@/components/dashboard/PerformanceScore';
-import TodayAtGlance from '@/components/dashboard/TodayAtGlance';
-import RecentActivityDetailed from '@/components/dashboard/RecentActivityDetailed';
 import PendingPaymentsDetailed from '@/components/dashboard/PendingPaymentsDetailed';
+import PerformanceScore from '@/components/dashboard/PerformanceScore';
+import RecentActivityDetailed from '@/components/dashboard/RecentActivityDetailed';
+import RecentBookingsTable from '@/components/dashboard/RecentBookingsTable';
+import RevenueAnalysis from '@/components/dashboard/RevenueAnalysis';
+import StatsGrid from '@/components/dashboard/StatsGrid';
+import TodayAtGlance from '@/components/dashboard/TodayAtGlance';
+import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 
 export default function DashboardPage() {
   return (
