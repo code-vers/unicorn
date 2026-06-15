@@ -1,12 +1,28 @@
 'use client';
 
-import { Car, FileText, Headset, LayoutGrid, MapPinned, Menu, User, Wallet, X } from 'lucide-react';
+import {
+  BarChart2,
+  Bell,
+  CalendarDays,
+  Car,
+  CreditCard,
+  LayoutGrid,
+  MapPin,
+  Menu,
+  Settings,
+  Tag,
+  Upload,
+  UserCheck,
+  Users,
+  X,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 // 1. Strict Data Contracts
+// This structure maps perfectly to a future backend API response
 type BadgeColor = 'green' | 'yellow' | 'red';
 
 interface NavItem {
@@ -25,22 +41,52 @@ interface NavGroup {
 }
 
 // 2. Configuration Object
-// Flattened into a single group to match the visual hierarchy of the screenshot
+// Extracted from the render loop for performance and maintainability
 const navigationConfig: NavGroup[] = [
   {
+    // Dashboard sits outside a named category
+    items: [{ label: 'Dashboard', href: '/dashboard', icon: LayoutGrid }],
+  },
+  {
+    title: 'OPERATIONS',
     items: [
-      { label: 'Dashboard', href: '/dashboard/client', icon: LayoutGrid },
-      { label: 'My Bookings', href: '/dashboard/my-bookings', icon: Car },
+      { label: 'Vehicle Management', href: '/dashboard/vehicles', icon: Car },
       {
-        label: 'Payments',
-        href: '/dashboard/payments',
-        icon: Wallet,
+        label: 'Booking Management',
+        href: '/dashboard/bookings',
+        icon: CalendarDays,
         badge: { value: 12, color: 'green' },
       },
-      { label: 'Documents', href: '/dashboard/documents', icon: FileText },
-      { label: 'Trip Management', href: '/dashboard/trip-management', icon: MapPinned },
-      { label: 'Profile', href: '/dashboard/profile', icon: User },
-      { label: 'Support', href: '/dashboard/support', icon: Headset },
+      { label: 'Driver Management', href: '/dashboard/drivers', icon: UserCheck },
+      { label: 'Customer Management', href: '/dashboard/customers', icon: Users },
+      { label: 'Location Management', href: '/dashboard/locations', icon: MapPin },
+    ],
+  },
+  {
+    title: 'FINANCE',
+    items: [
+      {
+        label: 'Payments / Invoices',
+        href: '/dashboard/payments',
+        icon: CreditCard,
+        badge: { value: 4, color: 'yellow' },
+      },
+      { label: 'Pricing', href: '/dashboard/pricing', icon: Tag },
+      { label: 'Drop-Off Charges', href: '/dashboard/drop-off', icon: MapPin },
+    ],
+  },
+  {
+    title: 'TOOLS',
+    items: [
+      { label: 'Reports', href: '/dashboard/reports', icon: BarChart2 },
+      {
+        label: 'Notifications',
+        href: '/dashboard/notifications',
+        icon: Bell,
+        badge: { value: 7, color: 'red' },
+      },
+      { label: 'Document Upload', href: '/dashboard/documents', icon: Upload },
+      { label: 'Profile / Settings', href: '/dashboard/settings', icon: Settings },
     ],
   },
 ];
@@ -54,11 +100,11 @@ export default function DashboardSidebar() {
     return (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   }, [pathname]);
 
-  // Helper for badge color mapping - updated to match the exact green from the image
+  // Helper for badge color mapping
   const getBadgeClasses = (color: BadgeColor) => {
     switch (color) {
       case 'green':
-        return 'bg-[#40A853] text-white';
+        return 'bg-[#2E7D32] text-white';
       case 'yellow':
         return 'bg-[#FBC02D] text-white';
       case 'red':
@@ -95,27 +141,30 @@ export default function DashboardSidebar() {
         }`}
       >
         {/* Logo Section */}
-        <div className='h-32 flex-shrink-0 flex items-center justify-center border-b border-gray-100 p-4'>
+        <div className='h-28 flex-shrink-0 flex items-center justify-center border-b p-4'>
           <Link href='/' className='flex flex-col items-center gap-2'>
-            <div className='relative w-32 h-20 flex items-center justify-center overflow-hidden'>
-              <Image
-                src='/unicorn.png'
-                alt='Unicorn Logo'
-                fill
-                className='object-contain'
-                priority
-              />
+            {/* Replace src with your actual logo path */}
+            <div className='relative w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden'>
+              <span className='text-xl font-bold text-green-700'>U</span>
+              <Image src='/unicorn.png' alt='Unicorn Logo' fill className='object-contain' />
             </div>
           </Link>
         </div>
 
         {/* Scrollable Navigation */}
-        <nav className='flex-1 overflow-y-auto py-6 scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300'>
-          <div className='flex flex-col'>
+        <nav className='flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300'>
+          <div className='flex flex-col gap-6'>
             {navigationConfig.map((group, groupIndex) => (
               <div key={groupIndex} className='flex flex-col'>
+                {/* Group Header */}
+                {group.title && (
+                  <h3 className='px-6 mb-3 text-xs font-semibold text-slate-400 tracking-wider uppercase'>
+                    {group.title}
+                  </h3>
+                )}
+
                 {/* Group Items */}
-                <ul className='flex flex-col space-y-2'>
+                <ul className='flex flex-col space-y-1'>
                   {group.items.map((item) => {
                     const active = isActive(item.href);
                     const Icon = item.icon;
@@ -126,30 +175,18 @@ export default function DashboardSidebar() {
                           href={item.href}
                           onClick={() => setIsOpen(false)}
                           aria-current={active ? 'page' : undefined}
-                          className={`relative group flex items-center justify-between px-4 py-3 mx-4 rounded-xl transition-all duration-200 ${
+                          className={`group flex items-center justify-between px-6 py-2.5 transition-all duration-200 ${
                             active
-                              ? 'bg-[#EEF7F0] text-[#40A853]'
-                              : 'text-[#64748B] hover:bg-gray-50 hover:text-slate-700'
+                              ? 'bg-[#E8F5E9] text-[#2E7D32] border-l-4 border-[#2E7D32]' // Active state based on image
+                              : 'text-slate-500 hover:bg-gray-50 hover:text-slate-700 border-l-4 border-transparent'
                           }`}
                         >
-                          {/* Active Left Indicator Bar */}
-                          {active && (
-                            <div className='absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-7 bg-[#40A853] rounded-r-md' />
-                          )}
-
-                          <div className='flex items-center gap-4 pl-2'>
+                          <div className='flex items-center gap-4'>
                             <Icon
-                              size={22}
-                              strokeWidth={active ? 2.5 : 1.5}
-                              className={`transition-colors duration-200 ${
-                                active
-                                  ? 'text-[#40A853]'
-                                  : 'text-[#94A3B8] group-hover:text-slate-500'
-                              }`}
+                              size={20}
+                              className={`transition-colors duration-200 ${active ? 'text-[#2E7D32]' : 'text-slate-400 group-hover:text-slate-600'}`}
                             />
-                            <span
-                              className={`text-[15px] ${active ? 'font-bold tracking-wide' : 'font-medium'}`}
-                            >
+                            <span className={`text-sm ${active ? 'font-semibold' : 'font-medium'}`}>
                               {item.label}
                             </span>
                           </div>
@@ -157,9 +194,7 @@ export default function DashboardSidebar() {
                           {/* Dynamic Badge */}
                           {item.badge && (
                             <span
-                              className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded-full ${getBadgeClasses(
-                                item.badge.color,
-                              )}`}
+                              className={`min-w-[20px] h-5 flex items-center justify-center px-1.5 text-[11px] font-bold rounded-full ${getBadgeClasses(item.badge.color)}`}
                             >
                               {item.badge.value}
                             </span>
