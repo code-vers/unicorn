@@ -1,3 +1,4 @@
+import { Providers } from './providers';
 import LayoutWrapper from '@/components/shared/LayoutWrapper';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -26,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang='en' className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className='min-h-full flex flex-col'>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <Providers>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </Providers>
       </body>
     </html>
   );

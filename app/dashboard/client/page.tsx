@@ -16,19 +16,15 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import SupportCenter from '@/components/dashboard/client/SupportCenter';
 
 export default function ClientDashboardPage() {
   const currentDate = "Tuesday, 9 June 2026";
 
   return (
-    <div className="flex h-screen bg-white">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader title="Client Dashboard" />
-        <main className="flex-1 overflow-y-auto bg-white">
+    <div className='h-full w-full flex flex-col'>
+            <div className='flex-1'>
+                <main className="flex-1 overflow-y-auto bg-white">
           <div className="p-10 space-y-6 max-w-[1600px] mx-auto">
             {/* Header Section */}
             <div className="flex items-center justify-between border-b border-gray-200 pb-3">
