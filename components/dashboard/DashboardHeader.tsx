@@ -1,6 +1,8 @@
 'use client';
 
 import { Bell, ChevronDown, RefreshCcw, Search, Settings } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 
 // 1. Strict Data Contracts
 // This ensures your UI is entirely decoupled from the data fetching logic
@@ -44,6 +46,10 @@ export default function DashboardHeader({
   onSearch,
   onToggleSidebar,
 }: DashboardHeaderProps) {
+  const { user: authUser, logout } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  
+  const displayUser = authUser || user || { name: 'User', role: 'Role' };
   return (
     <header className='flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-3 bg-white border-b border-gray-200 w-full'>
       {/* Left Section: Context & Navigation */}
@@ -117,30 +123,47 @@ export default function DashboardHeader({
         </button>
 
         {/* User Profile Dropdown */}
-        <button
-          aria-label='User Menu'
-          className='flex items-center gap-2.5 pl-3 border-l border-gray-200 ml-1 hover:opacity-80 transition-opacity'
-        >
-          <div className='relative w-8 h-8 rounded-full bg-gray-200 overflow-hidden border border-gray-200'>
-            {/* Fallback color if no image, otherwise use Next Image */}
-            <div className='w-full h-full bg-[#7CA29C]' />
-            {/*
-              <Image
-                src={user.avatarUrl}
-                alt={`${user.name}'s avatar`}
-                fill
-                className="object-cover"
-              />
-            */}
-          </div>
-          <div className='hidden sm:flex flex-col items-start text-left'>
-            <span className='text-xs font-bold text-gray-900 leading-none'>{user.name}</span>
-            <span className='text-[10px] text-gray-500 font-medium mt-0.5 leading-none'>
-              {user.role}
-            </span>
-          </div>
-          <ChevronDown size={14} className='text-gray-400 hidden sm:block ml-1' />
-        </button>
+        <div className='relative'>
+          <button
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            aria-label='User Menu'
+            className='flex items-center gap-2.5 pl-3 border-l border-gray-200 ml-1 hover:opacity-80 transition-opacity'
+          >
+            <div className='relative w-8 h-8 rounded-full bg-gray-200 overflow-hidden border border-gray-200'>
+              {/* Fallback color if no image, otherwise use Next Image */}
+              <div className='w-full h-full bg-[#7CA29C]' />
+              {/*
+                <Image
+                  src={displayUser.avatarUrl}
+                  alt={`${displayUser.name}'s avatar`}
+                  fill
+                  className="object-cover"
+                />
+              */}
+            </div>
+            <div className='hidden sm:flex flex-col items-start text-left'>
+              <span className='text-xs font-bold text-gray-900 leading-none'>{displayUser.name}</span>
+              <span className='text-[10px] text-gray-500 font-medium mt-0.5 leading-none'>
+                {displayUser.role}
+              </span>
+            </div>
+            <ChevronDown size={14} className='text-gray-400 hidden sm:block ml-1' />
+          </button>
+          
+          {isProfileOpen && (
+            <div className='absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50 overflow-hidden'>
+              <button
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  logout();
+                }}
+                className='block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition'
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
