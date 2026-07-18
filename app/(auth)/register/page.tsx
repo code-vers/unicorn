@@ -33,12 +33,12 @@ export default function RegisterPage() {
     try {
       const response = await apiClient.post('/auth/register', data);
       const resData = response.data.data || response.data;
-      if (resData.token && resData.user) {
-         login(resData.token, resData.user);
+      if (resData.accessToken && resData.user) {
+         login(resData.accessToken, resData.user);
       } else {
          const loginRes = await apiClient.post('/auth/login', { email: data.email, password: data.password });
          const loginData = loginRes.data.data || loginRes.data;
-         login(loginData.token, loginData.user);
+         login(loginData.accessToken, loginData.user);
       }
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Failed to create account. Please try again.'));

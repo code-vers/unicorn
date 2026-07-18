@@ -3,17 +3,15 @@ import Cookies from 'js-cookie';
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
   (config) => {
     const token = Cookies.get('token');
-    if (token && config.headers) {
-      config.headers.Authorization = `${token}`;
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.set ? config.headers.set('Authorization', `Bearer ${token}`) : (config.headers['Authorization'] = `Bearer ${token}`);
     }
     return config;
   },

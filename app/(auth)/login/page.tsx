@@ -31,8 +31,8 @@ export default function LoginPage() {
     setError('');
     try {
       const response = await apiClient.post('/auth/login', data);
-      const { token, user } = response.data.data || response.data;
-      login(token, user);
+      const { accessToken, user } = response.data.data || response.data;
+      login(accessToken, user);
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Failed to login. Please try again.'));
     }
