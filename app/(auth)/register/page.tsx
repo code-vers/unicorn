@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { User, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -32,13 +33,12 @@ export default function RegisterPage() {
     try {
       const response = await apiClient.post('/auth/register', data);
       const resData = response.data.data || response.data;
-      if (resData.token && resData.user) {
-         login(resData.token, resData.user);
+      if (resData.accessToken && resData.user) {
+         login(resData.accessToken, resData.user);
       } else {
-         // Auto login if token isn't returned
          const loginRes = await apiClient.post('/auth/login', { email: data.email, password: data.password });
          const loginData = loginRes.data.data || loginRes.data;
-         login(loginData.token, loginData.user);
+         login(loginData.accessToken, loginData.user);
       }
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Failed to create account. Please try again.'));
@@ -46,66 +46,91 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-8">
-      <div className="flex flex-col space-y-2 text-center lg:text-left">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Create an account</h1>
-        <p className="text-gray-500 font-medium">Enter your details to get started.</p>
+    <div className="w-full flex flex-col gap-10">
+      <div className="flex flex-col space-y-3 text-center lg:text-left">
+        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">
+          Create an account
+        </h1>
+        <p className="text-gray-500 font-medium text-lg">
+          Enter your details to get started.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (
-          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 flex items-center font-medium">
+          <div className="text-red-600 text-sm bg-red-50/80 backdrop-blur-sm p-4 rounded-xl border border-red-100 flex items-center font-medium animate-in fade-in zoom-in duration-300">
             {error}
           </div>
         )}
         
-        <div className="space-y-2">
-          <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
-          <Input 
-            id="name" 
-            placeholder="John Doe" 
-            className="h-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853] transition-all rounded-xl"
-            {...register('name')} 
-          />
-          {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+        <div className="space-y-2.5">
+          <Label htmlFor="name" className="text-gray-700 font-semibold text-sm ml-1">Full Name</Label>
+          <div className="relative group">
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#40A853] transition-colors duration-300" />
+            <Input 
+              id="name" 
+              placeholder="John Doe" 
+              className="h-14 pl-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853]/20 focus-visible:ring-4 transition-all rounded-xl text-base shadow-sm"
+              {...register('name')} 
+            />
+          </div>
+          {errors.name && <p className="text-sm text-red-500 ml-1 font-medium animate-in slide-in-from-top-1">{errors.name.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="john@example.com" 
-            className="h-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853] transition-all rounded-xl"
-            {...register('email')} 
-          />
-          {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+        <div className="space-y-2.5">
+          <Label htmlFor="email" className="text-gray-700 font-semibold text-sm ml-1">Email Address</Label>
+          <div className="relative group">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#40A853] transition-colors duration-300" />
+            <Input 
+              id="email" 
+              type="email" 
+              placeholder="john@example.com" 
+              className="h-14 pl-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853]/20 focus-visible:ring-4 transition-all rounded-xl text-base shadow-sm"
+              {...register('email')} 
+            />
+          </div>
+          {errors.email && <p className="text-sm text-red-500 ml-1 font-medium animate-in slide-in-from-top-1">{errors.email.message}</p>}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-          <Input 
-            id="password" 
-            type="password" 
-            placeholder="••••••••" 
-            className="h-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853] transition-all rounded-xl"
-            {...register('password')} 
-          />
-          {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+        <div className="space-y-2.5">
+          <Label htmlFor="password" className="text-gray-700 font-semibold text-sm ml-1">Password</Label>
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#40A853] transition-colors duration-300" />
+            <Input 
+              id="password" 
+              type="password" 
+              placeholder="••••••••" 
+              className="h-14 pl-12 bg-gray-50/50 border-gray-200 focus-visible:border-[#40A853] focus-visible:ring-[#40A853]/20 focus-visible:ring-4 transition-all rounded-xl text-base shadow-sm"
+              {...register('password')} 
+            />
+          </div>
+          {errors.password && <p className="text-sm text-red-500 ml-1 font-medium animate-in slide-in-from-top-1">{errors.password.message}</p>}
         </div>
 
         <Button 
           type="submit" 
-          className="w-full h-12 bg-[#40A853] hover:bg-[#348e44] text-white font-semibold text-[15px] rounded-xl transition-all shadow-lg shadow-[#40A853]/20" 
+          className="w-full h-14 bg-gradient-to-r from-[#40A853] to-[#2E7D32] hover:from-[#348e44] hover:to-[#236427] text-white font-bold text-base rounded-xl transition-all duration-300 shadow-lg shadow-[#40A853]/30 hover:shadow-[#40A853]/40 hover:-translate-y-0.5 flex items-center justify-center gap-2" 
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Creating account...' : 'Sign up'}
+          {isSubmitting ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              Sign up
+              <ArrowRight className="w-5 h-5" />
+            </>
+          )}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-gray-600">
+      <div className="relative flex items-center justify-center py-4 opacity-70 hover:opacity-100 transition-opacity">
+        <div className="absolute border-t border-gray-200 w-full"></div>
+        <div className="relative bg-white px-4 text-sm text-gray-500 font-medium">Or continue with</div>
+      </div>
+
+      <p className="text-center text-[15px] text-gray-600 font-medium">
         Already have an account?{' '}
-        <Link href="/login" className="text-[#40A853] hover:text-[#2E7D32] hover:underline font-semibold transition-colors">
+        <Link href="/login" className="text-[#40A853] hover:text-[#2E7D32] hover:underline font-bold transition-colors">
           Sign in
         </Link>
       </p>
