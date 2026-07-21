@@ -345,7 +345,7 @@ export default function VehiclesTable() {
                       {vehicle.seatingCapacity}
                     </td>
                     <td className='text-[#6B7280] text-[12px] font-lato py-[15px] font-bold'>
-                      AED {vehicle.dailyRate}
+                      AED {vehicle.pricing?.dailyRate}
                     </td>
                     <td className='py-[15px]'>
                       <button

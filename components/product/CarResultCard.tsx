@@ -154,25 +154,56 @@ const FeatureItem = ({
   </div>
 );
 
+import { VehicleResponse, VehicleService } from '../../../lib/api/vehicle.service';
+
 /**
  * MAIN LIST VIEW
  */
 export const CarResultsList: React.FC = () => {
-  const cars: CarData[] = Array(5)
-    .fill({
-      name: "Toyota Vitz",
-      price: "7,382.40",
-      image: "/product/car.png",
-    })
-    .map((car, i) => ({ ...car, id: i }));
+  const [vehicles, setVehicles] = React.useState<VehicleResponse[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await VehicleService.getVehicles();
+        setVehicles(response.data);
+      } catch (error) {
+        console.error('Failed to fetch vehicles:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
+  if (isLoading) {
+    return <div className="text-center py-10">Loading vehicles...</div>;
+  }
+
+  if (vehicles.length === 0) {
+    return <div className="text-center py-10">No vehicles available at the moment.</div>;
+  }
 
   return (
     <div className='w-full max-w-[1000px] mx-auto px-4 py-6'>
-      {cars.map((car) => (
-        <CarResultCard key={car.id} car={car} />
-      ))}
+      {vehicles.map((vehicle) => {
+        const imageUrl = vehicle.images && vehicle.images.length > 0 
+          ? `http://localhost:5000${vehicle.images[0].path}` 
+          : '/product/car.png';
+
+        const carData = {
+          id: vehicle.id,
+          name: vehicle.name,
+          price: vehicle.pricing?.dailyRate?.toString() || '0',
+          image: imageUrl
+        };
+
+        return <CarResultCard key={vehicle.id} car={carData as any} />;
+      })}
     </div>
   );
 };
 
 export default CarResultsList;
+
