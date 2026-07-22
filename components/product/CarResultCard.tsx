@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import React from "react";
+import { VehicleResponse, VehicleService } from '../../lib/api/vehicle.service';
 
 /**
  * Brand Colors & Constants
@@ -153,8 +154,6 @@ const FeatureItem = ({
     </span>
   </div>
 );
-
-import { VehicleResponse, VehicleService } from '../../../lib/api/vehicle.service';
 
 /**
  * MAIN LIST VIEW
