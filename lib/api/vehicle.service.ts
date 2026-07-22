@@ -1,5 +1,6 @@
 import { apiClient, extractErrorMessage } from '../api-client';
 import { PaginatedResponse } from './location.service';
+import { PricingPayload } from './pricing.service';
 
 export interface VehicleImage {
   id: string;
@@ -19,9 +20,7 @@ export interface VehicleResponse {
   luggageCapacity: number | null;
   description: string | null;
   features: string[];
-  dailyRate: number;
-  weeklyRate: number | null;
-  monthlyRate: number | null;
+  pricing?: PricingPayload;
   status: 'ACTIVE' | 'INACTIVE';
   availability: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE';
   isFeatured: boolean;

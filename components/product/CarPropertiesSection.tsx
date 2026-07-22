@@ -1,7 +1,28 @@
+"use client";
 import { Check } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { VehicleResponse, VehicleService } from "../../lib/api/vehicle.service";
 
 const CarPropertiesSection: React.FC = () => {
+  const [vehicle, setVehicle] = useState<VehicleResponse | null>(null);
+
+  useEffect(() => {
+    const fetchFirstVehicle = async () => {
+      try {
+        const response = await VehicleService.getVehicles({ limit: 1 });
+        if (response.data.length > 0) {
+          setVehicle(response.data[0]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch vehicle:', error);
+      }
+    };
+    fetchFirstVehicle();
+  }, []);
+
+  const price = vehicle?.pricing?.dailyRate || '4,640.00';
+  const name = vehicle ? vehicle.name : 'Toyota Vitz';
+
   return (
     <div className='bg-white'>
       <div className='max-w-[1440px] mx-auto p-6 bg-white'>
@@ -9,21 +30,19 @@ const CarPropertiesSection: React.FC = () => {
         <div className='flex flex-col md:flex-row gap-8 mb-10'>
           <div className='w-full md:w-1/3'>
             <img
-              src='/product/car.png'
-              alt='Toyota Vitz'
+              src={vehicle?.images?.[0]?.path ? `http://localhost:5000${vehicle.images[0].path}` : '/product/car.png'}
+              alt={name}
               className='w-full h-auto object-contain'
             />
           </div>
           <div className='flex-1 pt-4'>
             <h1 className='text-[28px] font-bold text-[#1A1A1A] mb-4'>
-              Toyota Toyota Vitz
+              {name}
             </h1>
             <div className='flex flex-wrap gap-x-6 gap-y-2 text-[14px] text-[#777777] mb-6'>
-              <span>4 seats</span>
-              <span>1 bags</span>
-              <span>5 doors</span>
-              <span>No Air Conditioning</span>
-              <span>Automatic</span>
+              <span>{vehicle?.seatingCapacity || 4} seats</span>
+              <span>{vehicle?.luggageCapacity || 1} bags</span>
+              <span>{vehicle?.transmission || 'Automatic'}</span>
             </div>
             <span className='inline-block bg-[#FFF4E5] text-[#FF8F00] text-[11px] font-bold px-3 py-1 rounded-[4px] uppercase tracking-wider'>
               Partial Prepayment
@@ -79,7 +98,7 @@ const CarPropertiesSection: React.FC = () => {
           <div className='lg:w-[320px] shrink-0'>
             <div className='bg-[#F3F5F6] rounded-[12px] p-8 text-center'>
               <h2 className='text-[26px] font-bold text-[#1A1A1A] mb-1'>
-                Ksh 4,640.00
+                Ksh {price}
               </h2>
               <p className='text-[14px] text-[#777777] mb-6'>Cost of rental</p>
 

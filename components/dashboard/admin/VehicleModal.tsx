@@ -18,7 +18,6 @@ const vehicleSchema = z.object({
   fuelType: z.enum(['PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID']),
   seatingCapacity: z.number().min(1),
   luggageCapacity: z.number().nullable().optional(),
-  dailyRate: z.number().min(0),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
   availability: z.enum(['AVAILABLE', 'RENTED', 'MAINTENANCE']).optional(),
   locationId: z.string().min(1, 'Location is required'),
@@ -62,7 +61,6 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
           fuelType: initialData.fuelType as any,
           seatingCapacity: initialData.seatingCapacity,
           luggageCapacity: initialData.luggageCapacity,
-          dailyRate: initialData.dailyRate,
           status: initialData.status as any,
           availability: initialData.availability as any,
           locationId: initialData.locationId,
@@ -79,7 +77,6 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
           fuelType: 'PETROL',
           seatingCapacity: 4,
           luggageCapacity: 2,
-          dailyRate: 0,
           status: 'ACTIVE',
           availability: 'AVAILABLE',
           locationId: '',
@@ -170,14 +167,7 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
                 </select>
               </div>
 
-              <div>
-                <label className={labelClass}>Daily Rate</label>
-                <div className="relative">
-                  <span className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[#6b7280] text-[14px] font-nunito pointer-events-none">KES</span>
-                  <input type="number" {...register('dailyRate', { valueAsNumber: true })} placeholder="Enter daily rate" className={`${inputClass} pl-[45px]`} />
-                </div>
-                {errors.dailyRate && <p className="text-red-500 text-[10px] mt-1">{errors.dailyRate.message}</p>}
-              </div>
+
 
               {/* Extra Backend Required Field */}
               <div>

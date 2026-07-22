@@ -1,6 +1,28 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
+import { VehicleResponse, VehicleService } from "../../lib/api/vehicle.service";
 
 const DriverDetailsForm: React.FC = () => {
+  const [vehicle, setVehicle] = useState<VehicleResponse | null>(null);
+
+  useEffect(() => {
+    const fetchFirstVehicle = async () => {
+      try {
+        const response = await VehicleService.getVehicles({ limit: 1 });
+        if (response.data.length > 0) {
+          setVehicle(response.data[0]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch vehicle:', error);
+      }
+    };
+    fetchFirstVehicle();
+  }, []);
+
+  const rentalCost = vehicle?.pricing?.dailyRate || 4640;
+  const vat = rentalCost * 0.16;
+  const total = rentalCost + vat;
+
   return (
     <div className='bg-white'>
       <div className='max-w-[1440px] mx-auto p-6 bg-white'>
@@ -86,7 +108,7 @@ const DriverDetailsForm: React.FC = () => {
                 </p>
                 <div className='flex justify-between text-[14px]'>
                   <span className='text-gray-300'>Cost of rental</span>
-                  <span>ksh 4,640.00</span>
+                  <span>ksh {rentalCost.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -95,12 +117,12 @@ const DriverDetailsForm: React.FC = () => {
               {/* TAXES & FEES Section */}
               <div className='mb-6 space-y-4'>
                 <p className='text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-4'>
-                  TAKES & FEES
+                  TAXES & FEES
                 </p>
-                <FeeRow label='Delivery Fee Drop Off 10' value='ksh 1,000.00' />
-                <FeeRow label='Delivery Fee Pick Up 10' value='ksh 1,000.00' />
+                <FeeRow label='Delivery Fee Drop Off 10' value='ksh 0.00' />
+                <FeeRow label='Delivery Fee Pick Up 10' value='ksh 0.00' />
                 <FeeRow label='Extra Selected Cost:' value='ksh 0.00' />
-                <FeeRow label='VAT (16%)' value='ksh 742.40' />
+                <FeeRow label='VAT (16%)' value={`ksh ${vat.toFixed(2)}`} />
               </div>
 
               <div className='w-full h-[1px] bg-gray-700 my-6' />
@@ -109,12 +131,12 @@ const DriverDetailsForm: React.FC = () => {
               <div className='space-y-6'>
                 <div className='flex justify-between items-center text-[16px] font-bold'>
                   <span>Subtotal (rental + fees)</span>
-                  <span>ksh 7,382.40</span>
+                  <span>ksh {total.toFixed(2)}</span>
                 </div>
 
                 <div className='flex justify-between items-center text-[18px] font-extrabold text-white'>
                   <span>Total to pay now</span>
-                  <span className='text-[20px]'>ksh 7,382.40</span>
+                  <span className='text-[20px]'>ksh {total.toFixed(2)}</span>
                 </div>
 
                 <div className='flex justify-between text-[13px] text-gray-400'>
