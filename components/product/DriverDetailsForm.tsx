@@ -19,7 +19,8 @@ const DriverDetailsForm: React.FC = () => {
     fetchFirstVehicle();
   }, []);
 
-  const rentalCost = vehicle?.pricing?.dailyRate || 4640;
+  const dailyRateVal = vehicle?.pricing?.dailyRate;
+  const rentalCost = dailyRateVal ? Number(dailyRateVal) : 4640;
   const vat = rentalCost * 0.16;
   const total = rentalCost + vat;
 
