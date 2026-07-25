@@ -6,7 +6,7 @@ import {
   Settings2,
   Users,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { VehicleQuery, VehicleResponse, VehicleService } from "../../lib/api/vehicle.service";
 
@@ -24,7 +24,21 @@ interface CarResultCardProps {
 
 const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const baseUrl = getBaseUrl();
+
+  // Build the "View Details" URL — carry over dates/times from the search page
+  // so the checkout screen pre-populates without the user having to re-enter them.
+  const buildDetailsUrl = () => {
+    const params = new URLSearchParams();
+    params.set("id", vehicle.id);
+    const forward = ["pickupDate", "pickupTime", "dropOffDate", "dropOffTime"];
+    forward.forEach((key) => {
+      const val = searchParams.get(key);
+      if (val) params.set(key, val);
+    });
+    return `/product-details?${params.toString()}`;
+  };
 
   const imageUrl =
     vehicle.images && vehicle.images.length > 0
@@ -126,7 +140,7 @@ const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
         </div>
 
         <button
-          onClick={() => router.push(`/product-details?id=${vehicle.id}`)}
+          onClick={() => router.push(buildDetailsUrl())}
           className="w-full bg-[#3FA34D] text-white py-3 px-6 rounded-[8px] font-bold text-[15px] transition-all hover:bg-[#3d9140] active:scale-95 shadow-sm"
         >
           View Details
