@@ -3,9 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Upload, Info } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { VehicleResponse, VehicleImage } from '../../../lib/api/vehicle.service';
 import { useLocations } from '../../../hooks/useLocations';
 import { FeatureResponse, FeatureService } from '../../../lib/api/feature.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
@@ -133,7 +136,7 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
       setIsAddingFeature(false);
     } catch (error) {
       console.error('Failed to create feature:', error);
-      alert('Failed to create feature. Please try again.');
+      toast.error('Failed to create feature. Please try again.');
     } finally {
       setIsSavingFeature(false);
     }
@@ -155,7 +158,7 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
       }
     } catch (error) {
       console.error('Failed to delete feature:', error);
-      alert('Failed to delete feature. It might be in use by other vehicles.');
+      toast.error('Failed to delete feature. It might be in use by other vehicles.');
     }
   };
 
@@ -472,7 +475,7 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
             className="bg-[#3fa344] hover:bg-[#348a39] text-white font-wix font-bold text-[14px] px-[36px] py-[10px] rounded-[6px] transition-colors disabled:opacity-50 min-w-[150px] flex justify-center items-center h-[42px]"
           >
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <Spinner size="sm" variant="white" />
             ) : (
               initialData ? 'Save Changes' : 'Save Vehicle'
             )}

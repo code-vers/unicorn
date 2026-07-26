@@ -4,6 +4,8 @@ import { Camera, User, ShieldCheck, Heart, Trash2, Upload } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { UserService, UserDocument } from '../../../lib/api/user.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const InputField = ({
   label,
@@ -208,7 +210,7 @@ export default function ClientProfile() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-4 border-[#3FA344] border-t-transparent rounded-full animate-spin"></div>
+        <Spinner size="md" />
       </div>
     );
   }

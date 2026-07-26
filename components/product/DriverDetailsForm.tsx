@@ -6,6 +6,8 @@ import {
   BookingService,
 } from "../../lib/api/booking.service";
 import { VehicleResponse } from "../../lib/api/vehicle.service";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface DriverDetailsFormProps {
@@ -294,7 +296,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
             >
               {submitting ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <Spinner size="sm" variant="white" />
                   Processing…
                 </>
               ) : (

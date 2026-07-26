@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, Loader2, Trash2 } from 'lucide-react';
 import { VehicleService, VehicleResponse } from '@/lib/api/vehicle.service';
 import { PricingService, PricingPayload } from '@/lib/api/pricing.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const defaultPricing: PricingPayload = {
   dailyRate: 0,
@@ -182,7 +184,7 @@ export default function PricingForm() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-[#3FA34D]" size={32} />
+          <Spinner size="md" />
         </div>
       ) : (
         <>
@@ -366,7 +368,7 @@ export default function PricingForm() {
               disabled={isSaving}
               className='bg-[#3FA34D] hover:bg-[#348a41] text-white px-9 py-2 rounded-[6px] text-[14px] font-bold font-wix transition-colors whitespace-nowrap shadow-sm disabled:opacity-50 flex items-center gap-2'
             >
-              {isSaving ? <Loader2 size={16} className="animate-spin" /> : null}
+              {isSaving ? <Spinner size="sm" variant="primary" /> : null}
               Save Changes
             </button>
           </div>

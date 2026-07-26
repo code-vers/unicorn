@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState, Suspense } from "react";
 import { BookingService } from "@/lib/api/booking.service";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
@@ -93,7 +95,7 @@ function CheckoutSuccessContent() {
 export default function CheckoutSuccessPage() {
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col items-center justify-center p-6 py-20">
-      <Suspense fallback={<div className="w-full max-w-[700px] h-[400px] flex items-center justify-center">Loading...</div>}>
+      <Suspense fallback={<Spinner size="lg" centered className="h-[400px]" />}>
         <CheckoutSuccessContent />
       </Suspense>
     </div>

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { VehicleResponse, VehicleService } from "@/lib/api/vehicle.service";
 import { CarResultCard } from "@/components/product/CarResultCard";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const AvailableVehiclesSection: React.FC = () => {
   const [vehicles, setVehicles] = useState<VehicleResponse[]>([]);
@@ -37,7 +39,7 @@ const AvailableVehiclesSection: React.FC = () => {
     return (
       <section className="py-16 px-6 bg-white">
         <div className="max-w-[1440px] mx-auto flex items-center justify-center min-h-[300px]">
-          <div className="w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin" />
+          <Spinner size="md" />
         </div>
       </section>
     );

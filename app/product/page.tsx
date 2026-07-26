@@ -6,6 +6,8 @@ import { VehicleQuery } from "@/lib/api/vehicle.service";
 import { Menu } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import React, { useCallback, useMemo, useState } from "react";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 // Combine a date string and time string into a UTC ISO string for the backend.
 const buildIso = (date: string, time: string): string | undefined => {
@@ -236,7 +238,7 @@ const ProductContent: React.FC = () => {
 
 export default function Page() {
   return (
-    <React.Suspense fallback={<div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-[#F5F5F5] w-full"><div className="w-10 h-10 border-4 border-[#43A047] border-t-transparent rounded-full animate-spin" /></div>}>
+    <React.Suspense fallback={<Spinner size="lg" fullScreen className="bg-[#F5F5F5]" />}>
       <ProductContent />
     </React.Suspense>
   );

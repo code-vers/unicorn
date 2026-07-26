@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { BookingService, BookingResponse } from '@/lib/api/booking.service';
 import { Eye, Check, Trash2, Search, Filter, Download, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function BookingsTable() {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -31,7 +34,7 @@ export default function BookingsTable() {
       // Optimistic update
       setBookings(prev => prev.map(b => b.id === id ? { ...b, bookingStatus: status } : b));
     } catch (err: any) {
-      alert(err.message || 'Failed to update status');
+      toast.error(err.message || 'Failed to update status');
     }
   };
 
@@ -64,9 +67,7 @@ export default function BookingsTable() {
     }
   };
 
-  if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading bookings...</div>;
-  }
+
 
   if (error) {
     return <div className="p-8 text-center text-red-500">{error}</div>;
@@ -101,7 +102,12 @@ export default function BookingsTable() {
       </div>
 
       {/* Table */}
-      <div className='overflow-x-auto'>
+      <div className='overflow-x-auto min-h-[300px] relative'>
+        {loading && bookings.length === 0 ? (
+          <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
+            <Spinner size="md" />
+          </div>
+        ) : null}
         <table className='w-full text-left border-collapse min-w-[1200px]'>
           <thead>
             <tr className='bg-[#FAFBFC] border-b border-[#E8ECF0] h-[50px]'>
@@ -118,7 +124,7 @@ export default function BookingsTable() {
             </tr>
           </thead>
           <tbody>
-            {bookings.length === 0 ? (
+            {bookings.length === 0 && !loading ? (
               <tr>
                 <td colSpan={10} className="text-center py-6 text-gray-500 text-sm">No bookings found.</td>
               </tr>

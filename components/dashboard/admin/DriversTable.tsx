@@ -7,6 +7,8 @@ import { useDrivers } from '../../../hooks/useDrivers';
 import { DriverResponse } from '../../../lib/api/driver.service';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DriverModal from './DriverModal';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function DriversTable() {
   const {
@@ -200,7 +202,7 @@ export default function DriversTable() {
       <div className='overflow-x-auto min-h-[300px] relative'>
         {isLoading && drivers.length === 0 ? (
           <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-            <div className='w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin'></div>
+            <Spinner size="md" />
           </div>
         ) : null}
         <table className='w-full text-left border-collapse min-w-[1200px]'>

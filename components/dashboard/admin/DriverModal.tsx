@@ -5,6 +5,8 @@ import * as z from 'zod';
 import { X, Upload, Info } from 'lucide-react';
 import { DriverResponse } from '../../../lib/api/driver.service';
 import { useVehicles } from '../../../hooks/useVehicles';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
@@ -261,7 +263,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
             className="bg-[#3fa344] hover:bg-[#348a39] text-white font-wix font-bold text-[14px] px-[36px] py-[10px] rounded-[6px] transition-colors disabled:opacity-50 min-w-[150px] flex justify-center items-center h-[42px]"
           >
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <Spinner size="sm" variant="white" />
             ) : (
               initialData ? 'Save Changes' : 'Save Driver'
             )}

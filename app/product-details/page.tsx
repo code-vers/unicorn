@@ -10,6 +10,8 @@ import {
 import { VehicleResponse, VehicleService } from "@/lib/api/vehicle.service";
 import { useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 // ── Product Details Page (Booking State Owner) ────────────────────────────────
 //
@@ -140,7 +142,7 @@ const ProductDetailsContent: React.FC = () => {
   if (vehicleLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-white w-full">
-        <div className="w-10 h-10 border-4 border-[#43A047] border-t-transparent rounded-full animate-spin" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -198,7 +200,7 @@ const ProductDetailsContent: React.FC = () => {
 
 export default function ProductDetailsPage() {
   return (
-    <React.Suspense fallback={<div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-white w-full"><div className="w-10 h-10 border-4 border-[#43A047] border-t-transparent rounded-full animate-spin" /></div>}>
+    <React.Suspense fallback={<Spinner size="lg" fullScreen className="bg-white" />}>
       <ProductDetailsContent />
     </React.Suspense>
   );

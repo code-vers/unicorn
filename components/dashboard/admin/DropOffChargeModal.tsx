@@ -8,6 +8,8 @@ import * as z from 'zod';
 import { DropOffChargePayload, DropOffChargeResponse, VehicleCategory, ChargeType, DropOffChargeStatus } from '../../../lib/api/dropOffCharge.service';
 import { LocationService, LocationResponse } from '../../../lib/api/location.service';
 import { VehicleService, VehicleResponse } from '../../../lib/api/vehicle.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const VEHICLE_CATEGORIES: VehicleCategory[] = ['SALOON', 'SUV', 'VAN', 'LUXURY', 'FOUR_WD', 'CHAUFFEUR_DRIVEN', 'SELF_DRIVEN'];
 const CHARGE_TYPES: ChargeType[] = ['FIXED', 'PER_KM'];
@@ -132,7 +134,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col overflow-y-auto">
           <div className="p-5 space-y-4">
             {isFetchingOptions && (
-              <p className="text-[12px] text-gray-400 font-lato text-center py-2">Loading locations & vehicles...</p>
+              <Spinner size="sm" centered />
             )}
 
             {/* Locations */}

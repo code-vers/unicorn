@@ -9,6 +9,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { VehicleQuery, VehicleResponse, VehicleService } from "../../lib/api/vehicle.service";
+import { Spinner } from '@/components/ui/Spinner';
+
 
 // ── Base URL helper ──────────────────────────────────────────────────────────
 const getBaseUrl = () =>
@@ -226,7 +228,7 @@ export const CarResultsList: React.FC<CarResultsListProps> = ({ query }) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <div className="w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin" />
+        <Spinner size="md" />
       </div>
     );
   }
