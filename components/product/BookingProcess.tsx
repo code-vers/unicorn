@@ -76,13 +76,12 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
           {/* Background Track */}
           <div className="absolute top-[58px] left-0 w-full h-[12px] bg-[#f6f6f6]" />
           {/* Active Progress Fill */}
-          <div className="absolute top-[58px] left-0 w-[37.5%] h-[12px] bg-[#3fa344]" />
+          <div className="absolute top-[58px] left-0 w-[50%] h-[12px] bg-[#3fa344]" />
 
           <div className="relative flex justify-between items-start">
             <StepItem label="Select vehicle" status="completed" />
             <StepItem label="Booking Details" status="current" />
-            <StepItem label="Secure Payment" status="upcoming" />
-            <StepItem label="Confirmation" status="upcoming" />
+            <StepItem label="Customer Details" status="upcoming" />
           </div>
         </div>
 

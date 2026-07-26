@@ -6,11 +6,13 @@ import RequirementsSection from "@/components/home/RequirementsSection";
 import StatsSection from "@/components/home/StatsSection";
 import Testimonials from "@/components/home/Testimonials";
 import TipsSection from "@/components/home/TipsSection";
+import AvailableVehiclesSection from "@/components/home/AvailableVehiclesSection";
 
 export default function Home() {
   return (
     <div>
       <HeroSection />
+      <AvailableVehiclesSection />
       <FeaturesSection />
       <PromoBanner />
       <Testimonials />

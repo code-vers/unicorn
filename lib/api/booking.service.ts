@@ -140,4 +140,34 @@ export const BookingService = {
       throw new Error(extractErrorMessage(error, 'Failed to fetch booking'));
     }
   },
+
+  /**
+   * Fetch all bookings. Admin only.
+   * GET /api/v1/bookings
+   */
+  getAllBookings: async (): Promise<any[]> => {
+    try {
+      const response = await apiClient.get('/bookings');
+      return response.data.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to fetch all bookings'));
+    }
+  },
+
+  /**
+   * Update booking status. Admin only.
+   * PATCH /api/v1/bookings/:id/status
+   */
+  updateBookingStatus: async (
+    id: string,
+    status: 'PENDING' | 'CONFIRMED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED',
+    assignedDriverId?: string
+  ): Promise<BookingResponse> => {
+    try {
+      const response = await apiClient.patch(`/bookings/${id}/status`, { status, assignedDriverId });
+      return response.data.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to update booking status'));
+    }
+  },
 };

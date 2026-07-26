@@ -128,8 +128,8 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         billingInfo,
       });
 
-      // Success — navigate to confirmation / dashboard
-      router.push(`/dashboard/client?booking=${booking.referenceId}`);
+      // Success — navigate to confirmation page
+      router.push(`/checkout/success?booking=${booking.referenceId}`);
     } catch (err: any) {
       setError(err.message || "Booking failed. Please try again.");
     } finally {
@@ -298,7 +298,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                   Processing…
                 </>
               ) : (
-                "Continue to payment"
+                "Confirm Reservation"
               )}
             </button>
           </div>

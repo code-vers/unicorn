@@ -20,7 +20,7 @@ import React, { useCallback, useEffect, useState } from "react";
 //  3. Calls /bookings/calculate whenever add-ons change to get a live price
 //  4. Passes state + setters down to child components as props
 
-const ProductDetailsPage: React.FC = () => {
+const ProductDetailsContent: React.FC = () => {
   const searchParams = useSearchParams();
 
   // ── URL params (set by CarResultCard when user clicks "View Details") ───────
@@ -196,4 +196,10 @@ const ProductDetailsPage: React.FC = () => {
   );
 };
 
-export default ProductDetailsPage;
+export default function ProductDetailsPage() {
+  return (
+    <React.Suspense fallback={<div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-white w-full"><div className="w-10 h-10 border-4 border-[#43A047] border-t-transparent rounded-full animate-spin" /></div>}>
+      <ProductDetailsContent />
+    </React.Suspense>
+  );
+}

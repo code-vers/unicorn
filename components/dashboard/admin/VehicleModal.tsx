@@ -46,7 +46,7 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
   const [newFeatureName, setNewFeatureName] = useState('');
   const [isSavingFeature, setIsSavingFeature] = useState(false);
 
-  const { register, handleSubmit, reset, getValues, setValue, formState: { errors } } = useForm<VehicleFormData>({
+  const { register, handleSubmit, reset, getValues, setValue, watch, formState: { errors } } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: {
       status: 'ACTIVE',
@@ -165,6 +165,8 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
       if (value !== null && value !== undefined) {
         if (key === 'features') {
           formData.append(key, JSON.stringify(value));
+        } else if (typeof value === 'boolean') {
+          formData.append(key, value ? 'true' : 'false');
         } else {
           formData.append(key, value.toString());
         }
@@ -302,12 +304,22 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
               <div>
                 <label className={labelClass}>Features</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border-[1.5px] border-[#9ca3af] rounded-[4px] p-3 max-h-[150px] overflow-y-auto mb-2">
-                  {availableFeatures.map(feature => (
+                  {availableFeatures.map(feature => {
+                    const selectedFeatures = watch('features') || [];
+                    const isChecked = selectedFeatures.includes(feature.id);
+                    return (
                     <label key={feature.id} className="flex items-center gap-2 cursor-pointer group relative">
                       <input 
                         type="checkbox" 
-                        value={feature.id} 
-                        {...register('features')} 
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const current = getValues('features') || [];
+                          if (e.target.checked) {
+                            setValue('features', [...current, feature.id], { shouldDirty: true });
+                          } else {
+                            setValue('features', current.filter((id: string) => id !== feature.id), { shouldDirty: true });
+                          }
+                        }}
                         className="w-4 h-4 text-[#3fa344] focus:ring-[#3fa344] border-gray-300 rounded cursor-pointer"
                       />
                       <span className="text-[13px] text-[#0a1413] font-nunito group-hover:text-[#3fa344] transition-colors pr-6 truncate">{feature.name}</span>
@@ -325,7 +337,8 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
                         <X size={12} strokeWidth={2.5} />
                       </button>
                     </label>
-                  ))}
+                    );
+                  })}
                   {availableFeatures.length === 0 && <span className="text-xs text-gray-500 col-span-3">No features found. You can add one below.</span>}
                 </div>
                 

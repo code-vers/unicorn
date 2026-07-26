@@ -22,7 +22,7 @@ interface CarResultCardProps {
   vehicle: VehicleResponse;
 }
 
-const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
+export const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const baseUrl = getBaseUrl();

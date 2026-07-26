@@ -13,7 +13,7 @@ const buildIso = (date: string, time: string): string | undefined => {
   return time ? `${date}T${time}:00.000Z` : `${date}T00:00:00.000Z`;
 };
 
-const Page: React.FC = () => {
+const ProductContent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -59,6 +59,8 @@ const Page: React.FC = () => {
       searchParams.get("dropOffDate") || "",
       searchParams.get("dropOffTime") || ""
     ),
+    status: "ACTIVE",
+    availability: "AVAILABLE",
   });
 
   // ── Handlers passed to Sidebar ──────────────────────────────────────────────
@@ -87,6 +89,8 @@ const Page: React.FC = () => {
       featureIds: featureIds.length > 0 ? featureIds : undefined,
       minPrice: minPrice || undefined,
       maxPrice: maxPrice || undefined,
+      status: "ACTIVE",
+      availability: "AVAILABLE",
     });
     setSidebarOpen(false);
   }, [
@@ -230,4 +234,10 @@ const Page: React.FC = () => {
   );
 };
 
-export default Page;
+export default function Page() {
+  return (
+    <React.Suspense fallback={<div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-[#F5F5F5] w-full"><div className="w-10 h-10 border-4 border-[#43A047] border-t-transparent rounded-full animate-spin" /></div>}>
+      <ProductContent />
+    </React.Suspense>
+  );
+}
