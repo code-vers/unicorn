@@ -32,7 +32,7 @@ const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
   const buildDetailsUrl = () => {
     const params = new URLSearchParams();
     params.set("id", vehicle.id);
-    const forward = ["pickupDate", "pickupTime", "dropOffDate", "dropOffTime"];
+    const forward = ["pickupDate", "pickupTime", "dropOffDate", "dropOffTime", "pickupLocationId", "dropOffLocationId"];
     forward.forEach((key) => {
       const val = searchParams.get(key);
       if (val) params.set(key, val);

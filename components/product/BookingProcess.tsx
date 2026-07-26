@@ -35,8 +35,38 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
   setDropOffLocationId,
   locations,
 }) => {
-  // Get today's date in YYYY-MM-DD format for local timezone
-  const today = new Date().toLocaleDateString("en-CA");
+  // ── Date/Time Strict Validation ──────────────────────────────────────────────
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  const minPickupTime = pickupDate === todayStr ? currentTime : undefined;
+  const minDropOffTime = pickupDate === dropOffDate ? pickupTime : undefined;
+
+  React.useEffect(() => {
+    let newPickupDate = pickupDate;
+
+    if (pickupDate && pickupDate < todayStr) {
+      setPickupDate(todayStr);
+      newPickupDate = todayStr;
+    }
+    
+    if (newPickupDate && dropOffDate && dropOffDate < newPickupDate) {
+      setDropOffDate(newPickupDate);
+    }
+    
+    if (newPickupDate === todayStr && pickupTime && pickupTime < currentTime) {
+      setPickupTime(currentTime);
+    }
+    
+    const effectiveDropOffDate = (newPickupDate && dropOffDate && dropOffDate < newPickupDate) ? newPickupDate : dropOffDate;
+    if (newPickupDate && effectiveDropOffDate && newPickupDate === effectiveDropOffDate && pickupTime && dropOffTime) {
+      if (dropOffTime <= pickupTime) {
+        let [h, m] = pickupTime.split(':').map(Number);
+        h = Math.min(23, h + 1);
+        setDropOffTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      }
+    }
+  }, [pickupDate, dropOffDate, pickupTime, dropOffTime, setPickupDate, setDropOffDate, setPickupTime, setDropOffTime]);
 
   return (
     <div className="bg-white">
@@ -85,7 +115,7 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
                     <input
                       type="date"
                       value={pickupDate}
-                      min={today}
+                      min={todayStr}
                       onChange={(e) => setPickupDate(e.target.value)}
                       className="h-[48px] px-4 border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] bg-white"
                     />
@@ -95,6 +125,7 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
                     <input
                       type="time"
                       value={pickupTime}
+                      min={minPickupTime}
                       onChange={(e) => setPickupTime(e.target.value)}
                       className="h-[48px] px-4 border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] bg-white"
                     />
@@ -153,7 +184,7 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
                     <input
                       type="date"
                       value={dropOffDate}
-                      min={pickupDate || today}
+                      min={pickupDate || todayStr}
                       onChange={(e) => setDropOffDate(e.target.value)}
                       className="h-[48px] px-4 border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] bg-white"
                     />
@@ -163,6 +194,7 @@ const BookingProcess: React.FC<BookingProcessProps> = ({
                     <input
                       type="time"
                       value={dropOffTime}
+                      min={minDropOffTime}
                       onChange={(e) => setDropOffTime(e.target.value)}
                       className="h-[48px] px-4 border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] bg-white"
                     />

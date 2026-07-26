@@ -52,8 +52,8 @@ const ProductDetailsPage: React.FC = () => {
   }, [vehicleId]);
 
   // ── Booking form state ────────────────────────────────────────────────────────
-  const [pickupLocationId, setPickupLocationId] = useState("");
-  const [dropOffLocationId, setDropOffLocationId] = useState("");
+  const [pickupLocationId, setPickupLocationId] = useState(searchParams.get("pickupLocationId") ?? "");
+  const [dropOffLocationId, setDropOffLocationId] = useState(searchParams.get("dropOffLocationId") ?? "");
   const [hasGps, setHasGps] = useState(false);
   const [hasFullInsurance, setHasFullInsurance] = useState(false);
   const [hasAdditionalDriver, setHasAdditionalDriver] = useState(false);

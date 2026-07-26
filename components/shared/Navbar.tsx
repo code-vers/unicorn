@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { LuMenu, LuUserRoundPlus, LuX, LuUser } from "react-icons/lu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/AuthContext';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { LuMenu, LuUser, LuUserRoundPlus, LuX } from 'react-icons/lu';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,10 +13,11 @@ const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about-us" },
-    { name: "Manage Bookings", href: "/manage-bookings" },
-    { name: "Contact Us", href: "/contact-us" },
+    { name: 'Home', href: '/' },
+    { name: 'Avialbale Vehicles', href: '/product' },
+    { name: 'About Us', href: '/about-us' },
+    { name: 'Manage Bookings', href: '/manage-bookings' },
+    { name: 'Contact Us', href: '/contact-us' },
   ];
 
   return (
@@ -35,10 +36,9 @@ const Navbar: React.FC = () => {
               <Link key={link.name} href={link.href}>
                 <p
                   className={`text-[14px] transition ${
-                    isActive
-                      ? "text-[#0A1413]"
-                      : "text-[#6B7280] hover:text-[#0A1413]"
-                  }`}>
+                    isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
+                  }`}
+                >
                   {link.name}
                 </p>
               </Link>
@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
                 <LuUser className='h-9 w-9 text-[#3FA34D]' />
                 <span className='font-medium text-[15px]'>{user.name}</span>
               </button>
-              
+
               {/* Dropdown */}
               {isDropdownOpen && (
                 <div className='absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50 overflow-hidden'>
@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
               )}
             </div>
           ) : (
-            <Link href="/login">
+            <Link href='/login'>
               <button className='bg-[#3FA34D] text-white w-[120px] h-[48px] flex justify-center items-center rounded-full hover:bg-green-700 transition'>
                 <LuUserRoundPlus className='h-5 w-5 mr-2' />
                 Login
@@ -92,9 +92,7 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu Toggle */}
         <div className='md:hidden flex items-center'>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className='text-[#0A1413] focus:outline-none'>
+          <button onClick={() => setIsOpen(!isOpen)} className='text-[#0A1413] focus:outline-none'>
             {isOpen ? <LuX size={28} /> : <LuMenu size={28} />}
           </button>
         </div>
@@ -107,24 +105,20 @@ const Navbar: React.FC = () => {
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}>
+                <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)}>
                   <p
                     className={`text-[16px] font-medium transition ${
-                      isActive
-                        ? "text-[#0A1413]"
-                        : "text-[#6B7280] hover:text-[#0A1413]"
-                    }`}>
+                      isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
+                    }`}
+                  >
                     {link.name}
                   </p>
                 </Link>
               );
             })}
-            
+
             <hr className='border-gray-100' />
-            
+
             {/* Mobile Auth Section */}
             {user ? (
               <div className='flex flex-col space-y-4 pt-2'>
@@ -155,7 +149,7 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <Link href="/login" onClick={() => setIsOpen(false)}>
+              <Link href='/login' onClick={() => setIsOpen(false)}>
                 <button className='bg-[#3FA34D] text-white w-full h-[48px] flex justify-center items-center rounded-full hover:bg-green-700 transition'>
                   <LuUserRoundPlus className='h-5 w-5 mr-2' />
                   Login

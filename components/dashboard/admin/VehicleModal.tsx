@@ -5,6 +5,7 @@ import * as z from 'zod';
 import { X, Upload, Info } from 'lucide-react';
 import { VehicleResponse, VehicleImage } from '../../../lib/api/vehicle.service';
 import { useLocations } from '../../../hooks/useLocations';
+import { FeatureResponse, FeatureService } from '../../../lib/api/feature.service';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
@@ -17,7 +18,10 @@ const vehicleSchema = z.object({
   transmission: z.enum(['AUTOMATIC', 'MANUAL']),
   fuelType: z.enum(['PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID']),
   seatingCapacity: z.number().min(1),
-  luggageCapacity: z.number().nullable().optional(),
+  luggageCapacity: z.number().min(0, 'Luggage capacity cannot be negative').nullable().optional(),
+  description: z.string().optional(),
+  features: z.array(z.string()).optional(),
+  isFeatured: z.boolean().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
   availability: z.enum(['AVAILABLE', 'RENTED', 'MAINTENANCE']).optional(),
   locationId: z.string().min(1, 'Location is required'),
@@ -37,20 +41,30 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
   const { locations } = useLocations({ limit: 100 });
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<VehicleImage[]>([]);
+  const [availableFeatures, setAvailableFeatures] = useState<FeatureResponse[]>([]);
+  const [isAddingFeature, setIsAddingFeature] = useState(false);
+  const [newFeatureName, setNewFeatureName] = useState('');
+  const [isSavingFeature, setIsSavingFeature] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<VehicleFormData>({
+  const { register, handleSubmit, reset, getValues, setValue, formState: { errors } } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: {
       status: 'ACTIVE',
       availability: 'AVAILABLE',
       fuelType: 'PETROL',
       category: 'SALOON',
-      transmission: 'AUTOMATIC'
+      transmission: 'AUTOMATIC',
+      features: [],
+      isFeatured: false,
+      description: '',
+      luggageCapacity: 2,
     }
   });
 
   useEffect(() => {
     if (isOpen) {
+      FeatureService.getFeatures({ limit: 100 }).then(res => setAvailableFeatures(res.data)).catch(console.error);
+
       if (initialData) {
         reset({
           name: initialData.name,
@@ -61,6 +75,9 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
           fuelType: initialData.fuelType as any,
           seatingCapacity: initialData.seatingCapacity,
           luggageCapacity: initialData.luggageCapacity,
+          description: initialData.description || '',
+          features: initialData.features?.map(f => f.id) || [],
+          isFeatured: initialData.isFeatured || false,
           status: initialData.status as any,
           availability: initialData.availability as any,
           locationId: initialData.locationId,
@@ -77,6 +94,9 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
           fuelType: 'PETROL',
           seatingCapacity: 4,
           luggageCapacity: 2,
+          description: '',
+          features: [],
+          isFeatured: false,
           status: 'ACTIVE',
           availability: 'AVAILABLE',
           locationId: '',
@@ -97,11 +117,57 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
     }
   };
 
+  const handleCreateFeature = async (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault();
+    if (!newFeatureName.trim()) return;
+    
+    try {
+      setIsSavingFeature(true);
+      const newFeature = await FeatureService.createFeature({ name: newFeatureName.trim(), charge: 0, isAddon: false });
+      setAvailableFeatures(prev => [...prev, newFeature]);
+      
+      const currentFeatures = getValues('features') || [];
+      setValue('features', [...currentFeatures, newFeature.id], { shouldDirty: true });
+      
+      setNewFeatureName('');
+      setIsAddingFeature(false);
+    } catch (error) {
+      console.error('Failed to create feature:', error);
+      alert('Failed to create feature. Please try again.');
+    } finally {
+      setIsSavingFeature(false);
+    }
+  };
+
+  const handleDeleteFeature = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete the feature "${name}"?`)) {
+      return;
+    }
+    
+    try {
+      await FeatureService.deleteFeature(id);
+      setAvailableFeatures(prev => prev.filter(f => f.id !== id));
+      
+      // Remove it from the form's selected features if it was checked
+      const currentFeatures = getValues('features') || [];
+      if (currentFeatures.includes(id)) {
+        setValue('features', currentFeatures.filter(fId => fId !== id), { shouldDirty: true });
+      }
+    } catch (error) {
+      console.error('Failed to delete feature:', error);
+      alert('Failed to delete feature. It might be in use by other vehicles.');
+    }
+  };
+
   const handleFormSubmit = async (data: VehicleFormData) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        formData.append(key, value.toString());
+        if (key === 'features') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value.toString());
+        }
       }
     });
 
@@ -143,47 +209,20 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
         <form id="vehicle-form" onSubmit={handleSubmit(handleFormSubmit)} className="p-[24px] flex flex-col gap-[16px] overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[16px] gap-y-[16px]">
-            {/* Left Column */}
-            <div className="flex flex-col gap-[16px]">
+          {/* Section 1: Basic Information */}
+          <div className="mb-2">
+            <h4 className="text-[14px] font-bold text-[#0a1413] font-montserrat mb-3 pb-1 border-b border-gray-100">Basic Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
               <div>
-                <label className={labelClass}>Vehicle Name</label>
+                <label className={labelClass}>Vehicle Name (Model)</label>
                 <input {...register('name')} placeholder="Enter vehicle name" className={inputClass} />
                 {errors.name && <p className="text-red-500 text-[10px] mt-1">{errors.name.message}</p>}
               </div>
-
               <div>
                 <label className={labelClass}>Brand</label>
                 <input {...register('brand')} placeholder="Enter brand" className={inputClass} />
                 {errors.brand && <p className="text-red-500 text-[10px] mt-1">{errors.brand.message}</p>}
               </div>
-
-              <div>
-                <label className={labelClass}>Transmission</label>
-                <select {...register('transmission')} className={selectClass} style={selectStyle}>
-                  <option value="" disabled>Select transmission</option>
-                  <option value="AUTOMATIC">Automatic</option>
-                  <option value="MANUAL">Manual</option>
-                </select>
-              </div>
-
-
-
-              {/* Extra Backend Required Field */}
-              <div>
-                <label className={labelClass}>Fuel Type</label>
-                <select {...register('fuelType')} className={selectClass} style={selectStyle}>
-                  <option value="" disabled>Select fuel type</option>
-                  <option value="PETROL">Petrol</option>
-                  <option value="DIESEL">Diesel</option>
-                  <option value="ELECTRIC">Electric</option>
-                  <option value="HYBRID">Hybrid</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="flex flex-col gap-[16px]">
               <div>
                 <label className={labelClass}>Category</label>
                 <select {...register('category')} className={selectClass} style={selectStyle}>
@@ -197,19 +236,152 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
                   <option value="SELF_DRIVEN">Self Driven</option>
                 </select>
               </div>
-
               <div>
                 <label className={labelClass}>Year</label>
                 <input type="number" {...register('year', { valueAsNumber: true })} placeholder="Enter year" className={inputClass} />
                 {errors.year && <p className="text-red-500 text-[10px] mt-1">{errors.year.message}</p>}
               </div>
+            </div>
+          </div>
 
+          {/* Section 2: Specifications */}
+          <div className="mb-2">
+            <h4 className="text-[14px] font-bold text-[#0a1413] font-montserrat mb-3 pb-1 border-b border-gray-100">Specifications</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+              <div>
+                <label className={labelClass}>Transmission</label>
+                <select {...register('transmission')} className={selectClass} style={selectStyle}>
+                  <option value="" disabled>Select transmission</option>
+                  <option value="AUTOMATIC">Automatic</option>
+                  <option value="MANUAL">Manual</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Fuel Type</label>
+                <select {...register('fuelType')} className={selectClass} style={selectStyle}>
+                  <option value="" disabled>Select fuel type</option>
+                  <option value="PETROL">Petrol</option>
+                  <option value="DIESEL">Diesel</option>
+                  <option value="ELECTRIC">Electric</option>
+                  <option value="HYBRID">Hybrid</option>
+                </select>
+              </div>
               <div>
                 <label className={labelClass}>Seating Capacity</label>
                 <input type="number" {...register('seatingCapacity', { valueAsNumber: true })} placeholder="Enter number of seats" className={inputClass} />
                 {errors.seatingCapacity && <p className="text-red-500 text-[10px] mt-1">{errors.seatingCapacity.message}</p>}
               </div>
+              <div>
+                <label className={labelClass}>Luggage Capacity</label>
+                <input type="number" {...register('luggageCapacity', { valueAsNumber: true })} placeholder="Enter luggage capacity" className={inputClass} />
+                {errors.luggageCapacity && <p className="text-red-500 text-[10px] mt-1">{errors.luggageCapacity.message}</p>}
+              </div>
+            </div>
+          </div>
 
+          {/* Section 3: Details & Features */}
+          <div className="mb-2">
+            <h4 className="text-[14px] font-bold text-[#0a1413] font-montserrat mb-3 pb-1 border-b border-gray-100">Details & Features</h4>
+            <div className="flex flex-col gap-[16px]">
+              <div>
+                <label className={labelClass}>Current Location</label>
+                <select {...register('locationId')} className={selectClass} style={selectStyle}>
+                  <option value="">Select location</option>
+                  {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+                </select>
+                {errors.locationId && <p className="text-red-500 text-[10px] mt-1">{errors.locationId.message}</p>}
+              </div>
+              <div>
+                <label className={labelClass}>Description</label>
+                <textarea 
+                  {...register('description')} 
+                  placeholder="Enter vehicle description" 
+                  className={`${inputClass} min-h-[80px] py-2 resize-y`} 
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Features</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border-[1.5px] border-[#9ca3af] rounded-[4px] p-3 max-h-[150px] overflow-y-auto mb-2">
+                  {availableFeatures.map(feature => (
+                    <label key={feature.id} className="flex items-center gap-2 cursor-pointer group relative">
+                      <input 
+                        type="checkbox" 
+                        value={feature.id} 
+                        {...register('features')} 
+                        className="w-4 h-4 text-[#3fa344] focus:ring-[#3fa344] border-gray-300 rounded cursor-pointer"
+                      />
+                      <span className="text-[13px] text-[#0a1413] font-nunito group-hover:text-[#3fa344] transition-colors pr-6 truncate">{feature.name}</span>
+                      
+                      <button 
+                        type="button" 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); // prevent checking/unchecking the box
+                          handleDeleteFeature(feature.id, feature.name); 
+                        }} 
+                        className="absolute right-0 top-1/2 -translate-y-1/2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
+                        title="Delete feature permanently"
+                      >
+                        <X size={12} strokeWidth={2.5} />
+                      </button>
+                    </label>
+                  ))}
+                  {availableFeatures.length === 0 && <span className="text-xs text-gray-500 col-span-3">No features found. You can add one below.</span>}
+                </div>
+                
+                {/* Inline Feature Add */}
+                {!isAddingFeature ? (
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAddingFeature(true)}
+                    className="text-[#3fa344] text-[13px] font-bold font-nunito hover:underline flex items-center gap-1"
+                  >
+                    + Add Custom Feature
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 mt-2">
+                    <input 
+                      type="text" 
+                      value={newFeatureName}
+                      onChange={(e) => setNewFeatureName(e.target.value)}
+                      placeholder="e.g. Leather Seats" 
+                      className={`${inputClass} h-[36px] flex-1`}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleCreateFeature(e);
+                        }
+                      }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={handleCreateFeature}
+                      disabled={isSavingFeature || !newFeatureName.trim()}
+                      className="bg-[#3fa344] text-white px-3 py-1.5 rounded-[4px] text-[13px] font-bold disabled:opacity-50 min-w-[60px]"
+                    >
+                      {isSavingFeature ? '...' : 'Save'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setIsAddingFeature(false);
+                        setNewFeatureName('');
+                      }}
+                      className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-[4px] text-[13px] font-bold hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Status & Visibility */}
+          <div className="mb-2">
+            <h4 className="text-[14px] font-bold text-[#0a1413] font-montserrat mb-3 pb-1 border-b border-gray-100">Status & Visibility</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px] mb-4">
               <div>
                 <label className={labelClass}>Status</label>
                 <select {...register('status')} className={selectClass} style={selectStyle}>
@@ -217,8 +389,6 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
                   <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
-
-              {/* Extra Backend Required Field */}
               <div>
                 <label className={labelClass}>Availability</label>
                 <select {...register('availability')} className={selectClass} style={selectStyle}>
@@ -228,20 +398,21 @@ export default function VehicleModal({ isOpen, onClose, onSubmit, initialData, i
                 </select>
               </div>
             </div>
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer group w-fit bg-[#f9fafb] px-4 py-3 border border-gray-200 rounded-[8px]">
+                <input 
+                  type="checkbox" 
+                  {...register('isFeatured')} 
+                  className="w-5 h-5 text-[#3fa344] focus:ring-[#3fa344] border-gray-300 rounded cursor-pointer"
+                />
+                <span className="text-[14px] text-[#0a1413] font-bold font-nunito group-hover:text-[#3fa344] transition-colors">Featured Vehicle (Display on Homepage)</span>
+              </label>
+            </div>
           </div>
 
-          {/* Full Width Location */}
-          <div className="mt-1">
-            <label className={labelClass}>Current Location</label>
-            <select {...register('locationId')} className={selectClass} style={selectStyle}>
-              <option value="">Select location</option>
-              {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
-            </select>
-            {errors.locationId && <p className="text-red-500 text-[10px] mt-1">{errors.locationId.message}</p>}
-          </div>
-
-          {/* Image Uploader */}
-          <div className="mt-1">
+          {/* Section 5: Media */}
+          <div className="mb-1">
+            <h4 className="text-[14px] font-bold text-[#0a1413] font-montserrat mb-3 pb-1 border-b border-gray-100">Media</h4>
             <label className={labelClass}>Vehicle Images</label>
             <div className="border-[1.5px] border-dashed border-[#e5e7eb] rounded-[8px] p-[24px] flex flex-col items-center justify-center gap-1.5 relative cursor-pointer hover:bg-gray-50 transition-colors">
               <input type="file" multiple accept={ACCEPTED_IMAGE_TYPES.join(',')} onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />

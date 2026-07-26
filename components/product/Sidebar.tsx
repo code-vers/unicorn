@@ -80,6 +80,39 @@ const Sidebar: React.FC<SidebarProps> = ({
       .catch(() => {});
   }, []);
 
+  // ── Date/Time Strict Validation ──────────────────────────────────────────────
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  const minPickupTime = pickupDate === todayStr ? currentTime : undefined;
+  const minDropOffTime = pickupDate === dropOffDate ? pickupTime : undefined;
+
+  useEffect(() => {
+    let newPickupDate = pickupDate;
+
+    if (pickupDate && pickupDate < todayStr) {
+      setPickupDate(todayStr);
+      newPickupDate = todayStr;
+    }
+    
+    if (newPickupDate && dropOffDate && dropOffDate < newPickupDate) {
+      setDropOffDate(newPickupDate);
+    }
+    
+    if (newPickupDate === todayStr && pickupTime && pickupTime < currentTime) {
+      setPickupTime(currentTime);
+    }
+    
+    const effectiveDropOffDate = (newPickupDate && dropOffDate && dropOffDate < newPickupDate) ? newPickupDate : dropOffDate;
+    if (newPickupDate && effectiveDropOffDate && newPickupDate === effectiveDropOffDate && pickupTime && dropOffTime) {
+      if (dropOffTime <= pickupTime) {
+        let [h, m] = pickupTime.split(':').map(Number);
+        h = Math.min(23, h + 1);
+        setDropOffTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      }
+    }
+  }, [pickupDate, dropOffDate, pickupTime, dropOffTime, setPickupDate, setDropOffDate, setPickupTime, setDropOffTime]);
+
   // ── Helpers ─────────────────────────────────────────────────────────────────
   const toggleFeature = (id: string) => {
     setFeatureIds(
@@ -136,6 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <input
               type="date"
               value={pickupDate}
+              min={todayStr}
               onChange={(e) => setPickupDate(e.target.value)}
               className="w-full h-11 px-4 rounded-md bg-white text-gray-700 text-sm outline-none"
             />
@@ -149,6 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <input
               type="time"
               value={pickupTime}
+              min={minPickupTime}
               onChange={(e) => setPickupTime(e.target.value)}
               className="w-full h-11 px-4 rounded-md bg-white text-gray-700 text-sm outline-none"
             />
@@ -184,6 +219,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <input
               type="date"
               value={dropOffDate}
+              min={pickupDate || todayStr}
               onChange={(e) => setDropOffDate(e.target.value)}
               className="w-full h-11 px-4 rounded-md bg-white text-gray-700 text-sm outline-none"
             />
@@ -197,6 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <input
               type="time"
               value={dropOffTime}
+              min={minDropOffTime}
               onChange={(e) => setDropOffTime(e.target.value)}
               className="w-full h-11 px-4 rounded-md bg-white text-gray-700 text-sm outline-none"
             />

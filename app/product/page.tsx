@@ -4,7 +4,7 @@ import CategorySlider from "@/components/product/CategorySlider";
 import Sidebar from "@/components/product/Sidebar";
 import { VehicleQuery } from "@/lib/api/vehicle.service";
 import { Menu } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import React, { useCallback, useMemo, useState } from "react";
 
 // Combine a date string and time string into a UTC ISO string for the backend.
@@ -15,6 +15,8 @@ const buildIso = (date: string, time: string): string | undefined => {
 
 const Page: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   // ── Filter state ────────────────────────────────────────────────────────────
@@ -31,8 +33,12 @@ const Page: React.FC = () => {
   const [dropOffTime, setDropOffTime] = useState<string>(
     searchParams.get("dropOffTime") || ""
   );
-  const [pickupLocationId, setPickupLocationId] = useState<string>("");
-  const [dropOffLocationId, setDropOffLocationId] = useState<string>("");
+  const [pickupLocationId, setPickupLocationId] = useState<string>(
+    searchParams.get("pickupLocationId") || ""
+  );
+  const [dropOffLocationId, setDropOffLocationId] = useState<string>(
+    searchParams.get("dropOffLocationId") || ""
+  );
   const [category, setCategory] = useState<string>("");
   const [transmission, setTransmission] = useState<string>("");
   const [fuelType, setFuelType] = useState<string>("");
@@ -57,6 +63,18 @@ const Page: React.FC = () => {
 
   // ── Handlers passed to Sidebar ──────────────────────────────────────────────
   const handleSearch = useCallback(() => {
+    // 1. Sync all form state to the URL
+    const params = new URLSearchParams(searchParams.toString());
+    if (pickupDate) params.set("pickupDate", pickupDate); else params.delete("pickupDate");
+    if (pickupTime) params.set("pickupTime", pickupTime); else params.delete("pickupTime");
+    if (dropOffDate) params.set("dropOffDate", dropOffDate); else params.delete("dropOffDate");
+    if (dropOffTime) params.set("dropOffTime", dropOffTime); else params.delete("dropOffTime");
+    if (pickupLocationId) params.set("pickupLocationId", pickupLocationId); else params.delete("pickupLocationId");
+    if (dropOffLocationId) params.set("dropOffLocationId", dropOffLocationId); else params.delete("dropOffLocationId");
+    
+    router.replace(`${pathname}?${params.toString()}`);
+
+    // 2. Submit the query to refresh results
     setSubmittedQuery({
       // pickupLocationId / dropOffLocationId are used in the booking flow (Phase 3),
       // not as a vehicle search filter on the backend.
@@ -76,6 +94,8 @@ const Page: React.FC = () => {
     pickupTime,
     dropOffDate,
     dropOffTime,
+    pickupLocationId,
+    dropOffLocationId,
     category,
     transmission,
     fuelType,
@@ -83,6 +103,9 @@ const Page: React.FC = () => {
     featureIds,
     minPrice,
     maxPrice,
+    searchParams,
+    router,
+    pathname,
   ]);
 
   // ── Category selected from CategorySlider ───────────────────────────────────
