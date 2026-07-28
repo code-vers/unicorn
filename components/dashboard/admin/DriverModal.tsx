@@ -157,9 +157,8 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
               <div>
                 <label className={labelClass}>Availability</label>
                 <select {...register('availability')} className={selectClass} style={selectStyle}>
-                  <option value="AVAILABLE">Available</option>
-                  <option value="ASSIGNED">Assigned</option>
-                  <option value="UNAVAILABLE">Unavailable</option>
+                  <option value="AVAILABLE">Available (Eligible for work)</option>
+                  <option value="UNAVAILABLE">Unavailable (On Leave)</option>
                 </select>
               </div>
             </div>
@@ -249,7 +248,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
           <div className="bg-[rgba(239,246,255,0.5)] border border-[#dbeafe] rounded-[4px] p-[13px] flex items-center gap-[6px] mt-1">
             <Info className="text-[#2563eb]" size={14} />
             <p className="text-[12px] text-[#2563eb] font-lato leading-[1.6]">
-              Drivers marked as AVAILABLE will be assigned to incoming bookings automatically.
+              Set to UNAVAILABLE if the driver is on leave. Daily assignments are calculated automatically based on their bookings.
             </p>
           </div>
         </form>

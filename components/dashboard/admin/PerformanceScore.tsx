@@ -1,10 +1,27 @@
 'use client';
 
-import { getPerformanceScore } from '@/lib/dashboard-data';
 import { Star } from 'lucide-react';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function PerformanceScore() {
-  const data = getPerformanceScore();
+  const { performance: data, isLoading, error } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className='bg-gradient-to-br from-[#3FA34D] to-[#2E7A39] rounded-[16px] p-5 text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] flex items-center justify-center min-h-[160px]'>
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className='bg-gradient-to-br from-[#3FA34D] to-[#2E7A39] rounded-[16px] p-5 text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] flex items-center justify-center min-h-[160px] text-sm'>
+        Failed to load score.
+      </div>
+    );
+  }
 
   return (
     <div className='bg-gradient-to-br from-[#3FA34D] to-[#2E7A39] rounded-[16px] p-5 text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] flex flex-col justify-between'>
