@@ -1,6 +1,7 @@
 import { apiClient, extractErrorMessage } from '../api-client';
 import { PaginatedResponse } from './location.service';
 import { PricingPayload } from './pricing.service';
+import { FeatureResponse } from './feature.service';
 
 export interface VehicleImage {
   id: string;
@@ -19,7 +20,7 @@ export interface VehicleResponse {
   seatingCapacity: number;
   luggageCapacity: number | null;
   description: string | null;
-  features: string[];
+  features: FeatureResponse[];
   pricing?: PricingPayload;
   status: 'ACTIVE' | 'INACTIVE';
   availability: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE';
@@ -50,12 +51,32 @@ export interface VehicleQuery {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  // Advanced search filters
+  pickupDate?: string;
+  dropOffDate?: string;
+  seatingCapacity?: number;
+  featureIds?: string[];
 }
 
 export const VehicleService = {
   getVehicles: async (query?: VehicleQuery): Promise<PaginatedResponse<VehicleResponse>> => {
     try {
-      const response = await apiClient.get('/vehicles', { params: query });
+      const { featureIds, ...rest } = query || {};
+
+      // Build URLSearchParams manually so featureIds serializes as
+      // featureIds=id1&featureIds=id2 (not featureIds[]=id1) which is
+      // what the backend expects.
+      const params = new URLSearchParams();
+      Object.entries(rest).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, String(value));
+        }
+      });
+      if (featureIds && featureIds.length > 0) {
+        featureIds.forEach((id) => params.append('featureIds', id));
+      }
+
+      const response = await apiClient.get('/vehicles', { params });
       return response.data;
     } catch (error) {
       throw new Error(extractErrorMessage(error, 'Failed to fetch vehicles'));

@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { useUsers } from '../../../hooks/useUsers';
 import { UserResponse } from '../../../lib/api/user.service';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function CustomersTable() {
   const {
@@ -144,7 +146,7 @@ export default function CustomersTable() {
       <div className='overflow-x-auto min-h-[300px] relative'>
         {isLoading && users.length === 0 ? (
           <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-            <div className='w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin'></div>
+            <Spinner size="md" />
           </div>
         ) : null}
         <table className='w-full text-left border-collapse min-w-[1100px]'>

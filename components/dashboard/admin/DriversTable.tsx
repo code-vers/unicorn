@@ -7,6 +7,8 @@ import { useDrivers } from '../../../hooks/useDrivers';
 import { DriverResponse } from '../../../lib/api/driver.service';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import DriverModal from './DriverModal';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function DriversTable() {
   const {
@@ -56,12 +58,7 @@ export default function DriversTable() {
   };
 
   const toggleAvailability = async (id: string, current: string) => {
-    const nextMap: Record<string, string> = {
-      AVAILABLE: 'ASSIGNED',
-      ASSIGNED: 'UNAVAILABLE',
-      UNAVAILABLE: 'AVAILABLE'
-    };
-    const nextAvailability = nextMap[current] || 'AVAILABLE';
+    const nextAvailability = current === 'AVAILABLE' ? 'UNAVAILABLE' : 'AVAILABLE';
     try {
       await updateAvailability(id, nextAvailability);
       toast.success(`Availability changed to ${formatText(nextAvailability)}`);
@@ -181,9 +178,8 @@ export default function DriversTable() {
             }}
           >
             <option value="">All Status</option>
-            <option value="AVAILABLE">Available</option>
-            <option value="ASSIGNED">Assigned</option>
-            <option value="UNAVAILABLE">Unavailable</option>
+            <option value="AVAILABLE">Available (Eligible for work)</option>
+            <option value="UNAVAILABLE">Unavailable (On Leave)</option>
           </select>
           
           <button className='flex items-center gap-1.5 px-3 h-[34px] bg-[#F4F6F8] border border-[#E8ECF0] rounded-[7px] text-[12px] text-[#718096] hover:bg-gray-100 font-lato transition-colors'>
@@ -200,7 +196,7 @@ export default function DriversTable() {
       <div className='overflow-x-auto min-h-[300px] relative'>
         {isLoading && drivers.length === 0 ? (
           <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-            <div className='w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin'></div>
+            <Spinner size="md" />
           </div>
         ) : null}
         <table className='w-full text-left border-collapse min-w-[1200px]'>
@@ -273,13 +269,19 @@ export default function DriversTable() {
                   <td className='px-3 py-2 text-[12px] text-[#6B7280] font-lato'>{driver.licenseDetails || 'N/A'}</td>
                   <td className='px-3 py-2 text-[12px] text-[#6B7280] font-lato'>{driver.assignedVehicle?.name || 'Unassigned'}</td>
                   <td className='px-3 py-2'>
-                    <button
-                      onClick={() => toggleAvailability(driver.id, driver.availability)}
-                      className={`inline-flex items-center justify-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold min-w-[50px] transition-colors cursor-pointer ${getAvailabilityStyles(driver.availability)}`}
-                      title="Click to toggle availability"
-                    >
-                      {formatText(driver.availability)}
-                    </button>
+                    {driver.bookings && driver.bookings.length > 0 ? (
+                      <span className='inline-flex items-center justify-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold min-w-[50px] bg-[#FFF3E8] text-[#FF7815] cursor-default' title="Driver has an active booking today">
+                        ASSIGNED (ON DUTY)
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => toggleAvailability(driver.id, driver.availability)}
+                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-[5px] text-[10px] font-bold min-w-[50px] transition-colors cursor-pointer ${getAvailabilityStyles(driver.availability)}`}
+                        title="Click to toggle availability"
+                      >
+                        {formatText(driver.availability)}
+                      </button>
+                    )}
                   </td>
                   <td className='px-3 py-2'>
                     <div className='flex items-center justify-center gap-[4px]'>

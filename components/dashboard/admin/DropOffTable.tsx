@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Pencil, Trash2, Search, Info, ChevronLeft, ChevronRight, Loader2, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { DropOffChargeService, DropOffChargeResponse } from '@/lib/api/dropOffCharge.service';
 import DropOffChargeModal from './DropOffChargeModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import type { DropOffChargePayload } from '@/lib/api/dropOffCharge.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const LIMIT = 10;
 
@@ -72,7 +75,7 @@ export default function DropOffTable() {
       handleCloseModal();
       fetchCharges(page);
     } catch (err: any) {
-      alert(err.message || 'Failed to save charge.');
+      toast.error(err.message || 'Failed to save charge.');
     } finally {
       setIsModalSaving(false);
     }
@@ -103,7 +106,7 @@ export default function DropOffTable() {
         fetchCharges(page);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to delete charge.');
+      toast.error(err.message || 'Failed to delete charge.');
     } finally {
       setIsDeleting(false);
     }
@@ -162,7 +165,12 @@ export default function DropOffTable() {
           )}
 
           {/* Table */}
-          <div className='overflow-x-auto'>
+          <div className='overflow-x-auto min-h-[300px] relative'>
+            {isLoading && charges.length === 0 ? (
+              <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
+                <Spinner size="md" />
+              </div>
+            ) : null}
             <table className='w-full text-left border-collapse min-w-[1100px]'>
               <thead>
                 <tr className='bg-[#FAFBFC] border-b border-[#E8ECF0] h-[50px]'>
@@ -180,13 +188,7 @@ export default function DropOffTable() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={9} className='text-center py-16'>
-                      <Loader2 className='animate-spin text-[#3FA34D] mx-auto' size={28} />
-                    </td>
-                  </tr>
-                ) : charges.length === 0 ? (
+                {charges.length === 0 && !isLoading ? (
                   <tr>
                     <td colSpan={9} className='text-center py-16 text-[13px] text-[#A0AEC0] font-lato'>
                       No drop-off charges found. Click &quot;Add Drop-Off Charge&quot; to create one.

@@ -10,6 +10,9 @@ import {
   Headset
 } from 'lucide-react';
 import { useState } from 'react';
+import { SupportService } from '@/lib/api/support.service';
+import toast from 'react-hot-toast';
+import { Spinner } from '@/components/ui/Spinner';
 
 const faqs = [
   { question: 'How do I extend my rental period?', answer: 'You can extend your rental period through the "Extend Rental" quick action on your dashboard or by contacting our support team.' },
@@ -21,6 +24,29 @@ const faqs = [
 
 export default function SupportCenter() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!subject || !message) {
+      toast.error('Please enter a subject and message');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await SupportService.createTicket({ subject, message });
+      toast.success('Ticket submitted successfully! We will get back to you soon.');
+      setSubject('');
+      setMessage('');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to submit ticket');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -122,6 +148,8 @@ export default function SupportCenter() {
               <label className="text-[14px] font-normal text-[#0A1413] font-nunito">Subject</label>
               <input 
                 type="text" 
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
                 placeholder="Brief description of your issue"
                 className="w-full border border-[#D9D9D9] rounded-[4px] px-3 py-2 text-[14px] font-nunito placeholder-[#D9D9D9] focus:outline-none focus:border-[#3FA344]"
               />
@@ -131,6 +159,8 @@ export default function SupportCenter() {
               <label className="text-[14px] font-normal text-[#0A1413] font-nunito">Message</label>
               <textarea 
                 rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Describe your issue in detail..."
                 className="w-full border border-[#D9D9D9] rounded-[4px] px-3 py-2 text-[14px] font-nunito placeholder-[#D9D9D9] focus:outline-none focus:border-[#3FA344] resize-none"
               ></textarea>
@@ -145,8 +175,12 @@ export default function SupportCenter() {
             </div>
           </div>
 
-          <button className="w-full bg-[#3FA344] text-white py-2 rounded-[6px] text-[14px] font-bold font-wix hover:bg-[#358a3a] transition-colors">
-            Submit Ticket
+          <button 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full bg-[#3FA344] text-white py-2 rounded-[6px] text-[14px] font-bold font-wix hover:bg-[#358a3a] transition-colors disabled:opacity-70 flex items-center justify-center"
+          >
+            {isSubmitting ? <Spinner size="sm" /> : 'Submit Ticket'}
           </button>
         </div>
 

@@ -1,14 +1,40 @@
 'use client';
 
-import React from 'react';
-import { Upload, Check, X } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Upload, Check, X, FileText } from 'lucide-react';
+import { useDocuments } from '@/hooks/useDocuments';
+import { Spinner } from '@/components/ui/Spinner';
+import toast from 'react-hot-toast';
+import type { DocumentResponse, DocumentStatus, DocumentType } from '@/lib/api/document.service';
+
 
 interface DocumentUploadProps {
   title: string;
+  type: DocumentType;
   required?: boolean;
+  onUpload: (file: File, type: DocumentType) => Promise<DocumentResponse>;
 }
 
-const DocumentUpload: React.FC<DocumentUploadProps> = ({ title, required }) => {
+const DocumentUpload: React.FC<DocumentUploadProps> = ({ title, type, required, onUpload }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      await onUpload(file, type);
+      toast.success(`${title} uploaded successfully`);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to upload document');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="w-full space-y-3">
       <div className="flex items-center justify-between">
@@ -17,25 +43,47 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({ title, required }) => {
           <p className="text-[10px] font-['Lato']">{required ? 'Required' : 'Optional'}</p>
         </div>
       </div>
-      <div className="border-[#E5E7EB] border-[1.5px] border-dashed rounded-lg p-6 flex flex-col items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors">
-        <Upload size={32} className="text-[#6B7280]" />
-        <p className="text-[#6B7280] text-sm font-['Nunito']">Drag and drop or click to upload</p>
+      <div 
+        onClick={() => !isUploading && fileInputRef.current?.click()}
+        className={`border-[#E5E7EB] border-[1.5px] border-dashed rounded-lg p-6 flex flex-col items-center gap-3 ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'} transition-colors`}
+      >
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          onChange={handleFileChange}
+          accept=".pdf,.jpg,.jpeg,.png"
+        />
+        {isUploading ? (
+          <Spinner size="sm" />
+        ) : (
+          <Upload size={32} className="text-[#6B7280]" />
+        )}
+        <p className="text-[#6B7280] text-sm font-['Nunito']">
+          {isUploading ? 'Uploading...' : 'Drag and drop or click to upload'}
+        </p>
       </div>
     </div>
   );
 };
 
-const recentUploads = [
-  { customer: 'John Doe', type: 'Driving License', date: '2026-05-25', status: 'Approved' },
-  { customer: 'John Doe', type: 'National ID', date: '2026-05-25', status: 'Approved' },
-  { customer: 'John Doe', type: 'Driving License', date: '2026-05-25', status: 'Pending' },
-  { customer: 'John Doe', type: 'Driving License', date: '2026-05-25', status: 'Pending' },
-  { customer: 'John Doe', type: 'National ID', date: '2026-05-25', status: 'Approved' },
-  { customer: 'John Doe', type: 'KRA Pin', date: '2026-05-25', status: 'Pending' },
-  { customer: 'John Doe', type: 'KRA Pin', date: '2026-05-25', status: 'Approved' },
-];
-
 export default function DocumentsContent() {
+  const { documents, isLoading, uploadDocument, updateDocumentStatus } = useDocuments('all');
+
+  const handleStatusUpdate = async (id: string, status: DocumentStatus) => {
+    try {
+      await updateDocumentStatus(id, status);
+      toast.success(`Document marked as ${status}`);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update status');
+    }
+  };
+
+  const openDocument = (path: string) => {
+    const fullUrl = path.startsWith('http') ? path : `http://localhost:5000${path}`;
+    window.open(fullUrl, '_blank');
+  };
+
   return (
     <div className="space-y-10 w-full">
       {/* Upload Sections */}
@@ -44,9 +92,9 @@ export default function DocumentsContent() {
         <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 space-y-6">
           <h3 className="text-[#0A1413] text-xl font-bold font-['Montserrat'] leading-[1.6]">Self-Drive Documents</h3>
           <div className="space-y-4">
-            <DocumentUpload title="Driving License" required />
-            <DocumentUpload title="National ID" />
-            <DocumentUpload title="KRA Pin" />
+            <DocumentUpload title="Driving License" type="DRIVERS_LICENSE" required onUpload={uploadDocument} />
+            <DocumentUpload title="National ID" type="NATIONAL_ID" required onUpload={uploadDocument} />
+            <DocumentUpload title="KRA Pin" type="KRA_PIN" onUpload={uploadDocument} />
           </div>
         </div>
 
@@ -54,8 +102,8 @@ export default function DocumentsContent() {
         <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 space-y-6">
           <h3 className="text-[#0A1413] text-xl font-bold font-['Montserrat'] leading-[1.6]">Corporate Documents</h3>
           <div className="space-y-4">
-            <DocumentUpload title="Company Registration" />
-            <DocumentUpload title="Tax Certificate" />
+            <DocumentUpload title="Company Registration" type="COMPANY_REGISTRATION" required onUpload={uploadDocument} />
+            <DocumentUpload title="Tax Certificate" type="TAX_CERTIFICATE" required onUpload={uploadDocument} />
           </div>
         </div>
       </div>
@@ -69,41 +117,75 @@ export default function DocumentsContent() {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-[#FAFBFC] border-b border-[#E8ECF0] h-[50px]">
-                <th className="px-[11px] py-[9px] w-[50px]">
-                  <div className="bg-white border border-[#E8ECF0] rounded-[4px] size-[15px] cursor-pointer" />
-                </th>
-                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">CUSTOMER</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] pl-6">CUSTOMER</th>
                 <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">DOCUMENT TYPE</th>
                 <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">UPLOAD DATE</th>
+                <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">FILE</th>
                 <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px]">STATUS</th>
                 <th className="text-[#A0AEC0] text-[12px] font-normal font-['Lato'] py-[5px] px-[14px]">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F4F6F8]">
-              {recentUploads.map((upload, index) => (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10">
+                    <Spinner size="md" />
+                  </td>
+                </tr>
+              ) : documents.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-[#6B7280] text-sm">
+                    No documents uploaded yet.
+                  </td>
+                </tr>
+              ) : documents.map((upload, index) => (
                 <tr 
-                  key={index} 
+                  key={upload.id} 
                   className={`${index % 2 === 1 ? 'bg-[#FAFBFC]' : 'bg-white'} h-[50px] border border-[#F4F6F8] hover:bg-gray-50 transition-colors`}
                 >
-                  <td className="px-[11px] py-[9px]">
-                    <div className="bg-white border border-[#E8ECF0] rounded-[4px] size-[15px] cursor-pointer" />
+                  <td className="text-[#6B7280] text-[14px] font-bold font-['Lato'] py-[15px] pl-6">
+                    {upload.user?.name || 'Unknown User'}
+                    <div className="font-normal text-[12px] text-[#A0AEC0]">{upload.user?.email}</div>
                   </td>
-                  <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.customer}</td>
-                  <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.type}</td>
-                  <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">{upload.date}</td>
+                  <td className="text-[#0A1413] font-bold text-[12px] font-['Lato'] py-[15px]">
+                    {upload.type.replace(/_/g, ' ')}
+                  </td>
+                  <td className="text-[#6B7280] text-[12px] font-['Lato'] py-[15px]">
+                    {new Date(upload.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </td>
+                  <td className="py-[15px]">
+                    <button 
+                      onClick={() => openDocument(upload.path)}
+                      className="flex items-center gap-1 text-[#3FA34D] hover:underline text-[12px] font-['Lato']"
+                    >
+                      <FileText size={14} /> View File
+                    </button>
+                  </td>
                   <td className="py-[12px]">
                     <span className={`px-[7px] py-[2px] rounded-[5px] text-[10px] font-['Lato'] inline-flex items-center justify-center ${
-                      upload.status === 'Approved' ? 'bg-[#EBF7ED] text-[#3FA34D]' : 'bg-[#FFFAE0] text-[#D8A500]'
+                      upload.status === 'VERIFIED' ? 'bg-[#EBF7ED] text-[#3FA34D]' : 
+                      upload.status === 'REJECTED' ? 'bg-[#FFF0F0] text-[#DC2626]' : 
+                      'bg-[#FFFAE0] text-[#D8A500]'
                     }`}>
-                      {upload.status}
+                      {upload.status.replace('_', ' ')}
                     </span>
                   </td>
                   <td className="px-[14px] py-[11.5px]">
                     <div className="flex gap-[4px]">
-                      <button className="bg-[#EBF7ED] text-[#3FA34D] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#d8eedb] transition-all transform hover:scale-105">
+                      <button 
+                        onClick={() => handleStatusUpdate(upload.id, 'VERIFIED')}
+                        disabled={upload.status === 'VERIFIED'}
+                        className="bg-[#EBF7ED] text-[#3FA34D] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#d8eedb] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Approve"
+                      >
                         <Check size={12} strokeWidth={3} />
                       </button>
-                      <button className="bg-[#FFF0F0] border border-[#F6F6F6] text-[#DC2626] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#ffe0e0] transition-all transform hover:scale-105">
+                      <button 
+                        onClick={() => handleStatusUpdate(upload.id, 'REJECTED')}
+                        disabled={upload.status === 'REJECTED'}
+                        className="bg-[#FFF0F0] border border-[#F6F6F6] text-[#DC2626] w-[26px] h-[26px] flex items-center justify-center rounded-[5px] hover:bg-[#ffe0e0] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Reject"
+                      >
                         <X size={12} strokeWidth={3} />
                       </button>
                     </div>

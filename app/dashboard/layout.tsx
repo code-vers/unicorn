@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Dashboard - Unicorn',
@@ -13,10 +13,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <DashboardSidebar />
       <div className='flex-1 flex flex-col overflow-hidden'>
         <DashboardHeader />
-        <main className='flex-1 overflow-y-auto bg-[#F9FAFB]'>
-          <div className='p-6 space-y-6 max-w-[1600px] mx-auto'>
-            {children}
-          </div>
+        <main className='flex-1 overflow-y-auto bg-[#ffffff]'>
+          <div className='p-6 space-y-6 max-w-[1600px] mx-auto'>{children}</div>
         </main>
       </div>
     </div>

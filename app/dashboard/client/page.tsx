@@ -1,233 +1,224 @@
 'use client';
 
-import { 
-  Car, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  ChevronRight, 
-  Plus, 
-  FileText, 
-  Phone, 
+import {
   Bell,
-  CheckCircle2,
-  AlertCircle,
-  Download
+  CalendarDays,
+  Car,
+  ChevronDown,
+  ChevronRight,
+  CircleDollarSign,
+  Clock3,
+  FileText,
+  MapPin,
+  Phone,
+  ReceiptText,
+  ShieldCheck,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SupportCenter from '@/components/dashboard/client/SupportCenter';
+import { useEffect, useState } from 'react';
+import { Spinner } from '@/components/ui/Spinner';
+import { useBookings } from '@/hooks/useBookings';
+import { useNotifications } from '@/hooks/useNotifications';
+import { UserService } from '@/lib/api/user.service';
+
+const actions = [
+  { label: 'Book a Car', href: '/', icon: Car, className: 'bg-[#ebf7ed] text-[#3fa344]' },
+  { label: 'Extend Rental', href: '/dashboard/my-bookings', icon: Clock3, className: 'bg-[#fff3e8] text-[#ff7815]' },
+  { label: 'View Invoice', href: '/dashboard/my-documents', icon: FileText, className: 'bg-[#e0f7ff] text-[#155dfc]' },
+  { label: 'Contact Support', href: '/dashboard/support', icon: Phone, className: 'bg-[#fff0f0] text-[#dc2626]' },
+];
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 export default function ClientDashboardPage() {
-  const currentDate = "Tuesday, 9 June 2026";
+  const [userName, setUserName] = useState('');
+  const [today] = useState(() => Date.now());
+  const { bookings, isLoading: bookingsLoading } = useBookings();
+  const { notifications, isLoading: notificationsLoading } = useNotifications();
+
+  useEffect(() => {
+    UserService.getMe()
+      .then((user) => setUserName(user?.name?.split(' ')[0] ?? ''))
+      .catch((error) => console.error('Failed to fetch user', error));
+  }, []);
+
+  const activeBookings = bookings
+    .filter(
+      (booking) =>
+        (booking.bookingStatus === 'ONGOING' || booking.bookingStatus === 'CONFIRMED') &&
+        new Date(booking.pickupDate).getTime() <= today,
+    )
+    .slice(0, 3);
+  const upcomingBookings = bookings
+    .filter(
+      (booking) =>
+        booking.bookingStatus === 'PENDING' ||
+        (booking.bookingStatus === 'CONFIRMED' && new Date(booking.pickupDate).getTime() > today),
+    )
+    .sort((a, b) => new Date(a.pickupDate).getTime() - new Date(b.pickupDate).getTime())
+    .slice(0, 2);
+  const recentNotifications = notifications.slice(0, 6);
+  const currentDate = new Date(today).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  const remainingDays = (date: string) =>
+    Math.max(0, Math.ceil((new Date(date).getTime() - today) / 86_400_000));
+
+  if (bookingsLoading || notificationsLoading) {
+    return (
+      <div className='flex min-h-[60vh] items-center justify-center'>
+        <Spinner size='lg' />
+      </div>
+    );
+  }
 
   return (
-    <div className='h-full w-full flex flex-col'>
-            <div className='flex-1'>
-                <main className="flex-1 overflow-y-auto bg-white">
-          <div className="p-10 space-y-6 max-w-[1600px] mx-auto">
-            {/* Header Section */}
-            <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-              <div className="space-y-0.5">
-                <h2 className="text-[14px] font-bold text-[#0A1413] font-montserrat">
-                  Welcome back, Afiah 👋
-                </h2>
-                <p className="text-[12px] text-[#6B7280] font-lato">
-                  {currentDate}
-                </p>
+    <div className='space-y-6 px-4 pb-4 text-[#0a1413]'>
+      <header className='flex min-h-[109px] items-center justify-between border-b border-[#e5e7eb] py-3'>
+        <div>
+          <h2 className='font-montserrat text-sm font-bold leading-[1.6]'>
+            Welcome back, {userName || 'Client'} 👋
+          </h2>
+          <p className='font-lato text-xs leading-[1.6] text-[#6b7280]'>{currentDate}</p>
+        </div>
+        <div className='relative h-24 w-40 overflow-hidden rounded-[10px]'>
+          <Image src='/dashboard/rental-car.jpg' alt='Rental car' fill priority className='object-cover' />
+        </div>
+      </header>
+
+      <section className='overflow-hidden rounded-[14px] border border-[#e5e7eb] bg-white'>
+        <div className='flex h-14 items-center gap-2 border-b border-[#f2f4f7] px-[14px]'>
+          <span className='flex size-6 items-center justify-center rounded-md border border-[#3fa34d1a] bg-[#ebf7ed]'>
+            <Car className='text-[#3fa34d]' size={16} />
+          </span>
+          <h3 className='font-montserrat text-sm font-bold'>Active Bookings</h3>
+        </div>
+        <div className='divide-y divide-[#e5e7eb]'>
+          {activeBookings.length ? (
+            activeBookings.map((booking) => (
+              <div key={booking.id} className='flex min-h-[52px] items-center justify-between gap-5 p-3'>
+                <div className='min-w-0 space-y-1.5'>
+                  <div className='flex flex-wrap items-center gap-3'>
+                    <p className='font-lato text-sm font-bold'>Booking {booking.referenceId}</p>
+                    <span className='rounded-[3px] bg-[#3fa34d] px-1 text-[10px] font-bold leading-4 text-white'>
+                      ● Active
+                    </span>
+                  </div>
+                  <div className='flex flex-wrap items-center gap-x-6 gap-y-1 font-lato text-xs text-[#6a7282]'>
+                    <span className='flex items-center gap-1'><MapPin size={13} />{booking.pickupLocation?.name || 'Pickup location'}</span>
+                    <span className='flex items-center gap-1'><CalendarDays size={13} />Return: {formatDate(booking.dropOffDate)}</span>
+                    <span className='flex items-center gap-1'><Clock3 size={13} />{remainingDays(booking.dropOffDate)} days remaining</span>
+                  </div>
+                </div>
+                <Link href='/dashboard/my-bookings' className='flex shrink-0 items-center gap-1 font-lato text-sm font-semibold text-[#3fa344]'>
+                  View Details <ChevronRight size={15} />
+                </Link>
               </div>
-              <div className="relative w-40 h-24 rounded-[10px] overflow-hidden">
-                <Image 
-                  src="/unicorn.png" 
-                  alt="Rental car" 
-                  fill 
-                  className="object-cover"
-                />
+            ))
+          ) : (
+            <p className='p-5 text-center font-lato text-sm text-[#6b7280]'>You have no active bookings at the moment.</p>
+          )}
+        </div>
+      </section>
+
+      <section className='space-y-4 rounded-[10px] border border-[#e5e7eb] p-3'>
+        <h3 className='font-montserrat text-sm font-bold'>Quick Actions</h3>
+        <div className='grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-6'>
+          {actions.map(({ label, href, icon: Icon, className }) => (
+            <Link key={label} href={href} className={`flex min-h-[72px] flex-col items-center justify-center gap-2 rounded-[10px] p-3 font-lato text-sm font-bold transition-opacity hover:opacity-80 ${className}`}>
+              <Icon size={24} />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+        <section className='overflow-hidden rounded-[14px] border border-[#e5e7eb] bg-white'>
+          <div className='flex h-14 items-center border-b border-[#e5e7eb] px-[14px]'>
+            <h3 className='font-montserrat text-sm font-bold'>Upcoming Bookings</h3>
+          </div>
+          <div className='divide-y divide-[#e5e7eb]'>
+            {upcomingBookings.length ? (
+              upcomingBookings.map((booking) => (
+                <div key={booking.id} className='flex gap-3 p-3'>
+                  <div className='relative h-[105px] w-[125px] shrink-0 overflow-hidden rounded-md'>
+                    <Image src='/dashboard/toyota-land-cruiser.jpg' alt='Toyota Land Cruiser' fill className='object-cover' />
+                  </div>
+                  <div className='min-w-0 font-lato'>
+                    <h4 className='text-sm font-bold'>Booking {booking.referenceId}</h4>
+                    <p className='text-xs text-[#6b7280]'>{booking.bookingStatus}</p>
+                    <div className='mt-2 space-y-1 text-sm font-medium'>
+                      <p className='flex items-center gap-2'><CalendarDays size={13} className='text-[#3fa344]' />Pick-up: {formatDate(booking.pickupDate)}</p>
+                      <p className='flex items-center gap-2'><MapPin size={13} className='text-[#3fa344]' />{booking.pickupLocation?.name || 'Pickup location'}</p>
+                      <p className='flex items-center gap-2'><CircleDollarSign size={13} className='text-[#3fa344]' />Ksh {Number(booking.totalAmount).toLocaleString()}</p>
+                    </div>
+                    <Link href='/dashboard/my-bookings' className='mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#3fa344]'>
+                      View Details <ChevronRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className='p-5 text-center font-lato text-sm text-[#6b7280]'>You have no upcoming bookings.</p>
+            )}
+          </div>
+        </section>
+
+        <section className='flex overflow-hidden rounded-[14px] border border-[#e5e7eb] bg-white shadow-[0_1px_5px_rgba(0,0,0,0.05)]'>
+          <div className='flex min-w-0 flex-1 flex-col'>
+            <div className='flex h-14 items-center justify-between border-b border-[#f2f4f7] px-[14px]'>
+              <div className='flex items-center gap-2'>
+                <span className='flex size-6 items-center justify-center rounded-[7px] bg-[#ebf7ed]'><Bell size={13} className='text-[#3fa34d]' /></span>
+                <div>
+                  <h3 className='font-montserrat text-sm font-bold leading-4'>Recent Notifications</h3>
+                  <p className='font-lato text-xs text-[#6b7280]'>Live updates</p>
+                </div>
               </div>
+              <span className='flex items-center gap-1.5 rounded-full bg-[#fff3e8] px-2 py-0.5 font-lato text-xs text-[#ff7815]'><i className='size-1 rounded-full bg-[#ff7815]' />Live</span>
             </div>
-
-            {/* Main Content Layout */}
-            <div className="space-y-12">
-              
-              {/* Active Bookings Section */}
-              <section className="bg-white border border-[#E5E7EB] rounded-[14px] overflow-hidden">
-                <div className="px-[14px] py-[11px] border-b border-[#F2F4F7] flex items-center gap-2">
-                  <div className="bg-[#EBF7ED] border border-[rgba(63,163,77,0.1)] rounded-[6px] p-1">
-                    <Car size={16} className="text-[#3FA34D]" />
-                  </div>
-                  <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Active Bookings</h3>
-                </div>
-                <div className="divide-y divide-[#E5E7EB]">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-3 flex items-center justify-between">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[14px] font-bold text-[#0A1413] font-lato">
-                            Toyota Prado VX – KBZ 456T
-                          </span>
-                          <span className="bg-[#3FA34D] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] flex items-center gap-1.5">
-                            <span className="w-1 h-1 bg-white rounded-full"></span> Active
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-6">
-                          <div className="flex items-center gap-1.5 text-[12px] text-[#6A7282] font-lato">
-                            <MapPin size={13} className="text-[#6A7282]" /> Nairobi CBD Office
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[12px] text-[#6A7282] font-lato">
-                            <Calendar size={13} className="text-[#6A7282]" /> Return: Jun 11, 2026
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[12px] text-[#6A7282] font-lato">
-                            <Clock size={13} className="text-[#6A7282]" /> 3 days remaining
-                          </div>
-                        </div>
-                      </div>
-                      <Link href="#" className="flex items-center gap-1 text-[#3FA344] text-[14px] font-semibold font-lato hover:underline">
-                        View Details <ChevronRight size={15} />
-                      </Link>
+            <div className='flex-1 divide-y divide-[#fafbfc]'>
+              {recentNotifications.length ? (
+                recentNotifications.map((notification) => (
+                  <div key={notification.id} className='flex min-h-[42px] items-start justify-between gap-4 p-3'>
+                    <div className='flex min-w-0 items-start gap-3'>
+                      <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border ${
+                        notification.type === 'BOOKING'
+                          ? 'border-[#2e7a391a] bg-[#ebf7ed] text-[#3fa34d]'
+                          : notification.type === 'PAYMENT'
+                            ? 'border-[#0891b21a] bg-[#e0f7ff] text-[#0891b2]'
+                            : 'border-[#ff78151a] bg-[#fff3e8] text-[#ff7815]'
+                      }`}>
+                        {notification.type === 'BOOKING' ? <ShieldCheck size={12} /> : notification.type === 'PAYMENT' ? <ReceiptText size={12} /> : <Bell size={12} />}
+                      </span>
+                      <p className='truncate font-lato text-sm font-bold'>{notification.title || notification.message}</p>
                     </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Quick Actions Section */}
-              <section className="border border-[#E5E7EB] rounded-[10px] p-3 space-y-4">
-                <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Quick Actions</h3>
-                <div className="grid grid-cols-4 gap-6">
-                  <button className="bg-[#EBF7ED] rounded-[10px] p-3 flex flex-col items-center gap-2 hover:opacity-90 transition-opacity">
-                    <Plus size={24} className="text-[#3FA344]" />
-                    <span className="text-[14px] font-bold text-[#3FA344] font-lato">Book a Car</span>
-                  </button>
-                  <button className="bg-[#FFF3E8] rounded-[10px] p-3 flex flex-col items-center gap-2 hover:opacity-90 transition-opacity">
-                    <Clock size={24} className="text-[#FF7815]" />
-                    <span className="text-[14px] font-bold text-[#FF7815] font-lato">Extend Rental</span>
-                  </button>
-                  <button className="bg-[#E0F7FF] rounded-[10px] p-3 flex flex-col items-center gap-2 hover:opacity-90 transition-opacity">
-                    <FileText size={24} className="text-[#155DFC]" />
-                    <span className="text-[14px] font-bold text-[#155DFC] font-lato">View Invoice</span>
-                  </button>
-                  <Link href="/dashboard/support" className="bg-[#FFF0F0] rounded-[10px] p-3 flex flex-col items-center gap-2 hover:opacity-90 transition-opacity text-center">
-                    <Phone size={24} className="text-[#DC2626]" />
-                    <span className="text-[14px] font-bold text-[#DC2626] font-lato">Contact Support</span>
-                  </Link>
-                </div>
-              </section>
-
-              {/* Bottom Grid: Upcoming Bookings & Recent Notifications */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                {/* Upcoming Bookings */}
-                <section className="bg-white border border-[#E5E7EB] rounded-[14px] overflow-hidden flex flex-col min-h-[480px]">
-                  <div className="px-5 py-4 border-b border-[#E5E7EB]">
-                    <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Upcoming Bookings</h3>
+                    <time className='shrink-0 font-lato text-xs text-[#6b7280]'>
+                      {new Date(notification.createdAt).toLocaleDateString()}
+                    </time>
                   </div>
-                  <div className="divide-y divide-[#E5E7EB]">
-                    {[1, 2].map((i) => (
-                      <div key={i} className="p-5 flex gap-4">
-                        <div className="relative w-32 h-24 rounded-[6px] overflow-hidden bg-gray-100 flex-shrink-0">
-                          <Image 
-                            src="/product/car.png" 
-                            alt="Toyota Land Cruiser V8" 
-                            fill 
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 space-y-0.5">
-                          <h4 className="text-[14px] font-bold text-[#0A1413] font-lato">Toyota Land Cruiser V8</h4>
-                          <p className="text-[12px] text-[#6B7280] font-lato">KCB 789G · 7 Seater SUV</p>
-                          <div className="pt-3 space-y-1.5">
-                            <div className="flex items-center gap-2 text-[14px] text-[#0A1413] font-medium font-lato">
-                              <Calendar size={13} className="text-[#6B7280]" /> Pick-up: Jun 14, 2026 · 08:00 AM
-                            </div>
-                            <div className="flex items-center gap-2 text-[14px] text-[#0A1413] font-medium font-lato">
-                              <MapPin size={13} className="text-[#6B7280]" /> Jomo Kenyatta Intl Airport
-                            </div>
-                            <div className="flex items-center gap-2 text-[14px] text-[#0A1413] font-medium font-lato">
-                              <Clock size={13} className="text-[#6B7280]" /> Duration: 5 Days · Ksh 42,000
-                            </div>
-                          </div>
-                          <Link href="#" className="inline-flex items-center gap-1 text-[#3FA344] text-[14px] font-medium font-lato pt-3 hover:underline">
-                            View Details <ChevronRight size={13} />
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Recent Notifications */}
-                <section className="bg-white border border-[#E5E7EB] rounded-[14px] overflow-hidden flex flex-col shadow-sm">
-                  <div className="px-[14px] py-[11px] border-b border-[#F2F4F7] flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-[#EBF7ED] rounded-[7px] p-1">
-                        <Bell size={13} className="text-[#3FA34D]" />
-                      </div>
-                      <div>
-                        <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Recent Notifications</h3>
-                        <p className="text-[12px] text-[#6B7280] font-lato">Live updates</p>
-                      </div>
-                    </div>
-                    <div className="bg-[#FFF3E8] rounded-[20px] px-2 py-0.5 flex items-center gap-1.5">
-                      <span className="w-1 h-1 bg-[#FF7815] rounded-full"></span>
-                      <span className="text-[#FF7815] text-[12px] font-bold font-lato">Live</span>
-                    </div>
-                  </div>
-                  <div className="flex-1 divide-y divide-[#FAFBFC]">
-                    <div className="p-3 px-4 flex items-start justify-between hover:bg-gray-50 transition-colors cursor-pointer">
-                      <div className="flex gap-3 items-start">
-                        <div className="bg-[#EBF7ED] border border-[rgba(46,122,57,0.1)] rounded-[6px] p-1.5 mt-0.5 flex-shrink-0">
-                          <CheckCircle2 size={12} className="text-[#3FA34D]" />
-                        </div>
-                        <p className="text-[14px] font-bold text-[#0A1413] font-lato leading-tight">
-                          Your extension to Jun 15 has been approved.
-                        </p>
-                      </div>
-                      <span className="text-[12px] text-[#6B7280] font-lato whitespace-nowrap ml-4">2 min ago</span>
-                    </div>
-                    <div className="p-3 px-4 flex items-start justify-between hover:bg-gray-50 transition-colors cursor-pointer">
-                      <div className="flex gap-3 items-start">
-                        <div className="bg-[#FFF3E8] border border-[rgba(255,120,21,0.1)] rounded-[6px] p-1.5 mt-0.5 flex-shrink-0">
-                          <AlertCircle size={12} className="text-[#FF7815]" />
-                        </div>
-                        <p className="text-[14px] font-bold text-[#0A1413] font-lato leading-tight">
-                          Vehicle return reminder: Toyota Prado due in 3 days.
-                        </p>
-                      </div>
-                      <span className="text-[12px] text-[#6B7280] font-lato whitespace-nowrap ml-4">2 min ago</span>
-                    </div>
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="p-3 px-4 flex items-start justify-between hover:bg-gray-50 transition-colors cursor-pointer">
-                        <div className="flex gap-3 items-start">
-                          <div className="bg-[#E0F7FF] border border-[rgba(8,145,178,0.1)] rounded-[6px] p-1.5 mt-0.5 flex-shrink-0">
-                            <Download size={12} className="text-[#0891B2]" />
-                          </div>
-                          <p className="text-[14px] font-bold text-[#0A1413] font-lato leading-tight">
-                            Invoice #INV-2026-0089 is ready for download.
-                          </p>
-                        </div>
-                        <span className="text-[12px] text-[#6B7280] font-lato whitespace-nowrap ml-4">2 min ago</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-[#E8ECF0] p-2 px-[14px]">
-                    <button className="w-full py-1.5 flex items-center justify-center gap-1 text-[12px] text-[#6B7280] font-lato hover:bg-gray-50 rounded-[7px] transition-colors">
-                      <ChevronRight size={11} className="rotate-90" /> Show 3 More
-                    </button>
-                  </div>
-                  <div className="p-3 px-4 pb-4">
-                    <button className="w-full bg-[#3FA344] text-white py-[13px] rounded-[6px] text-[14px] font-bold font-montserrat hover:bg-[#358a3a] transition-colors shadow-sm">
-                      View All Activity
-                    </button>
-                  </div>
-                </section>
-              </div>
-
-              {/* Support Section */}
-              <section className="pt-6">
-                <SupportCenter />
-              </section>
+                ))
+              ) : (
+                <p className='p-5 text-center font-lato text-sm text-[#6b7280]'>No recent notifications.</p>
+              )}
+            </div>
+            {recentNotifications.length > 3 && (
+              <button className='flex h-9 items-center gap-1 border-t border-[#e8ecf0] px-[14px] font-lato text-xs text-[#6b7280]'>
+                <ChevronDown size={11} /> Show {recentNotifications.length - 3} More
+              </button>
+            )}
+            <div className='p-3'>
+              <Link href='/dashboard/notifications' className='flex h-10 w-full items-center justify-center rounded-md bg-[#3fa344] font-lato text-sm font-bold text-white'>
+                View All Activity
+              </Link>
             </div>
           </div>
-        </main>
+        </section>
       </div>
     </div>
   );

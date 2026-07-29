@@ -1,24 +1,41 @@
 'use client';
 
-import { getTodayAtGlance } from '@/lib/dashboard-data';
 import { CreditCard, Calendar, AlertCircle } from 'lucide-react';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function TodayAtGlance() {
-  const data = getTodayAtGlance();
+  const { overview, isLoading, error } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-5 flex items-center justify-center min-h-[200px]'>
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !overview) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-5 flex items-center justify-center min-h-[200px] text-red-500 text-sm'>
+        Failed to load data.
+      </div>
+    );
+  }
 
   const metrics = [
     {
       label: "Today's Revenue",
-      value: `£${data.revenue.toLocaleString()}`,
-      change: `+${data.revenueChange}%`,
+      value: `£${(overview.totalRevenue / 30).toFixed(0)}`, // approximated daily revenue
+      change: `+12%`, // Mocked change %
       icon: CreditCard,
       bgColor: 'bg-[#EBF7ED]',
       iconColor: 'bg-[rgba(63,163,77,0.13)]',
       textColor: 'text-[#3FA34D]',
     },
     {
-      label: 'New Bookings',
-      value: data.newBookings,
+      label: 'Completed Today',
+      value: overview.completedToday,
       change: 'today',
       icon: Calendar,
       bgColor: 'bg-[#FFF3E8]',
@@ -26,8 +43,8 @@ export default function TodayAtGlance() {
       textColor: 'text-[#FF7815]',
     },
     {
-      label: 'Pending Actions',
-      value: data.pendingActions,
+      label: 'Pending Arrivals',
+      value: overview.pendingArrivals,
       change: 'urgent',
       icon: AlertCircle,
       bgColor: 'bg-[#FFF0F0]',
@@ -42,7 +59,9 @@ export default function TodayAtGlance() {
         <h3 className='text-[14px] font-bold text-[#0A1413] font-montserrat'>
           Today at a Glance
         </h3>
-        <span className='text-[#6B7280] text-[12px] font-lato'>May 10, 2026</span>
+        <span className='text-[#6B7280] text-[12px] font-lato'>
+          {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
       </div>
 
       <div className='space-y-3'>

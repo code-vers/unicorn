@@ -3,67 +3,110 @@
 import { 
   Upload, 
   FileText, 
-  Eye, 
-  Download, 
-  X,
-  Plus,
-  Check
+  Eye
 } from 'lucide-react';
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import { useDocuments } from '@/hooks/useDocuments';
+import { Spinner } from '@/components/ui/Spinner';
+import toast from 'react-hot-toast';
+import type { DocumentResponse, DocumentType } from '@/lib/api/document.service';
 
 interface DocumentRowProps {
   title: string;
-  status?: 'Required' | 'Verified' | 'Pending Review';
-  file?: {
-    name: string;
-    size: string;
-    uploadedAt: string;
-  };
+  type: DocumentType;
+  required?: boolean;
+  document?: DocumentResponse;
+  onUpload: (file: File, type: DocumentType) => Promise<DocumentResponse>;
 }
 
-const DocumentRow: React.FC<DocumentRowProps> = ({ title, status, file }) => {
-  const getStatusStyles = () => {
+const DocumentRow: React.FC<DocumentRowProps> = ({ title, type, required, document, onUpload }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      await onUpload(file, type);
+      toast.success(`${title} uploaded successfully`);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to upload document');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const getStatusStyles = (status: string) => {
     switch (status) {
-      case 'Required':
-        return 'bg-[#FFDAD6] text-[#BA1A1A]';
-      case 'Verified':
+      case 'VERIFIED':
         return 'bg-[#EBF7ED] text-[#3FA34D]';
-      case 'Pending Review':
+      case 'REJECTED':
+        return 'bg-[#FFDAD6] text-[#BA1A1A]';
+      case 'PENDING_REVIEW':
         return 'bg-[#FFFAE0] text-[#D8A500]';
       default:
         return 'bg-[#F6F6F6] text-[#6B7280]';
     }
   };
 
+  const openDocument = (path: string) => {
+    const fullUrl = path.startsWith('http') ? path : `http://localhost:5000${path}`;
+    window.open(fullUrl, '_blank');
+  };
+
+  // Determine current status string
+  let displayStatus = '';
+  if (document) {
+    displayStatus = document.status === 'VERIFIED' ? '✓ Verified' : document.status.replace('_', ' ');
+  } else if (required) {
+    displayStatus = 'Required';
+  }
+
   return (
     <div className="space-y-3 w-full">
       <div className="flex items-center justify-between">
         <p className="text-[#0A1413] text-base font-['Lato'] font-normal">{title}</p>
-        {status && (
-          <div className={`${getStatusStyles()} px-2 py-0.5 rounded-[5px]`}>
-            <p className="text-[10px] font-['Lato']">{status === 'Verified' ? '✓ Verified' : status}</p>
+        {displayStatus && (
+          <div className={`${document ? getStatusStyles(document.status) : 'bg-[#FFDAD6] text-[#BA1A1A]'} px-2 py-0.5 rounded-[5px]`}>
+            <p className="text-[10px] font-['Lato'] capitalize">{displayStatus.toLowerCase()}</p>
           </div>
         )}
       </div>
 
-      <div className="border-[#E5E7EB] border-[1.5px] border-dashed rounded-lg p-6 flex flex-col items-center gap-3">
-        {file ? (
-          <div className="bg-[#F6F6F6] rounded-md p-3 flex items-center gap-3 w-full">
+      <div className={`border-[#E5E7EB] border-[1.5px] border-dashed rounded-lg p-6 flex flex-col items-center gap-3 ${!document && !isUploading ? 'cursor-pointer group hover:bg-gray-50' : ''}`}
+           onClick={() => !document && !isUploading && fileInputRef.current?.click()}
+      >
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          onChange={handleFileChange}
+          accept=".pdf,.jpg,.jpeg,.png"
+        />
+
+        {document ? (
+          <div className="bg-[#F6F6F6] rounded-md p-3 flex items-center gap-3 w-full cursor-default">
             <div className="bg-[#EBF7ED] rounded-md w-10 h-10 flex items-center justify-center">
               <FileText size={18} className="text-[#3FA34D]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[#0A1413] text-sm font-['Nunito'] truncate font-normal">{file.name}</p>
-              <p className="text-[#6B7280] text-[10px] font-['Lato']">{file.size} · Uploaded {file.uploadedAt}</p>
+              <p className="text-[#0A1413] text-sm font-['Nunito'] truncate font-normal">{title} File</p>
+              <p className="text-[#6B7280] text-[10px] font-['Lato']">Uploaded {new Date(document.createdAt).toLocaleDateString()}</p>
             </div>
             <div className="flex gap-1">
-              <button className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Eye size={14} /></button>
-              <button className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Download size={14} /></button>
-              <button className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><X size={14} /></button>
+              <button onClick={(e) => { e.stopPropagation(); openDocument(document.path); }} className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Eye size={14} /></button>
             </div>
           </div>
+        ) : isUploading ? (
+          <div className="flex flex-col items-center gap-3 w-full py-2">
+            <Spinner size="sm" />
+            <p className="text-[#6B7280] text-sm font-['Nunito'] font-normal">Uploading...</p>
+          </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 cursor-pointer group w-full">
+          <div className="flex flex-col items-center gap-3 w-full">
             <div className="size-8 flex items-center justify-center">
               <Upload size={32} className="text-[#6B7280] group-hover:text-[#0A1413] transition-colors" />
             </div>
@@ -77,32 +120,21 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ title, status, file }) => {
   );
 };
 
-interface SignedAgreementProps {
-  name: string;
-  details: string;
-}
-
-const SignedAgreement: React.FC<SignedAgreementProps> = ({ name, details }) => {
-  return (
-    <div className="bg-[#F6F6F6] rounded-md p-3 flex items-center gap-3 w-full">
-      <div className="bg-[#EBF7ED] rounded-md w-10 h-10 flex items-center justify-center">
-        <FileText size={18} className="text-[#3FA34D]" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[#0A1413] text-sm font-['Nunito'] truncate font-normal">{name}</p>
-        <p className="text-[#6B7280] text-[10px] font-['Lato']">{details}</p>
-      </div>
-      <div className="flex gap-1">
-        <button className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Eye size={14} /></button>
-        <button className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Download size={14} /></button>
-      </div>
-    </div>
-  );
-};
-
 export default function DocumentsCenter() {
+  const { documents, isLoading, uploadDocument } = useDocuments();
+
+  const getDoc = (type: DocumentType) => documents.find(d => d.type === type);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-10 space-y-8 bg-white min-h-screen">
+    <div className="p-10 space-y-8 min-h-screen">
       {/* Header */}
       <div className="border-b border-[#E5E7EB] pb-3">
         <h2 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Documents Center</h2>
@@ -114,26 +146,40 @@ export default function DocumentsCenter() {
         <div className="bg-white border border-[#E5E7EB] rounded-[16px] p-6 space-y-4 h-full">
           <h3 className="text-[#0A1413] text-xl font-bold font-montserrat">Required Documents</h3>
           <div className="space-y-4">
-            <DocumentRow title="Driver's License" status="Required" />
+            <DocumentRow 
+              title="Driver's License" 
+              type="DRIVERS_LICENSE" 
+              required 
+              document={getDoc('DRIVERS_LICENSE')}
+              onUpload={uploadDocument}
+            />
             <DocumentRow 
               title="Passport / National ID" 
-              status="Verified" 
-              file={{ name: 'Passport / National ID.pdf', size: '890 KB', uploadedAt: 'Jun 5, 2026' }}
+              type="PASSPORT_ID" 
+              required 
+              document={getDoc('PASSPORT_ID')}
+              onUpload={uploadDocument}
             />
-            <DocumentRow title="KRA PIN Certificate" status="Pending Review" />
           </div>
         </div>
 
-        {/* Insurance Documents */}
+        {/* Corporate Documents */}
         <div className="bg-white border border-[#E5E7EB] rounded-[16px] p-6 space-y-4 h-full flex flex-col">
-          <h3 className="text-[#0A1413] text-xl font-bold font-montserrat">Insurance Documents</h3>
+          <h3 className="text-[#0A1413] text-xl font-bold font-montserrat">Corporate Documents</h3>
           <div className="space-y-4 flex-1">
-            <DocumentRow title="Document 1" />
-            <DocumentRow title="Document 2" />
+            <DocumentRow 
+              title="KRA PIN Certificate" 
+              type="KRA_PIN" 
+              document={getDoc('KRA_PIN')}
+              onUpload={uploadDocument}
+            />
+            <DocumentRow 
+              title="Company Registration" 
+              type="COMPANY_REGISTRATION" 
+              document={getDoc('COMPANY_REGISTRATION')}
+              onUpload={uploadDocument}
+            />
           </div>
-          <button className="w-full bg-[#3FA344] text-white py-2.5 rounded-[6px] font-bold text-sm mt-4 hover:bg-[#358A3A] transition-colors">
-            Add Another Document
-          </button>
         </div>
       </div>
 
@@ -143,13 +189,9 @@ export default function DocumentsCenter() {
           <h3 className="text-[#0A1413] text-xl font-bold font-montserrat">Signed Rental Agreements</h3>
         </div>
         <div className="p-6 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <SignedAgreement 
-              key={i}
-              name="Rental Agreement – URC-2026-0089"
-              details="Toyota Prado VX – KBZ 456T · Jun 8, 2026 · 245 KB"
-            />
-          ))}
+          <div className="text-center py-6 text-gray-500 text-sm font-lato">
+            No signed agreements available yet. They will appear here once a booking is verified.
+          </div>
         </div>
       </div>
     </div>

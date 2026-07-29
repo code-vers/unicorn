@@ -1,6 +1,5 @@
 'use client';
 
-import { getRevenueData } from '@/lib/dashboard-data';
 import { TrendingUp } from 'lucide-react';
 import {
   Bar,
@@ -12,15 +11,41 @@ import {
   YAxis,
   ComposedChart,
 } from 'recharts';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function RevenueAnalysis() {
-  const data = getRevenueData();
+  const { revenueTrends: data, isLoading, error } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-full flex items-center justify-center min-h-[400px]'>
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !data || data.length === 0) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-full flex items-center justify-center min-h-[400px] text-red-500 text-sm'>
+        Failed to load revenue analysis.
+      </div>
+    );
+  }
+
+  const totalRev = data.reduce((sum, item) => sum + item.revenue, 0);
+  const totalExp = data.reduce((sum, item) => sum + item.expenses, 0);
+  const totalNet = data.reduce((sum, item) => sum + item.net, 0);
+  const bestMonthObj = [...data].sort((a, b) => b.net - a.net)[0];
+  const bestMonth = bestMonthObj ? bestMonthObj.month : '-';
+
+  const formatK = (val: number) => `£${(val / 1000).toFixed(0)}k`;
 
   const metrics = [
-    { label: 'TOTAL REV.', value: '£754k', color: 'text-[#3FA34D]' },
-    { label: 'TOTAL EXP.', value: '£443k', color: 'text-[#FF7815]' },
-    { label: 'NET PROFIT', value: '£311k', color: 'text-[#007BFF]' },
-    { label: 'BEST MONTH', value: 'Dec', color: 'text-[#9747FF]' },
+    { label: 'TOTAL REV.', value: formatK(totalRev), color: 'text-[#3FA34D]' },
+    { label: 'TOTAL EXP.', value: formatK(totalExp), color: 'text-[#FF7815]' },
+    { label: 'NET PROFIT', value: formatK(totalNet), color: 'text-[#007BFF]' },
+    { label: 'BEST MONTH', value: bestMonth, color: 'text-[#9747FF]' },
   ];
 
   return (
@@ -28,10 +53,10 @@ export default function RevenueAnalysis() {
       <div className='flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4'>
         <div>
           <h3 className='text-[14px] font-bold text-[#0A1413] font-montserrat'>
-            Today at a Glance
+            Revenue Analysis
           </h3>
           <p className='text-[#6B7280] text-[12px] font-lato'>
-            Revenue vs. Expenses — FY 2024
+            Revenue vs. Expenses
           </p>
         </div>
 
@@ -81,7 +106,7 @@ export default function RevenueAnalysis() {
               stroke='#F2F4F7'
             />
             <XAxis
-              dataKey='date'
+              dataKey='month'
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#A0AEC0', fontSize: 12, fontFamily: 'Lato' }}
