@@ -45,12 +45,12 @@ export default function NotificationsList() {
                 <span className="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
               )}
             </h4>
-            <span className="font-['Lato:Regular'] font-normal text-[#6b7280] text-[12px] leading-[1.6]">
-              {notification.time}
+            <span className="font-['Lato:Regular'] font-normal text-[#6b7280] text-[12px] whitespace-nowrap ml-4">
+              {new Date(notification.createdAt).toLocaleDateString()}
             </span>
           </div>
-          <p className="font-['Nunito:Regular'] font-normal text-[#6b7280] text-[14px] leading-[1.6]">
-            {notification.description}
+          <p className="font-['Nunito:Regular'] font-normal text-[#6b7280] text-[14px] leading-snug">
+            {notification.message}
           </p>
         </div>
       ))}

@@ -79,6 +79,39 @@ export interface BookingResponse {
   paymentStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
   createdAt: string;
   updatedAt: string;
+  vehicle?: {
+    id: string;
+    name: string;
+    plateNumber?: string;
+    category?: string;
+    images?: Array<{ id: string; path: string; order: number }>;
+  };
+  pickupLocation?: {
+    id: string;
+    name: string;
+    address?: string;
+  };
+  dropOffLocation?: {
+    id: string;
+    name: string;
+    address?: string;
+  };
+  assignedDriver?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    status: string;
+  };
+}
+
+export interface BookingModifyPayload {
+  dropOffDate?: string;
+  hasGps?: boolean;
+  hasFullInsurance?: boolean;
+  hasAdditionalDriver?: boolean;
+  hasChildSeat?: boolean;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -119,9 +152,9 @@ export const BookingService = {
    * Fetch the current user's bookings. Auth required.
    * GET /api/v1/bookings/my-bookings
    */
-  getMyBookings: async (): Promise<BookingResponse[]> => {
+  getMyBookings: async (params?: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }): Promise<BookingResponse[]> => {
     try {
-      const response = await apiClient.get('/bookings/my-bookings');
+      const response = await apiClient.get('/bookings/my-bookings', { params });
       return response.data.data;
     } catch (error) {
       throw new Error(extractErrorMessage(error, 'Failed to fetch bookings'));
@@ -141,11 +174,21 @@ export const BookingService = {
     }
   },
 
+  /** Modify a customer-owned booking. */
+  modifyBooking: async (id: string, payload: BookingModifyPayload): Promise<BookingResponse> => {
+    try {
+      const response = await apiClient.patch(`/bookings/${id}/modify`, payload);
+      return response.data.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to modify booking'));
+    }
+  },
+
   /**
    * Fetch all bookings. Admin only.
    * GET /api/v1/bookings
    */
-  getAllBookings: async (): Promise<any[]> => {
+  getAllBookings: async (): Promise<BookingResponse[]> => {
     try {
       const response = await apiClient.get('/bookings');
       return response.data.data;
@@ -168,6 +211,22 @@ export const BookingService = {
       return response.data.data;
     } catch (error) {
       throw new Error(extractErrorMessage(error, 'Failed to update booking status'));
+    }
+  },
+
+  /**
+   * Extend an existing booking. Auth required.
+   * POST /api/v1/bookings/:id/extend-payment
+   */
+  extendPayment: async (
+    id: string,
+    payload: { amount: number; paymentMethod: string; transactionId?: string; additionalDays: number }
+  ): Promise<BookingResponse> => {
+    try {
+      const response = await apiClient.post(`/bookings/${id}/extend-payment`, payload);
+      return response.data.data;
+    } catch (error) {
+      throw new Error(extractErrorMessage(error, 'Failed to extend booking'));
     }
   },
 };

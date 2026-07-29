@@ -5,15 +5,19 @@ import BookingTrendsChart from '@/components/dashboard/admin/BookingTrendsChart'
 import RevenueGrowthChart from '@/components/dashboard/admin/RevenueGrowthChart';
 import VehicleDistributionChart from '@/components/dashboard/admin/VehicleDistributionChart';
 import ReportsMetrics from '@/components/dashboard/admin/ReportsMetrics';
-import { getReportMetrics } from '@/lib/dashboard-data';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { Spinner } from '@/components/ui/Spinner';
 
 export default function ReportsPage() {
-  const { bookingTrends, revenueTrends, vehicleStats, isLoading, error } = useAnalytics();
+  const { overview, bookingTrends, revenueTrends, vehicleStats, isLoading, error } = useAnalytics();
   
-  // Kept mocked for now since it wasn't in API spec
-  const reportMetrics = getReportMetrics();
+  // Build report metrics dynamically from backend overview
+  const reportMetrics = overview ? [
+    { label: 'Total Revenue', value: `$${overview.totalRevenue.toLocaleString()}` },
+    { label: 'Total Bookings', value: overview.reservations.toString() },
+    { label: 'Active Vehicles', value: overview.activeVehicles.toString() },
+    { label: 'Completed Today', value: overview.completedToday.toString() },
+  ] : [];
 
   if (isLoading) {
     return (

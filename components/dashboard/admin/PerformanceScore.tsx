@@ -35,9 +35,6 @@ export default function PerformanceScore() {
 
         <div className='mb-2'>
           <h2 className='text-[24px] font-bold font-montserrat'>{data.score}%</h2>
-          <p className='text-[12px] opacity-65 font-lato'>
-            Based on {data.reviewsCount} customer reviews this month
-          </p>
         </div>
 
         <div className='flex items-center gap-1 mb-4'>

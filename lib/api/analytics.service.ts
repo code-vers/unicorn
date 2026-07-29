@@ -29,7 +29,6 @@ export interface VehicleStat {
 
 export interface PerformanceScore {
   score: number;
-  reviewsCount: number;
   rating: number;
 }
 

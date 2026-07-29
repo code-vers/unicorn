@@ -10,7 +10,9 @@ export const useNotifications = (limit: number = 10) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await NotificationService.getNotifications(limit);
+      // Assuming getNotifications and getUserNotifications do the same thing now
+      // Or we can just use the backend's default get all for user
+      const data = await NotificationService.getUserNotifications();
       setNotifications(data || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch notifications');
