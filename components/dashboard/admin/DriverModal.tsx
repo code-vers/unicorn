@@ -5,6 +5,8 @@ import * as z from 'zod';
 import { X, Upload, Info } from 'lucide-react';
 import { DriverResponse } from '../../../lib/api/driver.service';
 import { useVehicles } from '../../../hooks/useVehicles';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
@@ -155,9 +157,8 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
               <div>
                 <label className={labelClass}>Availability</label>
                 <select {...register('availability')} className={selectClass} style={selectStyle}>
-                  <option value="AVAILABLE">Available</option>
-                  <option value="ASSIGNED">Assigned</option>
-                  <option value="UNAVAILABLE">Unavailable</option>
+                  <option value="AVAILABLE">Available (Eligible for work)</option>
+                  <option value="UNAVAILABLE">Unavailable (On Leave)</option>
                 </select>
               </div>
             </div>
@@ -247,7 +248,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
           <div className="bg-[rgba(239,246,255,0.5)] border border-[#dbeafe] rounded-[4px] p-[13px] flex items-center gap-[6px] mt-1">
             <Info className="text-[#2563eb]" size={14} />
             <p className="text-[12px] text-[#2563eb] font-lato leading-[1.6]">
-              Drivers marked as AVAILABLE will be assigned to incoming bookings automatically.
+              Set to UNAVAILABLE if the driver is on leave. Daily assignments are calculated automatically based on their bookings.
             </p>
           </div>
         </form>
@@ -261,7 +262,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
             className="bg-[#3fa344] hover:bg-[#348a39] text-white font-wix font-bold text-[14px] px-[36px] py-[10px] rounded-[6px] transition-colors disabled:opacity-50 min-w-[150px] flex justify-center items-center h-[42px]"
           >
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <Spinner size="sm" variant="white" />
             ) : (
               initialData ? 'Save Changes' : 'Save Driver'
             )}

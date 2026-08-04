@@ -11,6 +11,8 @@ import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { User, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -113,7 +115,7 @@ export default function RegisterPage() {
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Spinner size="sm" variant="white" />
           ) : (
             <>
               Sign up

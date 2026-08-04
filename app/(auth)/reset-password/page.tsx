@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const resetPasswordSchema = z.object({
   email: z.string().email(),
@@ -87,7 +89,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="text-center py-10">Loading...</div>}>
+    <Suspense fallback={<Spinner size="md" centered />}>
       <ResetPasswordContent />
     </Suspense>
   );

@@ -11,7 +11,18 @@ export interface DriverResponse {
   availability: 'AVAILABLE' | 'ASSIGNED' | 'UNAVAILABLE';
   notes: string | null;
   assignedVehicleId: string | null;
-  assignedVehicle: { id: string; name: string } | null;
+  assignedVehicle?: {
+    id: string;
+    name: string;
+    brand: string;
+    category: string;
+  };
+  bookings?: Array<{
+    id: string;
+    bookingStatus: string;
+    pickupDate: string;
+    dropOffDate: string;
+  }>;
   createdAt: string;
   updatedAt: string;
 }

@@ -8,14 +8,13 @@ import {
   Mail, 
   MessageSquare,
   Undo2,
-  ChevronRight,
   Navigation,
   Info,
-  Calendar,
   User,
-  ExternalLink
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { useBookings } from '@/hooks/useBookings';
+import { Spinner } from '@/components/ui/Spinner';
 
 type TabType = 'Pick-Up Instructions' | 'Office Locations' | 'Return Instructions' | 'Airport Meet & Greet' | 'Driver Contacts';
 
@@ -29,6 +28,10 @@ const tabs: TabType[] = [
 
 export default function TripManagement() {
   const [activeTab, setActiveTab] = useState<TabType>('Pick-Up Instructions');
+  const { bookings, isLoading } = useBookings();
+
+  // Find the active booking (ongoing or confirmed that is starting today/soon)
+  const activeBooking = bookings?.find(b => b.bookingStatus === 'ONGOING' || b.bookingStatus === 'CONFIRMED');
 
   const renderContent = () => {
     switch (activeTab) {
@@ -39,16 +42,24 @@ export default function TripManagement() {
       case 'Return Instructions':
         return <ReturnInstructions />;
       case 'Airport Meet & Greet':
-        return <AirportMeetGreet />;
+        return <AirportMeetGreet booking={activeBooking} />;
       case 'Driver Contacts':
-        return <DriverContacts />;
+        return <DriverContacts booking={activeBooking} />;
       default:
         return null;
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-10 space-y-8 bg-white min-h-screen">
+    <div className="p-10 space-y-8 min-h-screen">
       {/* Header */}
       <div className="border-b border-[#E5E7EB] pb-3">
         <h2 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase tracking-wider">Trip Management</h2>
@@ -56,7 +67,7 @@ export default function TripManagement() {
       </div>
 
       {/* Menubar */}
-      <div className="bg-white border border-[#E5E7EB] p-1 rounded-[10px] flex items-center gap-1 w-fit">
+      <div className="bg-white border border-[#E5E7EB] p-1 rounded-[10px] flex items-center gap-1 w-fit flex-wrap">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -226,109 +237,102 @@ const ReturnInstructions = () => (
         ))}
       </div>
     </div>
-    
-    <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6 space-y-4">
-      <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat">Need to Extend Instead?</h3>
-      <button className="w-full bg-[#FF7815] text-white py-2.5 rounded-[6px] font-bold text-sm hover:bg-[#E66B12] transition-colors">
-        Go to Extensions
-      </button>
-    </div>
   </div>
 );
 
-const AirportMeetGreet = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div className="bg-[#EBF7ED] border border-[#E5E7EB] rounded-[10px] overflow-hidden flex flex-col h-full">
-      <div className="p-6 border-b border-[#E5E7EB]">
-        <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">Your Meet & Greet Driver</h3>
+const AirportMeetGreet = ({ booking }: { booking: any }) => {
+  if (!booking || !booking.assignedDriver) {
+    return (
+      <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-6 text-center text-gray-500">
+        You do not have an active booking with an assigned driver right now.
       </div>
-      <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
-        <div className="space-y-4">
-          <div className="flex gap-4 items-center">
-            <User size={16} className="text-gray-600" />
-            <p className="text-[14px] text-[#0A1413] font-nunito">Peter Otieno</p>
-          </div>
-          <div className="flex gap-4 items-center">
-            <Phone size={16} className="text-gray-600" />
-            <p className="text-[14px] text-[#0A1413] font-nunito">+254 020 123 4567</p>
-          </div>
-        </div>
-        <button className="w-full border border-[#3FA344] text-[#3FA344] py-2 rounded-[6px] flex items-center justify-center gap-2 text-[14px] font-bold hover:bg-[#3FA344]/5 transition-colors mt-4">
-          <MessageSquare size={16} /> WhatsApp
-        </button>
-      </div>
-    </div>
+    );
+  }
 
-    <div className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden flex flex-col h-full">
-      <div className="p-6 border-b border-[#E5E7EB]">
-        <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">Meeting Point Details</h3>
-      </div>
-      <div className="divide-y divide-[#E5E7EB]">
-        <div className="p-4 flex gap-4 items-center">
-          <div className="bg-[#EBF7ED] rounded-[6px] w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <MapPin size={18} className="text-[#3FA34D]" />
-          </div>
-          <div>
-            <p className="text-[14px] font-bold text-[#0A1413] font-nunito">Terminal 1A – International Arrivals</p>
-            <p className="text-[10px] text-[#6B7280] font-lato">Arrivals Hall, Column C – Look for the Unicorn Rent-A-Car signage board</p>
-          </div>
-        </div>
-        <div className="p-4 flex gap-4 items-center">
-          <div className="bg-[#FEF3C6] rounded-[6px] w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <User size={18} className="text-[#D8A500]" />
-          </div>
-          <div>
-            <p className="text-[14px] font-bold text-[#0A1413] font-nunito">Your Signboard</p>
-            <p className="text-[10px] text-[#6B7280] font-lato">Your name (JAMES KAMAU) will be on our board</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  const { assignedDriver: driver, pickupLocation } = booking;
 
-    <div className="lg:col-span-2">
-      <div className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden">
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="bg-[#EBF7ED] border border-[#E5E7EB] rounded-[10px] overflow-hidden flex flex-col h-full">
         <div className="p-6 border-b border-[#E5E7EB]">
-          <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">JKIA Airport Office</h3>
+          <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">Your Meet & Greet Driver</h3>
         </div>
-        <div className="p-6 space-y-4">
-          <div className="flex gap-4 items-center">
-            <MapPin size={16} className="text-gray-600" />
-            <p className="text-[14px] text-[#0A1413] font-nunito">Arrivals Hall, Terminal 1A</p>
+        <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex gap-4 items-center">
+              <User size={16} className="text-gray-600" />
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.firstName} {driver.lastName}</p>
+            </div>
+            <div className="flex gap-4 items-center">
+              <Phone size={16} className="text-gray-600" />
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phone}</p>
+            </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <Clock size={16} className="text-gray-600" />
-            <p className="text-[14px] text-[#0A1413] font-nunito">Open 24 Hours · 7 Days</p>
+          <button className="w-full border border-[#3FA344] text-[#3FA344] py-2 rounded-[6px] flex items-center justify-center gap-2 text-[14px] font-bold hover:bg-[#3FA344]/5 transition-colors mt-4">
+            <MessageSquare size={16} /> WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden flex flex-col h-full">
+        <div className="p-6 border-b border-[#E5E7EB]">
+          <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">Meeting Point Details</h3>
+        </div>
+        <div className="divide-y divide-[#E5E7EB]">
+          <div className="p-4 flex gap-4 items-center">
+            <div className="bg-[#EBF7ED] rounded-[6px] w-10 h-10 flex items-center justify-center flex-shrink-0">
+              <MapPin size={18} className="text-[#3FA34D]" />
+            </div>
+            <div>
+              <p className="text-[14px] font-bold text-[#0A1413] font-nunito">{pickupLocation?.name || 'Pickup Location'}</p>
+              <p className="text-[10px] text-[#6B7280] font-lato">{pickupLocation?.address || 'See confirmation email for exact meeting point'}</p>
+            </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <Phone size={16} className="text-gray-600" />
-            <p className="text-[14px] text-[#0A1413] font-nunito">+254 020 123 4567</p>
+          <div className="p-4 flex gap-4 items-center">
+            <div className="bg-[#FEF3C6] rounded-[6px] w-10 h-10 flex items-center justify-center flex-shrink-0">
+              <User size={18} className="text-[#D8A500]" />
+            </div>
+            <div>
+              <p className="text-[14px] font-bold text-[#0A1413] font-nunito">Your Signboard</p>
+              <p className="text-[10px] text-[#6B7280] font-lato">The driver will hold a board with your name.</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-const DriverContacts = () => (
-  <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden">
+const DriverContacts = ({ booking }: { booking: any }) => {
+  if (!booking || !booking.assignedDriver) {
+    return (
+      <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-6 text-center text-gray-500">
+        You do not have a driver assigned to any active bookings right now.
+      </div>
+    );
+  }
+
+  const driver = booking.assignedDriver;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden">
           <div className="p-6 border-b border-[#E5E7EB]">
-            <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">Peter Otieno</h3>
+            <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">{driver.firstName} {driver.lastName}</h3>
           </div>
           <div className="p-6 space-y-4">
             <div className="flex gap-4 items-center">
               <Phone size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">+254 020 123 4567</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phone}</p>
             </div>
             <div className="flex gap-4 items-center">
               <Mail size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">p.otieno@unicornrent.co.ke</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.email}</p>
             </div>
             <div className="flex gap-4 items-center">
               <MessageSquare size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">Languages: English, Swahili</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">Status: {driver.status}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-2">
               <button className="border border-[#3FA344] text-[#3FA344] py-1.5 rounded-[6px] flex items-center justify-center gap-1.5 text-[12px] font-bold hover:bg-[#3FA344]/5 transition-colors">
@@ -340,14 +344,14 @@ const DriverContacts = () => (
             </div>
           </div>
         </div>
-      ))}
-    </div>
+      </div>
 
-    <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6 space-y-4">
-      <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase">24/7 Roadside Assistance</h3>
-      <button className="w-full bg-[#3FA344] text-white py-3 rounded-[6px] font-bold text-[14px] hover:bg-[#358A3A] transition-colors flex items-center justify-center gap-2">
-        <Phone size={16} /> Call +254 800 123 456
-      </button>
+      <div className="bg-white border border-[#E5E7EB] rounded-[14px] p-6 space-y-4">
+        <h3 className="text-[14px] font-bold text-[#0A1413] font-montserrat uppercase">24/7 Roadside Assistance</h3>
+        <button className="w-full bg-[#3FA344] text-white py-3 rounded-[6px] font-bold text-[14px] hover:bg-[#358A3A] transition-colors flex items-center justify-center gap-2">
+          <Phone size={16} /> Call +254 800 123 456
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};

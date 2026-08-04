@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { UserService } from '../../../lib/api/user.service';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function SettingsForm() {
   const [isLoading, setIsLoading] = useState(true);
@@ -78,7 +80,7 @@ export default function SettingsForm() {
   if (isLoading) {
     return (
       <div className='flex items-center justify-center min-h-[300px]'>
-        <div className='w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin'></div>
+        <Spinner size="md" />
       </div>
     );
   }

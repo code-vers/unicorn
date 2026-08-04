@@ -11,6 +11,8 @@ import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -94,7 +96,7 @@ export default function ForgotPasswordPage() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Spinner size="sm" variant="white" />
             ) : (
               'Send reset instructions'
             )}

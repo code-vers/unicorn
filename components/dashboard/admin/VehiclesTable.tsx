@@ -8,6 +8,8 @@ import { useVehicles } from '../../../hooks/useVehicles';
 import { VehicleResponse } from '../../../lib/api/vehicle.service';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import VehicleModal from './VehicleModal';
+import { Spinner } from '@/components/ui/Spinner';
+
 
 export default function VehiclesTable() {
   const {
@@ -233,7 +235,7 @@ export default function VehiclesTable() {
         <div className='overflow-x-auto min-h-[300px] relative'>
           {isLoading && vehicles.length === 0 ? (
             <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-              <div className='w-8 h-8 border-4 border-[#3FA34D] border-t-transparent rounded-full animate-spin'></div>
+              <Spinner size="md" />
             </div>
           ) : null}
           <table className='w-full text-left border-collapse min-w-[1200px]'>

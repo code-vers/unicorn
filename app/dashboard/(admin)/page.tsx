@@ -13,8 +13,8 @@ import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 export default function DashboardPage() {
   return (
     <div className='h-full w-full flex flex-col'>
-            <div className='flex-1'>
-                <main className='flex-1 overflow-y-auto bg-[#F9FAFB]'>
+      <div className='flex-1'>
+        <main className='flex-1 overflow-y-auto bg-[#ffffff]'>
           <div className='p-6 space-y-6 max-w-[1600px] mx-auto'>
             {/* Welcome Section */}
             <WelcomeBanner />

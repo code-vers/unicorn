@@ -1,10 +1,27 @@
 'use client';
 
-import { getVehicleStats } from '@/lib/dashboard-data';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function MostBookedVehicles() {
-  const data = getVehicleStats();
+  const { vehicleStats: data, isLoading, error } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-[516px] flex items-center justify-center'>
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !data || data.length === 0) {
+    return (
+      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-[516px] flex items-center justify-center text-red-500 text-sm'>
+        Failed to load vehicle stats.
+      </div>
+    );
+  }
 
   return (
     <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-[516px] '>

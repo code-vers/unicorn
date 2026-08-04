@@ -3,13 +3,33 @@
 import React from 'react';
 import { CalendarDays, DollarSign, UserCheck, Car, BarChart2 } from 'lucide-react';
 import StatCard from './StatCard';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function StatsGrid() {
+  const { overview, isLoading, error } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[120px] w-full">
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !overview) {
+    return (
+      <div className="flex items-center justify-center min-h-[120px] w-full text-red-500 text-sm">
+        Failed to load stats.
+      </div>
+    );
+  }
+
   const stats = [
     {
       title: 'Total Bookings',
-      value: '1,284',
-      change: '+12.5%',
+      value: overview.reservations.toLocaleString(),
+      change: '+12.5%', // Mocked until API supports changes
       subText: 'vs last 30 days',
       icon: CalendarDays,
       iconBgColor: '#ebf7ed',
@@ -17,7 +37,7 @@ export default function StatsGrid() {
     },
     {
       title: 'Revenue',
-      value: '328,500',
+      value: `£${overview.totalRevenue.toLocaleString()}`,
       change: '+12.5%',
       subText: 'vs last 30 days',
       icon: DollarSign,
@@ -26,7 +46,7 @@ export default function StatsGrid() {
     },
     {
       title: 'Upcoming Rentals',
-      value: '89',
+      value: overview.upcomingRentals.toString(),
       change: '+12.5%',
       subText: 'next 7 days',
       icon: BarChart2,
@@ -35,18 +55,18 @@ export default function StatsGrid() {
     },
     {
       title: 'Active Drivers',
-      value: '62',
+      value: overview.pendingArrivals.toString(), // mapped pendingArrivals as a placeholder since driver API might be separate
       change: '+12.5%',
-      subText: '2 on leave today',
+      subText: 'active today',
       icon: UserCheck,
       iconBgColor: '#f3eeff',
       iconColor: '#7C3AED',
     },
     {
       title: 'Available Vehicles',
-      value: '94',
+      value: overview.activeVehicles.toString(),
       change: '+12.5%',
-      subText: '8 returned today',
+      subText: 'currently ready',
       icon: Car,
       iconBgColor: '#e0f7ff',
       iconColor: '#0EA5E9',
@@ -61,3 +81,4 @@ export default function StatsGrid() {
     </div>
   );
 }
+
