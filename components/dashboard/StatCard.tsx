@@ -6,7 +6,7 @@ import { LucideIcon, TrendingUp } from 'lucide-react';
 interface StatCardProps {
   title: string;
   value: string | number;
-  change: string;
+  change?: string;
   subText: string;
   icon: LucideIcon;
   iconBgColor: string;
@@ -31,12 +31,14 @@ export default function StatCard({
         >
           <Icon size={18} color={iconColor} />
         </div>
-        <div className="bg-[#ebf7ed] rounded-[20px] flex gap-[3px] items-center px-[6px] py-[2px]">
-          <TrendingUp size={9} className="text-[#3fa34d]" />
-          <span className="font-bold text-[#3fa34d] text-[12px] leading-[1.6]">
-            {change}
-          </span>
-        </div>
+        {change && (
+          <div className="bg-[#ebf7ed] rounded-[20px] flex gap-[3px] items-center px-[6px] py-[2px]">
+            <TrendingUp size={9} className="text-[#3fa34d]" />
+            <span className="font-bold text-[#3fa34d] text-[12px] leading-[1.6]">
+              {change}
+            </span>
+          </div>
+        )}
       </div>
       
       <div className="flex flex-col gap-[6px]">

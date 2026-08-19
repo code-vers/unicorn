@@ -1,7 +1,41 @@
+"use client";
+
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import React from "react";
+import React, { FormEvent, useState } from "react";
+import { SupportService } from '@/lib/api/support.service';
 
 const ContactUs: React.FC = () => {
+  const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setFeedback(null);
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      await SupportService.createTicket({
+        name: String(data.get('name') ?? ''),
+        email: String(data.get('email') ?? ''),
+        phone: String(data.get('phone') ?? '') || undefined,
+        subject: String(data.get('subject') ?? ''),
+        message: String(data.get('message') ?? '')
+      });
+      form.reset();
+      setFeedback({ type: 'success', message: 'Your message was sent successfully.' });
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Unable to send your message.'
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className='w-full bg-white font-sans'>
       {/* --- HERO SECTION WITH OVERLAY CARDS --- */}
@@ -102,38 +136,55 @@ const ContactUs: React.FC = () => {
             </p>
           </div>
 
-          <form className='space-y-6'>
+          <form className='space-y-6' onSubmit={handleSubmit}>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <input
                 type='text'
+                name='name'
+                required
                 placeholder='YOUR NAME'
                 className='w-full h-[56px] px-6 border border-[#E2E8F0] rounded-[8px] outline-none focus:border-[#43A047] text-[13px] uppercase tracking-wider font-medium text-[#1E293B]'
               />
               <input
-                type='text'
+                type='email'
+                name='email'
+                required
                 placeholder='YOUR EMAIL'
                 className='w-full h-[56px] px-6 border border-[#E2E8F0] rounded-[8px] outline-none focus:border-[#43A047] text-[13px] uppercase tracking-wider font-medium text-[#1E293B]'
               />
               <input
-                type='text'
+                type='tel'
+                name='phone'
                 placeholder='YOUR PHONE NUMBER'
                 className='w-full h-[56px] px-6 border border-[#E2E8F0] rounded-[8px] outline-none focus:border-[#43A047] text-[13px] uppercase tracking-wider font-medium text-[#1E293B]'
               />
               <input
                 type='text'
+                name='subject'
+                required
                 placeholder='SUBJECT'
                 className='w-full h-[56px] px-6 border border-[#E2E8F0] rounded-[8px] outline-none focus:border-[#43A047] text-[13px] uppercase tracking-wider font-medium text-[#1E293B]'
               />
             </div>
             <textarea
               placeholder='MESSAGE'
+              name='message'
+              required
+              minLength={10}
               rows={6}
               className='w-full p-6 border border-[#E2E8F0] rounded-[8px] outline-none focus:border-[#43A047] text-[13px] uppercase tracking-wider font-medium text-[#1E293B] resize-none'></textarea>
 
+            {feedback && (
+              <p className={feedback.type === 'success' ? 'text-green-700' : 'text-red-600'} role='status'>
+                {feedback.message}
+              </p>
+            )}
+
             <button
               type='submit'
+              disabled={submitting}
               className='bg-[#43A047] text-white px-10 py-4 rounded-[8px] font-bold text-[15px] hover:bg-[#388E3C] transition-all shadow-md shadow-green-100'>
-              Send Message
+              {submitting ? 'Sending…' : 'Send Message'}
             </button>
           </form>
         </div>

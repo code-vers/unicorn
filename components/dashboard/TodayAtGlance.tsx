@@ -2,17 +2,13 @@
 
 import { CreditCard, Calendar, AlertCircle } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 export default function TodayAtGlance() {
   const { overview, isLoading, error } = useAnalytics();
 
   if (isLoading) {
-    return (
-      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-5 flex items-center justify-center min-h-[200px]'>
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton rows={3} />;
   }
 
   if (error || !overview) {
@@ -26,7 +22,7 @@ export default function TodayAtGlance() {
   const metrics = [
     {
       label: "Today's Revenue",
-      value: `£${(overview.totalRevenue / 30).toFixed(0)}`, // approximated daily revenue
+      value: `KSh ${overview.todayRevenue.toLocaleString()}`,
       change: `+12%`, // Mocked change %
       icon: CreditCard,
       bgColor: 'bg-[#EBF7ED]',

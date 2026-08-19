@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { SupportService } from '@/lib/api/support.service';
 import toast from 'react-hot-toast';
 import { Spinner } from '@/components/ui/Spinner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const faqs = [
   { question: 'How do I extend my rental period?', answer: 'You can extend your rental period through the "Extend Rental" quick action on your dashboard or by contacting our support team.' },
@@ -23,6 +24,7 @@ const faqs = [
 ];
 
 export default function SupportCenter() {
+  const { user } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   
   const [subject, setSubject] = useState('');
@@ -37,12 +39,15 @@ export default function SupportCenter() {
 
     setIsSubmitting(true);
     try {
-      await SupportService.createTicket({ subject, message });
+      if (!user) {
+        throw new Error('Please sign in before submitting a support ticket.');
+      }
+      await SupportService.createTicket({ name: user.name, email: user.email, subject, message });
       toast.success('Ticket submitted successfully! We will get back to you soon.');
       setSubject('');
       setMessage('');
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to submit ticket');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to submit ticket');
     } finally {
       setIsSubmitting(false);
     }

@@ -12,6 +12,7 @@ export interface DropOffChargePayload {
   vehicleId?: string;
   chargeType?: ChargeType;
   amount: number;
+  distanceKm?: number;
   seasonalMultiplier?: number;
   status?: DropOffChargeStatus;
 }
@@ -24,6 +25,7 @@ export interface DropOffChargeResponse {
   vehicleId: string | null;
   chargeType: ChargeType | null;
   amount: number;
+  distanceKm: number | null;
   seasonalMultiplier: number | null;
   status: DropOffChargeStatus;
   createdAt: string;

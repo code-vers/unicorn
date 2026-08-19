@@ -15,8 +15,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Unicorn',
-  description: 'Rent a car',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  title: {
+    default: 'Unicorn Rent a Car',
+    template: '%s | Unicorn Rent a Car'
+  },
+  description: 'Reliable self-drive and chauffeur car rental services across Kenya.',
+  openGraph: {
+    title: 'Unicorn Rent a Car',
+    description: 'Reliable self-drive and chauffeur car rental services across Kenya.',
+    type: 'website'
+  }
 };
 
 export default function RootLayout({

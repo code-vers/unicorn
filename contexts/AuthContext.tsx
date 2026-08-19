@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 
@@ -15,8 +14,8 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  login: (user: User, callbackUrl?: string) => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,41 +27,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = Cookies.get('token');
-      const storedUser = Cookies.get('user');
-
-      if (token && storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (error) {
-          console.error("Failed to parse user from cookies");
-          Cookies.remove('token');
-          Cookies.remove('user');
-        }
+      try {
+        const response = await apiClient.get('/users/me');
+        setUser(response.data.data ?? response.data);
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
   }, []);
 
-  const login = (token: string, user: User) => {
-    Cookies.set('token', token, { expires: 30, secure: process.env.NODE_ENV === 'production' });
-    Cookies.set('user', JSON.stringify(user), { expires: 30, secure: process.env.NODE_ENV === 'production' });
+  const login = (user: User, callbackUrl?: string) => {
     setUser(user);
-    router.push('/dashboard');
+    const defaultDestination = user.role === 'ADMIN' ? '/dashboard' : '/dashboard/client';
+    const destination =
+      callbackUrl?.startsWith('/') && !callbackUrl.startsWith('//')
+        ? callbackUrl
+        : defaultDestination;
+    router.replace(destination);
+    router.refresh();
   };
 
   const logout = async () => {
     try {
       await apiClient.post('/auth/logout');
-    } catch (e) {
-      // ignore errors on logout
+    } catch {
+      // Local logout still proceeds if the API is unavailable.
     }
-    Cookies.remove('token');
-    Cookies.remove('user');
     setUser(null);
-    router.push('/login');
+    router.replace('/login');
+    router.refresh();
   };
 
   return (

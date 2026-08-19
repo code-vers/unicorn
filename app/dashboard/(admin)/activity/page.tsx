@@ -2,17 +2,13 @@
 
 import RecentActivity from '@/components/dashboard/admin/RecentActivity';
 import { useActivity } from '@/hooks/useActivity';
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
 
 export default function ActivityPage() {
   const { activities, isLoading, error } = useActivity(50); // Maybe larger limit for full page
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (error) {

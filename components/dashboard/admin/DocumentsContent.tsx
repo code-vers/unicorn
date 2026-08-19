@@ -4,8 +4,10 @@ import React, { useRef, useState } from 'react';
 import { Upload, Check, X, FileText } from 'lucide-react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Spinner } from '@/components/ui/Spinner';
+import { TableRowsSkeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
 import type { DocumentResponse, DocumentStatus, DocumentType } from '@/lib/api/document.service';
+import { DocumentService } from '@/lib/api/document.service';
 
 
 interface DocumentUploadProps {
@@ -79,9 +81,12 @@ export default function DocumentsContent() {
     }
   };
 
-  const openDocument = (path: string) => {
-    const fullUrl = path.startsWith('http') ? path : `http://localhost:5000${path}`;
-    window.open(fullUrl, '_blank');
+  const openDocument = async (id: string) => {
+    try {
+      await DocumentService.openDocument(id);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to open document');
+    }
   };
 
   return (
@@ -127,11 +132,7 @@ export default function DocumentsContent() {
             </thead>
             <tbody className="divide-y divide-[#F4F6F8]">
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-10">
-                    <Spinner size="md" />
-                  </td>
-                </tr>
+                <TableRowsSkeleton columns={6} rows={5} />
               ) : documents.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-10 text-[#6B7280] text-sm">
@@ -155,7 +156,7 @@ export default function DocumentsContent() {
                   </td>
                   <td className="py-[15px]">
                     <button 
-                      onClick={() => openDocument(upload.path)}
+                      onClick={() => void openDocument(upload.id)}
                       className="flex items-center gap-1 text-[#3FA34D] hover:underline text-[12px] font-['Lato']"
                     >
                       <FileText size={14} /> View File

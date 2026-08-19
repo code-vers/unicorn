@@ -1,30 +1,25 @@
 'use client';
 
-import ReportsToolbar from '@/components/dashboard/admin/ReportsToolbar';
 import BookingTrendsChart from '@/components/dashboard/admin/BookingTrendsChart';
 import RevenueGrowthChart from '@/components/dashboard/admin/RevenueGrowthChart';
 import VehicleDistributionChart from '@/components/dashboard/admin/VehicleDistributionChart';
 import ReportsMetrics from '@/components/dashboard/admin/ReportsMetrics';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
 
 export default function ReportsPage() {
   const { overview, bookingTrends, revenueTrends, vehicleStats, isLoading, error } = useAnalytics();
   
   // Build report metrics dynamically from backend overview
   const reportMetrics = overview ? [
-    { label: 'Total Revenue', value: `$${overview.totalRevenue.toLocaleString()}` },
+      { label: 'Total Revenue', value: `KSh ${overview.totalRevenue.toLocaleString()}` },
     { label: 'Total Bookings', value: overview.reservations.toString() },
     { label: 'Active Vehicles', value: overview.activeVehicles.toString() },
     { label: 'Completed Today', value: overview.completedToday.toString() },
   ] : [];
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (error) {
@@ -55,8 +50,6 @@ export default function ReportsPage() {
           </div>
 
           <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-sm overflow-hidden flex flex-col w-full'>
-            <ReportsToolbar />
-            
             <div className='p-8 flex flex-col gap-12'>
               {/* Row 1: Booking Trends & Revenue Growth */}
               <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>

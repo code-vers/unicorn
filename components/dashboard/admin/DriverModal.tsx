@@ -6,10 +6,11 @@ import { X, Upload, Info } from 'lucide-react';
 import { DriverResponse } from '../../../lib/api/driver.service';
 import { useVehicles } from '../../../hooks/useVehicles';
 import { Spinner } from '@/components/ui/Spinner';
+import { getAssetUrl } from '@/lib/asset-url';
 
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/svg+xml", "image/gif"];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const driverSchema = z.object({
   name: z.string().min(1, 'Driver name is required'),
@@ -212,7 +213,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
               {!photo && initialData?.photoUrl && (
                 <div className="mt-2 text-[12px] text-gray-500 flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden border">
-                    <img src={`http://localhost:5000${initialData.photoUrl}`} className="w-full h-full object-cover" alt="Current photo" />
+                    <img src={getAssetUrl(initialData.photoUrl)} className="w-full h-full object-cover" alt="Current photo" />
                   </div>
                   Current photo
                 </div>
@@ -236,7 +237,7 @@ export default function DriverModal({ isOpen, onClose, onSubmit, initialData, is
               {!licensePhoto && initialData?.licensePhotoUrl && (
                 <div className="mt-2 text-[12px] text-gray-500 flex items-center gap-2">
                   <div className="w-8 h-6 rounded overflow-hidden border">
-                    <img src={`http://localhost:5000${initialData.licensePhotoUrl}`} className="w-full h-full object-cover" alt="Current license" />
+                    <img src={getAssetUrl(initialData.licensePhotoUrl)} className="w-full h-full object-cover" alt="Current license" />
                   </div>
                   Current license
                 </div>

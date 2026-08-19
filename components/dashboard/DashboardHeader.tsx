@@ -3,14 +3,8 @@
 import { Bell, ChevronDown, RefreshCcw, Search, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-
-// 1. Strict Data Contracts
-// This ensures your UI is entirely decoupled from the data fetching logic
-interface UserProfile {
-  name: string;
-  role: string;
-  avatarUrl?: string;
-}
+import { useRouter } from 'next/navigation';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface Breadcrumb {
   label: string;
@@ -24,44 +18,43 @@ interface DashboardHeaderProps {
   lastUpdated?: string;
   hasUnreadNotifications?: boolean;
   completedToday?: number;
-  user?: UserProfile;
   onSearch?: (query: string) => void;
   onToggleSidebar?: () => void;
 }
 
 export default function DashboardHeader({
-  // 2. Default props act as our "Mock Data" until the backend is hooked up
   title = 'Dashboard Overview',
   breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Dashboard', active: true },
   ],
-  lastUpdated = 'Updated 16 May 2026, 11:59',
-  hasUnreadNotifications = true,
-  user = {
-    name: 'Sarah Admin',
-    role: 'Super Admin',
-    avatarUrl: '/avatars/sarah.jpg', // Swap with actual CDN URL later
-  },
+  lastUpdated,
+  hasUnreadNotifications,
   onSearch,
   onToggleSidebar,
 }: DashboardHeaderProps) {
   const { user: authUser, logout } = useAuth();
+  const { notifications } = useNotifications();
+  const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
-  const displayUser = authUser || user || { name: 'User', role: 'Role' };
+
+  const displayUser = authUser || { name: 'User', role: 'USER' as const };
+  const hasUnread =
+    hasUnreadNotifications ?? notifications.some((notification) => !notification.isRead);
   return (
     <header className='flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-3 bg-white border-b border-gray-200 w-full'>
       {/* Left Section: Context & Navigation */}
       <div className='flex items-center gap-4 w-full md:w-auto mb-4 md:mb-0'>
         {/* Sidebar Toggle / App Icon Launcher */}
-        <button
-          onClick={onToggleSidebar}
-          aria-label='Toggle Navigation'
-          className='flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200'
-        >
-          <div className='w-3.5 h-3.5 bg-gray-400 rounded-sm' />
-        </button>
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            aria-label='Toggle Navigation'
+            className='flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200'
+          >
+            <div className='w-3.5 h-3.5 bg-gray-400 rounded-sm' />
+          </button>
+        )}
 
         <div className='flex flex-col'>
           <h1 className='text-[17px] font-bold text-gray-900 leading-tight'>{title}</h1>
@@ -85,27 +78,30 @@ export default function DashboardHeader({
       {/* Right Section: Tools & Profile */}
       <div className='flex items-center flex-wrap gap-3 w-full md:w-auto'>
         {/* Last Updated Badge */}
-        <div className='hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-md border border-gray-100'>
-          <RefreshCcw size={14} className='text-gray-400' />
-          <span className='text-[11px] text-gray-500 font-medium'>{lastUpdated}</span>
-        </div>
+        {lastUpdated && (
+          <div className='hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-md border border-gray-100'>
+            <RefreshCcw size={14} className='text-gray-400' />
+            <span className='text-[11px] text-gray-500 font-medium'>{lastUpdated}</span>
+          </div>
+        )}
 
         {/* Global Search */}
-        <div className='relative flex-grow md:flex-grow-0'>
+        {onSearch && <div className='relative flex-grow md:flex-grow-0'>
           <div className='absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none'>
             <Search size={14} className='text-gray-400' />
           </div>
           <input
             type='text'
             placeholder='Search...'
-            onChange={(e) => onSearch?.(e.target.value)}
+            onChange={(e) => onSearch(e.target.value)}
             className='w-full md:w-48 xl:w-64 pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-600/50 focus:border-green-600/50 transition-all'
           />
-        </div>
+        </div>}
 
         {/* Action Icons */}
         <button
           aria-label='Settings'
+          onClick={() => router.push(displayUser.role === 'ADMIN' ? '/dashboard/settings' : '/dashboard/profile')}
           className='flex-shrink-0 p-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-md text-gray-500 transition-colors'
         >
           <Settings size={16} />
@@ -113,10 +109,11 @@ export default function DashboardHeader({
 
         <button
           aria-label='Notifications'
+          onClick={() => router.push('/dashboard/notifications')}
           className='relative flex-shrink-0 p-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-md text-gray-500 transition-colors'
         >
           <Bell size={16} />
-          {hasUnreadNotifications && (
+          {hasUnread && (
             // Absolute positioning to place the dot exactly like the design
             <span className='absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-600 rounded-full border border-white' />
           )}
@@ -155,7 +152,7 @@ export default function DashboardHeader({
               <button
                 onClick={() => {
                   setIsProfileOpen(false);
-                  logout();
+                  void logout();
                 }}
                 className='block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition'
               >

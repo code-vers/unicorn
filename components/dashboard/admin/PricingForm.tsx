@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, Loader2, Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { VehicleService, VehicleResponse } from '@/lib/api/vehicle.service';
 import { PricingService, PricingPayload } from '@/lib/api/pricing.service';
 import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 
 const defaultPricing: PricingPayload = {
@@ -45,16 +46,19 @@ export default function PricingForm() {
     fetchPricing(selectedVehicleId);
   }, [selectedVehicleId]);
 
-  const fetchVehicles = async () => {
+  async function fetchVehicles() {
     try {
       const response = await VehicleService.getVehicles({ limit: 100 });
       setVehicles(response.data);
-    } catch (error) {
-      console.error('Failed to fetch vehicles', error);
+    } catch (error: unknown) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to fetch vehicles'
+      });
     }
-  };
+  }
 
-  const fetchPricing = async (vehicleId: string) => {
+  async function fetchPricing(vehicleId: string) {
     setIsLoading(true);
     setMessage({ type: '', text: '' });
     try {
@@ -86,7 +90,7 @@ export default function PricingForm() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -183,9 +187,7 @@ export default function PricingForm() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Spinner size="md" />
-        </div>
+        <SectionSkeleton rows={7} />
       ) : (
         <>
           {/* Main Pricing Sections */}
@@ -195,7 +197,7 @@ export default function PricingForm() {
               <div className='flex flex-col gap-4'>
                 <h3 className='text-[#0A1413] text-[20px] font-montserrat font-bold mb-2'>Base Rates</h3>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Daily Rate ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Daily Rate (KES)</label>
                   <input
                     type='number'
                     name='dailyRate'
@@ -205,7 +207,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Weekly Rate ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Weekly Rate (KES)</label>
                   <input
                     type='number'
                     name='weeklyRate'
@@ -215,7 +217,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Monthly Rate ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Monthly Rate (KES)</label>
                   <input
                     type='number'
                     name='monthlyRate'
@@ -230,7 +232,7 @@ export default function PricingForm() {
               <div className='flex flex-col gap-4'>
                 <h3 className='text-[#0A1413] text-[18px] font-montserrat font-bold mb-2'>Service Type</h3>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Self-Drive Rate ($/day)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Self-Drive Rate (KES/day)</label>
                   <input
                     type='number'
                     name='selfDriveRate'
@@ -240,7 +242,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Chauffeur Rate ($/day)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Chauffeur Rate (KES/day)</label>
                   <input
                     type='number'
                     name='chauffeurRate'
@@ -266,7 +268,7 @@ export default function PricingForm() {
               <div className='flex flex-col gap-4'>
                 <h3 className='text-[#0A1413] text-[18px] font-montserrat font-bold mb-2'>Additional Charges</h3>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Day ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Day (KES)</label>
                   <input
                     type='number'
                     name='extraDayCharge'
@@ -276,7 +278,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Late Return ($/hour)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Late Return (KES/hour)</label>
                   <input
                     type='number'
                     name='lateReturnHourlyCharge'
@@ -286,7 +288,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Security Deposit ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Security Deposit (KES)</label>
                   <input
                     type='number'
                     name='securityDeposit'
@@ -296,7 +298,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Delivery/Collection ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Delivery/Collection (KES)</label>
                   <input
                     type='number'
                     name='deliveryCollectionCharge'
@@ -306,7 +308,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Airport Pickup/Drop ($)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Airport Pickup/Drop (KES)</label>
                   <input
                     type='number'
                     name='airportPickupDropCharge'
@@ -316,7 +318,7 @@ export default function PricingForm() {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Mileage ($/km)</label>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Mileage (KES/km)</label>
                   <input
                     type='number'
                     step='0.01'

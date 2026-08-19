@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 
 const resetPasswordSchema = z.object({
@@ -89,7 +89,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<Spinner size="md" centered />}>
+    <Suspense fallback={<SectionSkeleton className="mx-auto max-w-md" rows={3} />}>
       <ResetPasswordContent />
     </Suspense>
   );

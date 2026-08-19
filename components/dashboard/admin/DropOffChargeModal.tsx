@@ -8,7 +8,8 @@ import * as z from 'zod';
 import { DropOffChargePayload, DropOffChargeResponse, VehicleCategory, ChargeType, DropOffChargeStatus } from '../../../lib/api/dropOffCharge.service';
 import { LocationService, LocationResponse } from '../../../lib/api/location.service';
 import { VehicleService, VehicleResponse } from '../../../lib/api/vehicle.service';
-import { Spinner } from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/ui/Skeleton';
+import toast from 'react-hot-toast';
 
 
 const VEHICLE_CATEGORIES: VehicleCategory[] = ['SALOON', 'SUV', 'VAN', 'LUXURY', 'FOUR_WD', 'CHAUFFEUR_DRIVEN', 'SELF_DRIVEN'];
@@ -22,11 +23,15 @@ const dropOffChargeSchema = z.object({
   vehicleId: z.string().optional(),
   chargeType: z.enum(['FIXED', 'PER_KM']).optional().or(z.literal('')),
   amount: z.string().min(1, 'Amount is required').refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, 'Amount must be a valid positive number'),
+  distanceKm: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), 'Distance must be greater than zero'),
   seasonalMultiplier: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), 'Must be a valid positive number'),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 }).refine((data) => data.pickupLocationId !== data.dropOffLocationId, {
   message: 'Pickup and drop-off locations cannot be the same.',
   path: ['dropOffLocationId'],
+}).refine((data) => data.chargeType !== 'PER_KM' || Boolean(data.distanceKm), {
+  message: 'Distance is required for a per-kilometre charge.',
+  path: ['distanceKm'],
 });
 
 type DropOffChargeFormValues = z.infer<typeof dropOffChargeSchema>;
@@ -44,7 +49,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
   const [vehicles, setVehicles] = useState<VehicleResponse[]>([]);
   const [isFetchingOptions, setIsFetchingOptions] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<DropOffChargeFormValues>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<DropOffChargeFormValues>({
     resolver: zodResolver(dropOffChargeSchema),
     defaultValues: {
       pickupLocationId: '',
@@ -53,10 +58,12 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
       vehicleId: '',
       chargeType: 'FIXED',
       amount: '0',
+      distanceKm: '',
       seasonalMultiplier: '',
       status: 'ACTIVE',
     },
   });
+  const chargeType = watch('chargeType');
 
   useEffect(() => {
     if (isOpen) {
@@ -67,7 +74,9 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
       ]).then(([locRes, vehRes]) => {
         setLocations(locRes.data);
         setVehicles(vehRes.data);
-      }).catch(console.error).finally(() => setIsFetchingOptions(false));
+      }).catch((error: unknown) => {
+        toast.error(error instanceof Error ? error.message : 'Failed to load form options');
+      }).finally(() => setIsFetchingOptions(false));
     }
   }, [isOpen]);
 
@@ -80,6 +89,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         vehicleId: initialData.vehicleId ?? '',
         chargeType: initialData.chargeType ?? 'FIXED',
         amount: String(initialData.amount),
+        distanceKm: initialData.distanceKm != null ? String(initialData.distanceKm) : '',
         seasonalMultiplier: initialData.seasonalMultiplier != null ? String(initialData.seasonalMultiplier) : '',
         status: initialData.status,
       });
@@ -91,6 +101,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         vehicleId: '',
         chargeType: 'FIXED',
         amount: '0',
+        distanceKm: '',
         seasonalMultiplier: '',
         status: 'ACTIVE',
       });
@@ -107,6 +118,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
       pickupLocationId: values.pickupLocationId,
       dropOffLocationId: values.dropOffLocationId,
       amount: amountNum,
+      ...(values.distanceKm ? { distanceKm: parseFloat(values.distanceKm) } : {}),
       ...(values.vehicleCategory ? { vehicleCategory: values.vehicleCategory as VehicleCategory } : {}),
       ...(values.vehicleId ? { vehicleId: values.vehicleId } : {}),
       ...(values.chargeType ? { chargeType: values.chargeType as ChargeType } : {}),
@@ -134,7 +146,10 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col overflow-y-auto">
           <div className="p-5 space-y-4">
             {isFetchingOptions && (
-              <Spinner size="sm" centered />
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2' role='status' aria-label='Loading options'>
+                <Skeleton className='h-10 w-full' />
+                <Skeleton className='h-10 w-full' />
+              </div>
             )}
 
             {/* Locations */}
@@ -194,7 +209,7 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
                 </select>
               </div>
               <div>
-                <label className="block text-[12px] font-bold text-gray-700 font-lato mb-1">Amount ($) *</label>
+                <label className="block text-[12px] font-bold text-gray-700 font-lato mb-1">Amount (KES) *</label>
                 <input
                   type="text"
                   inputMode="decimal"
@@ -211,6 +226,21 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
                 {errors.amount && <p className="text-red-500 text-[10px] mt-1">{errors.amount.message}</p>}
               </div>
             </div>
+
+            {chargeType === 'PER_KM' && (
+              <div>
+                <label className="block text-[12px] font-bold text-gray-700 font-lato mb-1">Route Distance (km) *</label>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  {...register('distanceKm')}
+                  className={inputClass(!!errors.distanceKm)}
+                  placeholder="e.g. 24.5"
+                />
+                {errors.distanceKm && <p className="text-red-500 text-[10px] mt-1">{errors.distanceKm.message}</p>}
+              </div>
+            )}
 
             {/* Seasonal Multiplier & Status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

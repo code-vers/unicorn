@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 
 const verifyCodeSchema = z.object({
@@ -88,7 +88,7 @@ function VerifyResetContent() {
 
 export default function VerifyResetPage() {
   return (
-    <Suspense fallback={<Spinner size="md" centered />}>
+    <Suspense fallback={<SectionSkeleton className="mx-auto max-w-md" rows={3} />}>
       <VerifyResetContent />
     </Suspense>
   );

@@ -3,13 +3,16 @@
 import { 
   Upload, 
   FileText, 
-  Eye
+  Eye,
+  RefreshCw
 } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
 import type { DocumentResponse, DocumentType } from '@/lib/api/document.service';
+import { DocumentService } from '@/lib/api/document.service';
 
 interface DocumentRowProps {
   title: string;
@@ -52,9 +55,12 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ title, type, required, docume
     }
   };
 
-  const openDocument = (path: string) => {
-    const fullUrl = path.startsWith('http') ? path : `http://localhost:5000${path}`;
-    window.open(fullUrl, '_blank');
+  const openDocument = async (id: string) => {
+    try {
+      await DocumentService.openDocument(id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to open document');
+    }
   };
 
   // Determine current status string
@@ -97,7 +103,25 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ title, type, required, docume
               <p className="text-[#6B7280] text-[10px] font-['Lato']">Uploaded {new Date(document.createdAt).toLocaleDateString()}</p>
             </div>
             <div className="flex gap-1">
-              <button onClick={(e) => { e.stopPropagation(); openDocument(document.path); }} className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"><Eye size={14} /></button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); void openDocument(document.id); }}
+                className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500"
+                aria-label={`View ${title}`}
+                title="View document"
+              >
+                <Eye size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                disabled={isUploading}
+                className="p-1.5 hover:bg-gray-200 rounded transition-colors text-gray-500 disabled:opacity-50"
+                aria-label={`Replace ${title}`}
+                title="Upload replacement"
+              >
+                {isUploading ? <Spinner size="sm" /> : <RefreshCw size={14} />}
+              </button>
             </div>
           </div>
         ) : isUploading ? (
@@ -126,11 +150,7 @@ export default function DocumentsCenter() {
   const getDoc = (type: DocumentType) => documents.find(d => d.type === type);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (

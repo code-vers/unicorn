@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm test && npm run typecheck && NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api/v1 NEXT_PUBLIC_ASSET_BASE_URL=http://localhost:5000 NEXT_PUBLIC_SITE_URL=http://localhost:3000 npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -14,7 +17,7 @@
     "clsx": "^2.1.1",
     "js-cookie": "^3.0.8",
     "lucide-react": "^1.11.0",
-    "next": "16.2.4",
+    "next": "^16.3.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.81.0",
@@ -31,8 +34,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "^16.3.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

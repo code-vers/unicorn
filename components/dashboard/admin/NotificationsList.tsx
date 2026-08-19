@@ -1,17 +1,13 @@
 'use client';
 
 import { useNotifications } from '@/hooks/useNotifications';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 export default function NotificationsList() {
   const { notifications, isLoading, error, markAsRead } = useNotifications();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px] w-full max-w-[1630px]">
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton rows={4} />;
   }
 
   if (error) {

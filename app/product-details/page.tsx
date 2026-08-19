@@ -8,9 +8,11 @@ import {
   BookingService,
 } from "@/lib/api/booking.service";
 import { VehicleResponse, VehicleService } from "@/lib/api/vehicle.service";
+import { LocationResponse, LocationService } from '@/lib/api/location.service';
 import { useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
+import { toBookingIso } from '@/lib/booking-date';
 
 
 // ── Product Details Page (Booking State Owner) ────────────────────────────────
@@ -44,14 +46,26 @@ const ProductDetailsContent: React.FC = () => {
   // ── Vehicle data ─────────────────────────────────────────────────────────────
   const [vehicle, setVehicle] = useState<VehicleResponse | null>(null);
   const [vehicleLoading, setVehicleLoading] = useState(true);
+  const [locations, setLocations] = useState<LocationResponse[]>([]);
+  const [pageError, setPageError] = useState('');
 
   useEffect(() => {
     if (!vehicleId) return;
     VehicleService.getVehicle(vehicleId)
       .then(setVehicle)
-      .catch(console.error)
+      .catch((error: unknown) =>
+        setPageError(error instanceof Error ? error.message : 'Failed to load vehicle')
+      )
       .finally(() => setVehicleLoading(false));
   }, [vehicleId]);
+
+  useEffect(() => {
+    LocationService.getLocations({ status: 'ACTIVE', limit: 100 })
+      .then((response) => setLocations(response.data))
+      .catch((error: unknown) =>
+        setPageError(error instanceof Error ? error.message : 'Failed to load locations')
+      );
+  }, []);
 
   // ── Booking form state ────────────────────────────────────────────────────────
   const [pickupLocationId, setPickupLocationId] = useState(searchParams.get("pickupLocationId") ?? "");
@@ -61,35 +75,14 @@ const ProductDetailsContent: React.FC = () => {
   const [hasAdditionalDriver, setHasAdditionalDriver] = useState(false);
   const [hasChildSeat, setHasChildSeat] = useState(false);
 
-  // ── Locations data ────────────────────────────────────────────────────────────
-  const [locations, setLocations] = useState<any[]>([]);
-  useEffect(() => {
-    import("@/lib/api/location.service").then((mod) => {
-      mod.LocationService.getLocations({ status: "ACTIVE" })
-        .then((res) => setLocations(res.data))
-        .catch(console.error);
-    });
-  }, []);
-
-  const getLocName = (id: string, fallback: string | undefined) => {
-    if (!id) return fallback;
-    const loc = locations.find((l) => l.id === id);
-    return loc ? loc.name : fallback;
-  };
-
   // ── Live price calculation ────────────────────────────────────────────────────
   const [priceBreakdown, setPriceBreakdown] =
     useState<BookingCalculateResponse | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
 
   // Build the ISO strings for dates. We combine date + time strings from URL params.
-  const buildIso = (date: string, time: string) => {
-    if (!date) return "";
-    return time ? `${date}T${time}:00.000Z` : `${date}T00:00:00.000Z`;
-  };
-
-  const pickupDateIso = buildIso(pickupDate, pickupTime);
-  const dropOffDateIso = buildIso(dropOffDate, dropOffTime);
+  const pickupDateIso = toBookingIso(pickupDate, pickupTime) ?? '';
+  const dropOffDateIso = toBookingIso(dropOffDate, dropOffTime) ?? '';
 
   const runCalculate = useCallback(async () => {
     // We need at minimum: vehicleId, both dates, and location IDs
@@ -116,8 +109,10 @@ const ProductDetailsContent: React.FC = () => {
     try {
       const result = await BookingService.calculate(payload);
       setPriceBreakdown(result);
-    } catch (err) {
-      console.error("Price calculation failed:", err);
+      setPageError('');
+    } catch (error: unknown) {
+      setPriceBreakdown(null);
+      setPageError(error instanceof Error ? error.message : 'Price calculation failed');
     } finally {
       setPriceLoading(false);
     }
@@ -140,15 +135,16 @@ const ProductDetailsContent: React.FC = () => {
   }, [vehicle, runCalculate]);
 
   if (vehicleLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-200px)] bg-white w-full">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
     <div>
+      {pageError && (
+        <div role='alert' className='mx-auto mt-4 max-w-[1440px] rounded-lg bg-red-50 p-3 text-sm text-red-700'>
+          {pageError}
+        </div>
+      )}
       {/* Step progress + pickup/dropoff details */}
       <BookingProcess
         pickupDate={pickupDate}
@@ -200,7 +196,7 @@ const ProductDetailsContent: React.FC = () => {
 
 export default function ProductDetailsPage() {
   return (
-    <React.Suspense fallback={<Spinner size="lg" fullScreen className="bg-white" />}>
+    <React.Suspense fallback={<PageSkeleton />}>
       <ProductDetailsContent />
     </React.Suspense>
   );

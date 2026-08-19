@@ -1,7 +1,7 @@
 'use client';
 
 import { useActivity } from '@/hooks/useActivity';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 import {
   AlertTriangle,
   Calendar,
@@ -77,8 +77,8 @@ export default function RecentActivityDetailed() {
 
       <div className='flex-1 overflow-y-auto relative'>
         {isLoading && activities.length === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Spinner size="md" />
+          <div className="absolute inset-0 bg-white p-4">
+            <SectionSkeleton className='border-0' rows={6} />
           </div>
         ) : error ? (
           <div className="absolute inset-0 flex items-center justify-center text-red-500 text-sm">

@@ -106,8 +106,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     const effectiveDropOffDate = (newPickupDate && dropOffDate && dropOffDate < newPickupDate) ? newPickupDate : dropOffDate;
     if (newPickupDate && effectiveDropOffDate && newPickupDate === effectiveDropOffDate && pickupTime && dropOffTime) {
       if (dropOffTime <= pickupTime) {
-        let [h, m] = pickupTime.split(':').map(Number);
-        h = Math.min(23, h + 1);
+        const [hours, m] = pickupTime.split(':').map(Number);
+        const h = Math.min(23, hours + 1);
         setDropOffTime(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
       }
     }

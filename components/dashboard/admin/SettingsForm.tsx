@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { UserService } from '../../../lib/api/user.service';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 
 export default function SettingsForm() {
@@ -78,11 +78,7 @@ export default function SettingsForm() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center min-h-[300px]'>
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton rows={5} />;
   }
 
   return (

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { apiClient, extractErrorMessage } from '../api-client';
 
 export type DocumentType =
@@ -26,6 +28,27 @@ export interface DocumentResponse {
   };
 }
 
+const extractDocumentErrorMessage = async (error: unknown, fallback: string) => {
+  if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+    try {
+      const payload = JSON.parse(await error.response.data.text()) as {
+        message?: string;
+        errorSources?: Array<{ message?: string }>;
+      };
+      const sourceMessages = payload.errorSources
+        ?.map((source) => source.message)
+        .filter((message): message is string => Boolean(message));
+
+      if (sourceMessages?.length) return sourceMessages.join(' | ');
+      if (payload.message) return payload.message;
+    } catch {
+      return fallback;
+    }
+  }
+
+  return extractErrorMessage(error, fallback);
+};
+
 export const DocumentService = {
   getAllDocuments: async (): Promise<DocumentResponse[]> => {
     try {
@@ -45,6 +68,26 @@ export const DocumentService = {
     }
   },
 
+  openDocument: async (id: string): Promise<void> => {
+    const previewWindow = window.open('about:blank', '_blank');
+    if (previewWindow) previewWindow.opener = null;
+
+    try {
+      const response = await apiClient.get(`/documents/${id}/file`, { responseType: 'blob' });
+      const objectUrl = URL.createObjectURL(response.data);
+      if (previewWindow) {
+        previewWindow.location.replace(objectUrl);
+      } else {
+        const openedWindow = window.open(objectUrl, '_blank', 'noopener,noreferrer');
+        if (!openedWindow) throw new Error('Allow pop-ups to view this document.');
+      }
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    } catch (error) {
+      previewWindow?.close();
+      throw new Error(await extractDocumentErrorMessage(error, 'Failed to open document'));
+    }
+  },
+
   updateDocumentStatus: async (id: string, status: DocumentStatus): Promise<DocumentResponse> => {
     try {
       const response = await apiClient.patch(`/documents/${id}/status`, { status });
@@ -59,7 +102,7 @@ export const DocumentService = {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', type);
-      
+
       const response = await apiClient.post('/documents', formData);
       return response.data.data;
     } catch (error) {
