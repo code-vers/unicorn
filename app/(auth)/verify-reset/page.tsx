@@ -38,12 +38,19 @@ function VerifyResetContent() {
   const onSubmit = async (data: VerifyCodeFormValues) => {
     setError('');
     try {
-      await apiClient.post('/auth/verify-reset-code', data);
+      const response = await apiClient.post('/auth/verify-reset-code', data);
+      const resetToken = response.data.data?.resetToken;
+
+      if (!resetToken) {
+        throw new Error('Reset token was not returned by the server.');
+      }
+
+      sessionStorage.setItem('passwordResetToken', resetToken);
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/reset-password?email=${encodeURIComponent(data.email)}&code=${encodeURIComponent(data.code)}`);
+        router.push('/reset-password');
       }, 1000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(extractErrorMessage(err, 'Invalid or expired reset code.'));
     }
   };
