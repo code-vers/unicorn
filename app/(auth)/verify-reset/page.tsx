@@ -16,7 +16,7 @@ import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 const verifyCodeSchema = z.object({
   email: z.string().email(),
-  resetCode: z.string().min(1, "Reset code is required"),
+  code: z.string().min(1, "Reset code is required"),
 });
 
 type VerifyCodeFormValues = z.infer<typeof verifyCodeSchema>;
@@ -41,7 +41,7 @@ function VerifyResetContent() {
       await apiClient.post('/auth/verify-reset-code', data);
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/reset-password?email=${encodeURIComponent(data.email)}&code=${encodeURIComponent(data.resetCode)}`);
+        router.push(`/reset-password?email=${encodeURIComponent(data.email)}&code=${encodeURIComponent(data.code)}`);
       }, 1000);
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Invalid or expired reset code.'));
@@ -67,9 +67,9 @@ function VerifyResetContent() {
             <input type="hidden" {...register('email')} />
             
             <div className="space-y-2">
-              <Label htmlFor="resetCode">Reset Code</Label>
-              <Input id="resetCode" placeholder="Enter code" {...register('resetCode')} />
-              {errors.resetCode && <p className="text-sm text-red-500">{errors.resetCode.message}</p>}
+              <Label htmlFor="code">Reset Code</Label>
+              <Input id="code" placeholder="Enter code" {...register('code')} />
+              {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Verifying...' : 'Verify Code'}
