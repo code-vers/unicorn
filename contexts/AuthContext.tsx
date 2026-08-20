@@ -47,8 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       callbackUrl?.startsWith('/') && !callbackUrl.startsWith('//')
         ? callbackUrl
         : defaultDestination;
-    router.replace(destination);
-    router.refresh();
+
+    // The API sets the session in an HttpOnly cookie. Use a document navigation
+    // so the first dashboard request (including Proxy) sees the new cookie.
+    window.location.replace(destination);
   };
 
   const logout = async () => {
