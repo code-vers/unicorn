@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Eye, Trash2, Search, Download, ChevronLeft, ChevronRight, ChevronDown, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUsers } from '../../../hooks/useUsers';
 import { UserResponse } from '../../../lib/api/user.service';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
-import { Spinner } from '@/components/ui/Spinner';
+import { TableSkeleton } from '@/components/ui/Skeleton';
+import { getAssetUrl } from '@/lib/asset-url';
 
 
 export default function CustomersTable() {
@@ -37,7 +38,7 @@ export default function CustomersTable() {
     switch (status) {
       case 'ACTIVE':   return 'bg-[#EBF7ED] text-[#3FA34D]';
       case 'INACTIVE': return 'bg-[#F3F4F6] text-[#6B7280]';
-      case 'SUSPENDED': return 'bg-[#FFF0F0] text-[#DC2626]';
+      case 'BLOCKED':   return 'bg-[#FFF0F0] text-[#DC2626]';
       default:          return 'bg-[#EBF7ED] text-[#3FA34D]';
     }
   };
@@ -145,8 +146,8 @@ export default function CustomersTable() {
       {/* Table */}
       <div className='overflow-x-auto min-h-[300px] relative'>
         {isLoading && users.length === 0 ? (
-          <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-            <Spinner size="md" />
+          <div className='absolute inset-0 z-10 bg-white'>
+            <TableSkeleton className='h-full rounded-none border-0' rows={6} />
           </div>
         ) : null}
         <table className='w-full text-left border-collapse min-w-[1100px]'>
@@ -178,9 +179,8 @@ export default function CustomersTable() {
               </tr>
             ) : (
               users.map((user, index) => (
-                <>
+                <Fragment key={user.id}>
                   <tr
-                    key={user.id}
                     className={`${index % 2 === 1 ? 'bg-[#FAFBFC]' : 'bg-white'} h-[50px] hover:bg-gray-50 transition-colors`}
                   >
                     <td className='px-3 py-2 text-center'>
@@ -196,7 +196,7 @@ export default function CustomersTable() {
                         <div className='w-[30px] h-[30px] rounded-[8px] bg-[rgba(63,163,77,0.09)] flex items-center justify-center flex-shrink-0'>
                           {user.photoUrl ? (
                             <img
-                              src={`${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:5000'}${user.photoUrl}`}
+                            src={getAssetUrl(user.photoUrl)}
                               alt={user.name}
                               className='w-full h-full object-cover rounded-[8px]'
                               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -265,7 +265,7 @@ export default function CustomersTable() {
                                 <span className={`px-2 py-0.5 rounded-[5px] text-[10px] font-lato ${getDocStatusStyles(doc.status)}`}>
                                   {doc.status}
                                 </span>
-                                {doc.status === 'PENDING' && (
+                                {doc.status === 'PENDING_REVIEW' && (
                                   <div className='flex gap-1'>
                                     <button
                                       onClick={() => handleDocumentStatus(doc.id, 'VERIFIED')}
@@ -290,7 +290,7 @@ export default function CustomersTable() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))
             )}
           </tbody>

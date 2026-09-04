@@ -1,0 +1,28 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+const protectedRoutes = ['/dashboard', '/manage-bookings'];
+const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-reset'];
+
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const hasSession = Boolean(request.cookies.get('accessToken')?.value);
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+
+  if (isProtectedRoute && !hasSession) {
+    const url = new URL('/login', request.url);
+    url.searchParams.set('callbackUrl', `${pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(url);
+  }
+
+  if (isAuthRoute && hasSession) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
+};

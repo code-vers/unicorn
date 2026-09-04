@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { BookingService, BookingResponse } from '../lib/api/booking.service';
+import { useState, useEffect, useCallback } from "react";
+import { BookingService, BookingResponse } from "../lib/api/booking.service";
 
-export const useBookings = () => {
+type BookingScope = "mine" | "all";
+
+export const useBookings = (scope: BookingScope = "mine") => {
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -10,14 +12,17 @@ export const useBookings = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await BookingService.getMyBookings();
+      const data =
+        scope === "all"
+          ? await BookingService.getAllBookings({ page: 1, limit: 5 })
+          : await BookingService.getMyBookings();
       setBookings(data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch bookings');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch bookings");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [scope]);
 
   useEffect(() => {
     fetchBookings();

@@ -2,17 +2,13 @@
 
 import { Star } from 'lucide-react';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 export default function PerformanceScore() {
   const { performance: data, isLoading, error } = useAnalytics();
 
   if (isLoading) {
-    return (
-      <div className='bg-gradient-to-br from-[#3FA34D] to-[#2E7A39] rounded-[16px] p-5 text-white shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] flex items-center justify-center min-h-[160px]'>
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton rows={2} />;
   }
 
   if (error || !data) {

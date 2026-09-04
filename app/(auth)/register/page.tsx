@@ -17,7 +17,7 @@ import { Spinner } from '@/components/ui/Spinner';
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -36,11 +36,11 @@ export default function RegisterPage() {
       const response = await apiClient.post('/auth/register', data);
       const resData = response.data.data || response.data;
       if (resData.accessToken && resData.user) {
-         login(resData.accessToken, resData.user);
+         login(resData.user);
       } else {
          const loginRes = await apiClient.post('/auth/login', { email: data.email, password: data.password });
          const loginData = loginRes.data.data || loginRes.data;
-         login(loginData.accessToken, loginData.user);
+         login(loginData.user);
       }
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Failed to create account. Please try again.'));

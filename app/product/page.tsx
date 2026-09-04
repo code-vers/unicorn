@@ -6,14 +6,9 @@ import { VehicleQuery } from "@/lib/api/vehicle.service";
 import { Menu } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import React, { useCallback, useMemo, useState } from "react";
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
+import { toBookingIso } from '@/lib/booking-date';
 
-
-// Combine a date string and time string into a UTC ISO string for the backend.
-const buildIso = (date: string, time: string): string | undefined => {
-  if (!date) return undefined;
-  return time ? `${date}T${time}:00.000Z` : `${date}T00:00:00.000Z`;
-};
 
 const ProductContent: React.FC = () => {
   const searchParams = useSearchParams();
@@ -53,11 +48,11 @@ const ProductContent: React.FC = () => {
 
   // ── Assembled query sent to CarResultsList ──────────────────────────────────
   const [submittedQuery, setSubmittedQuery] = useState<VehicleQuery>({
-    pickupDate: buildIso(
+    pickupDate: toBookingIso(
       searchParams.get("pickupDate") || "",
       searchParams.get("pickupTime") || ""
     ),
-    dropOffDate: buildIso(
+    dropOffDate: toBookingIso(
       searchParams.get("dropOffDate") || "",
       searchParams.get("dropOffTime") || ""
     ),
@@ -82,8 +77,8 @@ const ProductContent: React.FC = () => {
     setSubmittedQuery({
       // pickupLocationId / dropOffLocationId are used in the booking flow (Phase 3),
       // not as a vehicle search filter on the backend.
-      pickupDate: buildIso(pickupDate, pickupTime),
-      dropOffDate: buildIso(dropOffDate, dropOffTime),
+      pickupDate: toBookingIso(pickupDate, pickupTime),
+      dropOffDate: toBookingIso(dropOffDate, dropOffTime),
       category: category || undefined,
       transmission: transmission || undefined,
       fuelType: fuelType || undefined,
@@ -238,7 +233,7 @@ const ProductContent: React.FC = () => {
 
 export default function Page() {
   return (
-    <React.Suspense fallback={<Spinner size="lg" fullScreen className="bg-[#F5F5F5]" />}>
+    <React.Suspense fallback={<PageSkeleton />}>
       <ProductContent />
     </React.Suspense>
   );

@@ -1,4 +1,4 @@
-import { apiClient, extractErrorMessage } from '../api-client';
+import { apiClient, extractErrorMessage } from "../api-client";
 
 // ── Request Payloads ──────────────────────────────────────────────────────────
 
@@ -75,8 +75,11 @@ export interface BookingResponse {
   taxAmount: string;
   totalAmount: string;
   amountPaid: string;
-  bookingStatus: 'PENDING' | 'CONFIRMED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
-  paymentStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
+  bookingStatus:
+    "PENDING" | "CONFIRMED" | "ONGOING" | "COMPLETED" | "CANCELLED";
+  paymentStatus: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
+  checkoutSessionId?: string | null;
+  checkoutExpiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
   vehicle?: {
@@ -85,6 +88,10 @@ export interface BookingResponse {
     plateNumber?: string;
     category?: string;
     images?: Array<{ id: string; path: string; order: number }>;
+  };
+  user?: {
+    name: string;
+    email: string;
   };
   pickupLocation?: {
     id: string;
@@ -98,11 +105,17 @@ export interface BookingResponse {
   };
   assignedDriver?: {
     id: string;
+    name: string;
+    phoneNumber: string;
+    whatsappNumber: string;
+    photoUrl?: string;
+    availability: "AVAILABLE" | "ASSIGNED" | "UNAVAILABLE";
+  };
+  driverDetails?: {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
-    status: string;
   };
 }
 
@@ -114,6 +127,14 @@ export interface BookingModifyPayload {
   hasChildSeat?: boolean;
 }
 
+export interface BookingCheckoutResponse {
+  booking: BookingResponse;
+  checkout: {
+    url: string;
+    sessionId: string;
+  };
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const BookingService = {
@@ -123,13 +144,15 @@ export const BookingService = {
    * POST /api/v1/bookings/calculate
    */
   calculate: async (
-    payload: BookingCalculatePayload
+    payload: BookingCalculatePayload,
   ): Promise<BookingCalculateResponse> => {
     try {
-      const response = await apiClient.post('/bookings/calculate', payload);
+      const response = await apiClient.post("/bookings/calculate", payload);
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to calculate booking cost'));
+      throw new Error(
+        extractErrorMessage(error, "Failed to calculate booking cost"),
+      );
     }
   },
 
@@ -138,13 +161,38 @@ export const BookingService = {
    * POST /api/v1/bookings
    */
   createBooking: async (
-    payload: BookingCreatePayload
+    payload: BookingCreatePayload,
   ): Promise<BookingResponse> => {
     try {
-      const response = await apiClient.post('/bookings', payload);
+      const response = await apiClient.post("/bookings", payload);
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to create booking'));
+      throw new Error(extractErrorMessage(error, "Failed to create booking"));
+    }
+  },
+
+  /** Create a provisional reservation and its required payment checkout together. */
+  createCheckout: async (
+    payload: BookingCreatePayload,
+  ): Promise<BookingCheckoutResponse> => {
+    try {
+      const response = await apiClient.post("/bookings/checkout", payload);
+      return response.data.data;
+    } catch (error) {
+      throw new Error(
+        extractErrorMessage(error, "Failed to start booking checkout"),
+      );
+    }
+  },
+
+  /** Cancel an unpaid initial checkout and release the vehicle hold. */
+  cancelCheckout: async (bookingId: string): Promise<void> => {
+    try {
+      await apiClient.post(`/bookings/${bookingId}/cancel-checkout`);
+    } catch (error) {
+      throw new Error(
+        extractErrorMessage(error, "Failed to cancel booking checkout"),
+      );
     }
   },
 
@@ -152,12 +200,17 @@ export const BookingService = {
    * Fetch the current user's bookings. Auth required.
    * GET /api/v1/bookings/my-bookings
    */
-  getMyBookings: async (params?: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }): Promise<BookingResponse[]> => {
+  getMyBookings: async (params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }): Promise<BookingResponse[]> => {
     try {
-      const response = await apiClient.get('/bookings/my-bookings', { params });
+      const response = await apiClient.get("/bookings/my-bookings", { params });
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to fetch bookings'));
+      throw new Error(extractErrorMessage(error, "Failed to fetch bookings"));
     }
   },
 
@@ -170,17 +223,20 @@ export const BookingService = {
       const response = await apiClient.get(`/bookings/${id}`);
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to fetch booking'));
+      throw new Error(extractErrorMessage(error, "Failed to fetch booking"));
     }
   },
 
   /** Modify a customer-owned booking. */
-  modifyBooking: async (id: string, payload: BookingModifyPayload): Promise<BookingResponse> => {
+  modifyBooking: async (
+    id: string,
+    payload: BookingModifyPayload,
+  ): Promise<BookingResponse> => {
     try {
       const response = await apiClient.patch(`/bookings/${id}/modify`, payload);
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to modify booking'));
+      throw new Error(extractErrorMessage(error, "Failed to modify booking"));
     }
   },
 
@@ -188,12 +244,17 @@ export const BookingService = {
    * Fetch all bookings. Admin only.
    * GET /api/v1/bookings
    */
-  getAllBookings: async (): Promise<BookingResponse[]> => {
+  getAllBookings: async (params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<BookingResponse[]> => {
     try {
-      const response = await apiClient.get('/bookings');
+      const response = await apiClient.get("/bookings", { params });
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to fetch all bookings'));
+      throw new Error(
+        extractErrorMessage(error, "Failed to fetch all bookings"),
+      );
     }
   },
 
@@ -203,30 +264,19 @@ export const BookingService = {
    */
   updateBookingStatus: async (
     id: string,
-    status: 'PENDING' | 'CONFIRMED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED',
-    assignedDriverId?: string
+    status: "PENDING" | "CONFIRMED" | "ONGOING" | "COMPLETED" | "CANCELLED",
+    assignedDriverId?: string,
   ): Promise<BookingResponse> => {
     try {
-      const response = await apiClient.patch(`/bookings/${id}/status`, { status, assignedDriverId });
+      const response = await apiClient.patch(`/bookings/${id}/status`, {
+        status,
+        assignedDriverId,
+      });
       return response.data.data;
     } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to update booking status'));
-    }
-  },
-
-  /**
-   * Extend an existing booking. Auth required.
-   * POST /api/v1/bookings/:id/extend-payment
-   */
-  extendPayment: async (
-    id: string,
-    payload: { amount: number; paymentMethod: string; transactionId?: string; additionalDays: number }
-  ): Promise<BookingResponse> => {
-    try {
-      const response = await apiClient.post(`/bookings/${id}/extend-payment`, payload);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(extractErrorMessage(error, 'Failed to extend booking'));
+      throw new Error(
+        extractErrorMessage(error, "Failed to update booking status"),
+      );
     }
   },
 };

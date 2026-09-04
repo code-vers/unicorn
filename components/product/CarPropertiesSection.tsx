@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { VehicleResponse } from "../../lib/api/vehicle.service";
 import { LocationResponse, LocationService } from "../../lib/api/location.service";
+import { getAssetUrl } from "../../lib/asset-url";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface CarPropertiesSectionProps {
@@ -38,15 +39,12 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
   hasChildSeat,
   setHasChildSeat,
 }) => {
-  const getBaseUrl = () =>
-    (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1").replace("/api/v1", "");
-
   const price = vehicle?.pricing?.dailyRate
     ? Number(vehicle.pricing.dailyRate).toLocaleString()
     : "—";
   const name = vehicle?.name ?? "Loading vehicle...";
   const imageUrl = vehicle?.images?.[0]?.path
-    ? `${getBaseUrl()}${vehicle.images[0].path}`
+    ? getAssetUrl(vehicle.images[0].path)
     : "/product/car.png";
 
   // Map toggle setter by key

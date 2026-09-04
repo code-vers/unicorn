@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import {
   BookingCalculateResponse,
@@ -7,6 +6,7 @@ import {
 } from "../../lib/api/booking.service";
 import { VehicleResponse } from "../../lib/api/vehicle.service";
 import { Spinner } from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -40,8 +40,6 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
   priceBreakdown,
   priceLoading,
 }) => {
-  const router = useRouter();
-
   // ── Driver Detail Fields ────────────────────────────────────────────────────
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -109,7 +107,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
     setError(null);
 
     try {
-      const booking = await BookingService.createBooking({
+      const { checkout } = await BookingService.createCheckout({
         vehicleId,
         pickupLocationId,
         dropOffLocationId,
@@ -130,10 +128,9 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         billingInfo,
       });
 
-      // Success — navigate to confirmation page
-      router.push(`/checkout/success?booking=${booking.referenceId}`);
-    } catch (err: any) {
-      setError(err.message || "Booking failed. Please try again.");
+      window.location.assign(checkout.url);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Booking failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -300,7 +297,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                   Processing…
                 </>
               ) : (
-                "Confirm Reservation"
+                "Pay & Confirm Reservation"
               )}
             </button>
           </div>
@@ -316,8 +313,14 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
               </div>
 
               {priceLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="w-6 h-6 border-2 border-[#43A047] border-t-transparent rounded-full animate-spin" />
+                <div className="space-y-5 py-2" role="status" aria-label="Calculating price">
+                  <Skeleton className="h-3 w-24 bg-slate-700" />
+                  <div className="space-y-3">
+                    <Skeleton className="h-4 w-full bg-slate-700" />
+                    <Skeleton className="h-4 w-5/6 bg-slate-700" />
+                    <Skeleton className="h-px w-full bg-slate-700" />
+                    <Skeleton className="h-5 w-full bg-slate-700" />
+                  </div>
                 </div>
               ) : priceBreakdown ? (
                 <>

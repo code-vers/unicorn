@@ -27,6 +27,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 src="/unicorn.png" 
                 alt="Unicorn Logo" 
                 fill 
+                sizes="144px"
                 className="object-contain filter brightness-0 invert"
                 priority
               />
@@ -114,6 +115,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               src="/unicorn.png" 
               alt="Unicorn Logo" 
               fill 
+              sizes="128px"
               className="object-contain"
             />
           </Link>

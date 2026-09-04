@@ -47,7 +47,7 @@ export const useDocuments = (scope: 'mine' | 'all' = 'mine') => {
 
   const uploadDocument = async (file: File, type: DocumentType) => {
     const newDoc = await DocumentService.uploadDocument(file, type);
-    setDocuments(prev => [newDoc, ...prev]);
+    setDocuments(prev => [newDoc, ...prev.filter(doc => doc.id !== newDoc.id)]);
     return newDoc;
   };
 

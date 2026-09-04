@@ -1,6 +1,6 @@
 'use client';
 
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 import { useSettings } from '@/hooks/useSettings';
 import { Plus, Save, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -46,11 +46,7 @@ export default function SystemSettingsForm() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center min-h-[300px]'>
-        <Spinner size='md' />
-      </div>
-    );
+    return <SectionSkeleton rows={5} />;
   }
 
   return (

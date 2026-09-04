@@ -4,7 +4,8 @@ import { Camera, User, ShieldCheck, Heart, Trash2, Upload } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { UserService, UserDocument } from '../../../lib/api/user.service';
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
+import { getAssetUrl } from '@/lib/asset-url';
 
 
 const InputField = ({
@@ -87,7 +88,6 @@ export default function ClientProfile() {
     return n.substring(0, 2).toUpperCase();
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:5000';
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -208,11 +208,7 @@ export default function ClientProfile() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Spinner size="md" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -228,7 +224,7 @@ export default function ClientProfile() {
                 <div className="bg-[#3FA344] w-24 h-24 rounded-full flex items-center justify-center text-white text-[28px] font-bold font-lato overflow-hidden">
                   {(photoPreview || photoUrl) ? (
                     <img
-                      src={photoPreview || `${baseUrl}${photoUrl}`}
+                  src={photoPreview || getAssetUrl(photoUrl)}
                       alt={name}
                       className="w-full h-full object-cover"
                     />

@@ -9,15 +9,9 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { VehicleQuery, VehicleResponse, VehicleService } from "../../lib/api/vehicle.service";
-import { Spinner } from '@/components/ui/Spinner';
+import { CardGridSkeleton } from '@/components/ui/Skeleton';
+import { getAssetUrl } from '@/lib/asset-url';
 
-
-// ── Base URL helper ──────────────────────────────────────────────────────────
-const getBaseUrl = () =>
-  (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1").replace(
-    "/api/v1",
-    ""
-  );
 
 // ── CarResultCard ────────────────────────────────────────────────────────────
 interface CarResultCardProps {
@@ -27,7 +21,6 @@ interface CarResultCardProps {
 export const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const baseUrl = getBaseUrl();
 
   // Build the "View Details" URL — carry over dates/times from the search page
   // so the checkout screen pre-populates without the user having to re-enter them.
@@ -44,7 +37,7 @@ export const CarResultCard: React.FC<CarResultCardProps> = ({ vehicle }) => {
 
   const imageUrl =
     vehicle.images && vehicle.images.length > 0
-      ? `${baseUrl}${vehicle.images[0].path}`
+      ? getAssetUrl(vehicle.images[0].path)
       : "/product/car.png";
 
   const dailyRate = vehicle.pricing?.dailyRate;
@@ -226,11 +219,7 @@ export const CarResultsList: React.FC<CarResultsListProps> = ({ query }) => {
   }, [JSON.stringify(query)]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <Spinner size="md" />
-      </div>
-    );
+    return <CardGridSkeleton cards={4} />;
   }
 
   if (error) {

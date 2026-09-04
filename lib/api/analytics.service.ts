@@ -2,10 +2,13 @@ import { apiClient, extractErrorMessage } from '../api-client';
 
 export interface AnalyticsOverview {
   totalRevenue: number;
+  todayRevenue: number;
   reservations: number;
   upcomingRentals: number;
   pendingArrivals: number;
   activeVehicles: number;
+  activeDrivers: number;
+  availableVehicles: number;
   completedToday: number;
 }
 

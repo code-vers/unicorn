@@ -11,12 +11,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 
 const verifyCodeSchema = z.object({
   email: z.string().email(),
-  resetCode: z.string().min(1, "Reset code is required"),
+  code: z.string().min(1, "Reset code is required"),
 });
 
 type VerifyCodeFormValues = z.infer<typeof verifyCodeSchema>;
@@ -38,12 +38,19 @@ function VerifyResetContent() {
   const onSubmit = async (data: VerifyCodeFormValues) => {
     setError('');
     try {
-      await apiClient.post('/auth/verify-reset-code', data);
+      const response = await apiClient.post('/auth/verify-reset-code', data);
+      const resetToken = response.data.data?.resetToken;
+
+      if (!resetToken) {
+        throw new Error('Reset token was not returned by the server.');
+      }
+
+      sessionStorage.setItem('passwordResetToken', resetToken);
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/reset-password?email=${encodeURIComponent(data.email)}&code=${encodeURIComponent(data.resetCode)}`);
+        router.push('/reset-password');
       }, 1000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(extractErrorMessage(err, 'Invalid or expired reset code.'));
     }
   };
@@ -67,9 +74,9 @@ function VerifyResetContent() {
             <input type="hidden" {...register('email')} />
             
             <div className="space-y-2">
-              <Label htmlFor="resetCode">Reset Code</Label>
-              <Input id="resetCode" placeholder="Enter code" {...register('resetCode')} />
-              {errors.resetCode && <p className="text-sm text-red-500">{errors.resetCode.message}</p>}
+              <Label htmlFor="code">Reset Code</Label>
+              <Input id="code" placeholder="Enter code" {...register('code')} />
+              {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Verifying...' : 'Verify Code'}
@@ -88,7 +95,7 @@ function VerifyResetContent() {
 
 export default function VerifyResetPage() {
   return (
-    <Suspense fallback={<Spinner size="md" centered />}>
+    <Suspense fallback={<SectionSkeleton className="mx-auto max-w-md" rows={3} />}>
       <VerifyResetContent />
     </Suspense>
   );

@@ -7,7 +7,7 @@ import LocationModal from './LocationModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import toast from 'react-hot-toast';
 import { LocationResponse, LocationPayload } from '../../../lib/api/location.service';
-import { Spinner } from '@/components/ui/Spinner';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 
 export default function LocationsTable() {
@@ -185,8 +185,8 @@ export default function LocationsTable() {
         {/* Table */}
         <div className='overflow-x-auto min-h-[300px] relative'>
           {isLoading && locations.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
-              <Spinner size="md" />
+            <div className="absolute inset-0 z-10 bg-white">
+              <TableSkeleton className='h-full rounded-none border-0' rows={6} />
             </div>
           ) : null}
           <table className='w-full text-left border-collapse min-w-[1000px]'>

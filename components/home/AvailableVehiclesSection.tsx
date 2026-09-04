@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { VehicleResponse, VehicleService } from "@/lib/api/vehicle.service";
 import { CarResultCard } from "@/components/product/CarResultCard";
-import { Spinner } from '@/components/ui/Spinner';
+import { CardGridSkeleton } from '@/components/ui/Skeleton';
 
 
 const AvailableVehiclesSection: React.FC = () => {
   const [vehicles, setVehicles] = useState<VehicleResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchFeaturedVehicles = async () => {
@@ -24,8 +25,8 @@ const AvailableVehiclesSection: React.FC = () => {
           limit: 10,
         });
         setVehicles(res.data || []);
-      } catch (error) {
-        console.error("Failed to fetch featured vehicles:", error);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Failed to load available vehicles');
         setVehicles([]);
       } finally {
         setIsLoading(false);
@@ -38,15 +39,17 @@ const AvailableVehiclesSection: React.FC = () => {
   if (isLoading) {
     return (
       <section className="py-16 px-6 bg-white">
-        <div className="max-w-[1440px] mx-auto flex items-center justify-center min-h-[300px]">
-          <Spinner size="md" />
+        <div className="max-w-[1440px] mx-auto min-h-[300px]">
+          <CardGridSkeleton cards={4} />
         </div>
       </section>
     );
   }
 
   if (vehicles.length === 0) {
-    return null; // Don't show the section if no featured vehicles are available
+    return error ? (
+      <section className='px-6 py-12 text-center text-sm text-red-700'>{error}</section>
+    ) : null;
   }
 
   return (

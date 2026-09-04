@@ -12,17 +12,13 @@ import {
   ComposedChart,
 } from 'recharts';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 export default function RevenueAnalysis() {
   const { revenueTrends: data, isLoading, error } = useAnalytics();
 
   if (isLoading) {
-    return (
-      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-full flex items-center justify-center min-h-[400px]'>
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton className='min-h-[400px]' rows={6} />;
   }
 
   if (error || !data || data.length === 0) {
@@ -39,7 +35,7 @@ export default function RevenueAnalysis() {
   const bestMonthObj = [...data].sort((a, b) => b.net - a.net)[0];
   const bestMonth = bestMonthObj ? bestMonthObj.month : '-';
 
-  const formatK = (val: number) => `£${(val / 1000).toFixed(0)}k`;
+  const formatK = (val: number) => `KSh ${(val / 1000).toFixed(0)}k`;
 
   const metrics = [
     { label: 'TOTAL REV.', value: formatK(totalRev), color: 'text-[#3FA34D]' },
@@ -116,7 +112,7 @@ export default function RevenueAnalysis() {
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#A0AEC0', fontSize: 12, fontFamily: 'Lato' }}
-              tickFormatter={(value) => `£${value / 1000}k`}
+              tickFormatter={(value) => `KSh ${value / 1000}k`}
             />
             <Tooltip
               contentStyle={{

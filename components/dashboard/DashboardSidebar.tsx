@@ -28,17 +28,10 @@ import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-// 1. Strict Data Contracts
-type BadgeColor = 'green' | 'yellow' | 'red';
-
 interface NavItem {
   label: string;
   href: string;
   icon: React.ElementType;
-  badge?: {
-    value: number;
-    color: BadgeColor;
-  };
 }
 
 interface NavGroup {
@@ -59,7 +52,6 @@ const ADMIN_CONFIG: NavGroup[] = [
         label: 'Booking Management',
         href: '/dashboard/bookings',
         icon: CalendarDays,
-        badge: { value: 12, color: 'green' },
       },
       { label: 'Driver Management', href: '/dashboard/drivers', icon: UserCheck },
       { label: 'Customer Management', href: '/dashboard/customers', icon: Users },
@@ -73,7 +65,6 @@ const ADMIN_CONFIG: NavGroup[] = [
         label: 'Payments / Invoices',
         href: '/dashboard/payments',
         icon: CreditCard,
-        badge: { value: 4, color: 'yellow' },
       },
       { label: 'Pricing', href: '/dashboard/pricing', icon: Tag },
       { label: 'Drop-Off Charges', href: '/dashboard/drop-off', icon: MapPin },
@@ -87,8 +78,8 @@ const ADMIN_CONFIG: NavGroup[] = [
         label: 'Notifications',
         href: '/dashboard/notifications',
         icon: Bell,
-        badge: { value: 7, color: 'red' },
       },
+      { label: 'Support Tickets', href: '/dashboard/support-tickets', icon: Headset },
       { label: 'Document Upload', href: '/dashboard/documents', icon: Upload },
       { label: 'Profile / Settings', href: '/dashboard/settings', icon: Settings },
     ],
@@ -128,20 +119,6 @@ export default function DashboardSidebar() {
     };
   }, [pathname]);
 
-  // Helper for badge color mapping
-  const getBadgeClasses = (color: BadgeColor) => {
-    switch (color) {
-      case 'green':
-        return 'bg-[#40A853] text-white';
-      case 'yellow':
-        return 'bg-[#FBC02D] text-white';
-      case 'red':
-        return 'bg-[#D32F2F] text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  };
-
   return (
     <>
       {/* Mobile Toggle Button */}
@@ -176,6 +153,7 @@ export default function DashboardSidebar() {
                 src='/unicorn.png'
                 alt='Unicorn Logo'
                 fill
+                sizes='112px'
                 className='object-contain'
                 priority
               />
@@ -235,16 +213,6 @@ export default function DashboardSidebar() {
                             </span>
                           </div>
 
-                          {/* Dynamic Badge */}
-                          {item.badge && (
-                            <span
-                              className={`min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full ${getBadgeClasses(
-                                item.badge.color,
-                              )}`}
-                            >
-                              {item.badge.value}
-                            </span>
-                          )}
                         </Link>
                       </li>
                     );

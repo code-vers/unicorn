@@ -16,7 +16,7 @@ import { Spinner } from '@/components/ui/Spinner';
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -33,8 +33,9 @@ export default function LoginPage() {
     setError('');
     try {
       const response = await apiClient.post('/auth/login', data);
-      const { accessToken, user } = response.data.data || response.data;
-      login(accessToken, user);
+      const { user } = response.data.data || response.data;
+      const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') ?? undefined;
+      login(user, callbackUrl);
     } catch (err: any) {
       setError(extractErrorMessage(err, 'Failed to login. Please try again.'));
     }

@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { useBookings } from '@/hooks/useBookings';
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
+import type { BookingResponse } from '@/lib/api/booking.service';
 
 type TabType = 'Pick-Up Instructions' | 'Office Locations' | 'Return Instructions' | 'Airport Meet & Greet' | 'Driver Contacts';
 
@@ -51,11 +52,7 @@ export default function TripManagement() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -240,7 +237,7 @@ const ReturnInstructions = () => (
   </div>
 );
 
-const AirportMeetGreet = ({ booking }: { booking: any }) => {
+const AirportMeetGreet = ({ booking }: { booking?: BookingResponse }) => {
   if (!booking || !booking.assignedDriver) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-6 text-center text-gray-500">
@@ -261,16 +258,16 @@ const AirportMeetGreet = ({ booking }: { booking: any }) => {
           <div className="space-y-4">
             <div className="flex gap-4 items-center">
               <User size={16} className="text-gray-600" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.firstName} {driver.lastName}</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.name}</p>
             </div>
             <div className="flex gap-4 items-center">
               <Phone size={16} className="text-gray-600" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phone}</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phoneNumber}</p>
             </div>
           </div>
-          <button className="w-full border border-[#3FA344] text-[#3FA344] py-2 rounded-[6px] flex items-center justify-center gap-2 text-[14px] font-bold hover:bg-[#3FA344]/5 transition-colors mt-4">
+          <a href={`https://wa.me/${driver.whatsappNumber.replace(/\D/g, '')}`} target='_blank' rel='noreferrer' className="w-full border border-[#3FA344] text-[#3FA344] py-2 rounded-[6px] flex items-center justify-center gap-2 text-[14px] font-bold hover:bg-[#3FA344]/5 transition-colors mt-4">
             <MessageSquare size={16} /> WhatsApp
-          </button>
+          </a>
         </div>
       </div>
 
@@ -303,7 +300,7 @@ const AirportMeetGreet = ({ booking }: { booking: any }) => {
   );
 };
 
-const DriverContacts = ({ booking }: { booking: any }) => {
+const DriverContacts = ({ booking }: { booking?: BookingResponse }) => {
   if (!booking || !booking.assignedDriver) {
     return (
       <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-6 text-center text-gray-500">
@@ -319,28 +316,28 @@ const DriverContacts = ({ booking }: { booking: any }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white border border-[#E5E7EB] rounded-[10px] overflow-hidden">
           <div className="p-6 border-b border-[#E5E7EB]">
-            <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">{driver.firstName} {driver.lastName}</h3>
+            <h3 className="text-[20px] font-bold text-[#0A1413] font-montserrat">{driver.name}</h3>
           </div>
           <div className="p-6 space-y-4">
             <div className="flex gap-4 items-center">
               <Phone size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phone}</p>
-            </div>
-            <div className="flex gap-4 items-center">
-              <Mail size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.email}</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.phoneNumber}</p>
             </div>
             <div className="flex gap-4 items-center">
               <MessageSquare size={16} className="text-[#3FA344]" />
-              <p className="text-[14px] text-[#0A1413] font-nunito">Status: {driver.status}</p>
+              <p className="text-[14px] text-[#0A1413] font-nunito">{driver.whatsappNumber}</p>
+            </div>
+            <div className="flex gap-4 items-center">
+              <MessageSquare size={16} className="text-[#3FA344]" />
+              <p className="text-[14px] text-[#0A1413] font-nunito">Status: {driver.availability}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-2">
-              <button className="border border-[#3FA344] text-[#3FA344] py-1.5 rounded-[6px] flex items-center justify-center gap-1.5 text-[12px] font-bold hover:bg-[#3FA344]/5 transition-colors">
+              <a href={`https://wa.me/${driver.whatsappNumber.replace(/\D/g, '')}`} target='_blank' rel='noreferrer' className="border border-[#3FA344] text-[#3FA344] py-1.5 rounded-[6px] flex items-center justify-center gap-1.5 text-[12px] font-bold hover:bg-[#3FA344]/5 transition-colors">
                 <MessageSquare size={14} /> WhatsApp
-              </button>
-              <button className="border border-[#6B7280] text-[#6B7280] py-1.5 rounded-[6px] flex items-center justify-center gap-1.5 text-[12px] font-bold hover:bg-gray-50 transition-colors">
+              </a>
+              <a href={`tel:${driver.phoneNumber}`} className="border border-[#6B7280] text-[#6B7280] py-1.5 rounded-[6px] flex items-center justify-center gap-1.5 text-[12px] font-bold hover:bg-gray-50 transition-colors">
                 <Phone size={14} /> Call
-              </button>
+              </a>
             </div>
           </div>
         </div>

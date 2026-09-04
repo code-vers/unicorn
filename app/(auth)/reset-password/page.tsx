@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,14 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient, extractErrorMessage } from '@/lib/api-client';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Spinner } from '@/components/ui/Spinner';
+import { useRouter } from 'next/navigation';
 
 
 const resetPasswordSchema = z.object({
-  email: z.string().email(),
-  resetCode: z.string().min(1),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
@@ -26,27 +23,31 @@ function ResetPasswordContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const emailParam = searchParams.get('email') || '';
-  const codeParam = searchParams.get('code') || '';
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: {
-      email: emailParam,
-      resetCode: codeParam,
-    }
   });
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     setError('');
+
+    const token = sessionStorage.getItem('passwordResetToken');
+    if (!token) {
+      setError('Your reset session is missing or expired. Please request a new reset code.');
+      return;
+    }
+
     try {
-      await apiClient.post('/auth/reset-password', data);
+      await apiClient.post('/auth/reset-password', {
+        token,
+        newPassword: data.newPassword,
+      });
+      sessionStorage.removeItem('passwordResetToken');
       setSuccess(true);
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(extractErrorMessage(err, 'Failed to reset password. The code might be expired.'));
     }
   };
@@ -65,10 +66,6 @@ function ResetPasswordContent() {
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded border border-red-200">{error}</div>}
-            
-            <input type="hidden" {...register('email')} />
-            <input type="hidden" {...register('resetCode')} />
-            
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
               <Input id="newPassword" type="password" placeholder="••••••••" {...register('newPassword')} />
@@ -88,9 +85,5 @@ function ResetPasswordContent() {
 }
 
 export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={<Spinner size="md" centered />}>
-      <ResetPasswordContent />
-    </Suspense>
-  );
+  return <ResetPasswordContent />;
 }

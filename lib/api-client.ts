@@ -1,32 +1,56 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1',
+  withCredentials: true,
 });
 
-// Request interceptor to attach JWT token
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('token');
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.set ? config.headers.set('Authorization', `Bearer ${token}`) : (config.headers['Authorization'] = `Bearer ${token}`);
+type RetryableRequest = InternalAxiosRequestConfig & { _retry?: boolean };
+let refreshRequest: Promise<unknown> | null = null;
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const request = error.config as RetryableRequest | undefined;
+    const requestUrl = request?.url ?? '';
+    const isAuthRequest = ['/auth/login', '/auth/register', '/auth/refresh-token'].some((path) =>
+      requestUrl.includes(path)
+    );
+
+    if (error.response?.status !== 401 || !request || request._retry || isAuthRequest) {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
+
+    request._retry = true;
+    refreshRequest ??= apiClient.post('/auth/refresh-token').finally(() => {
+      refreshRequest = null;
+    });
+
+    try {
+      await refreshRequest;
+      return apiClient(request);
+    } catch (refreshError) {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        const callbackUrl = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+        window.location.assign(`/login?callbackUrl=${callbackUrl}`);
+      }
+      return Promise.reject(refreshError);
+    }
+  }
 );
 
-// Response interceptor for handling 401 Unauthorized could be added here
+type ApiErrorData = {
+  message?: string;
+  errorSources?: Array<{ message?: string }>;
+};
 
-export const extractErrorMessage = (err: any, fallback: string) => {
-  if (err.response?.data) {
-    const data = err.response.data;
-    if (data.errorSources && data.errorSources.length > 0) {
-      return data.errorSources.map((e: any) => e.message).join(' | ');
+export const extractErrorMessage = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError<ApiErrorData>(error) && error.response?.data) {
+    const data = error.response.data;
+    if (data.errorSources?.length) {
+      return data.errorSources.map((item) => item.message).filter(Boolean).join(' | ');
     }
     if (data.message) return data.message;
   }
-  return err.message || fallback;
+  return error instanceof Error ? error.message : fallback;
 };

@@ -8,6 +8,7 @@ import * as z from 'zod';
 import { useLocations } from '../../../hooks/useLocations';
 import { FeatureResponse, FeatureService } from '../../../lib/api/feature.service';
 import { VehicleImage, VehicleResponse } from '../../../lib/api/vehicle.service';
+import { getAssetUrl } from '@/lib/asset-url';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -15,8 +16,6 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/jpg',
   'image/png',
   'image/webp',
-  'image/svg+xml',
-  'image/gif',
 ];
 
 const vehicleSchema = z.object({
@@ -99,7 +98,9 @@ export default function VehicleModal({
     if (isOpen) {
       FeatureService.getFeatures({ limit: 100 })
         .then((res) => setAvailableFeatures(res.data))
-        .catch(console.error);
+        .catch((error: unknown) =>
+          toast.error(error instanceof Error ? error.message : 'Failed to load features')
+        );
 
       if (initialData) {
         reset({
@@ -171,9 +172,8 @@ export default function VehicleModal({
 
       setNewFeatureName('');
       setIsAddingFeature(false);
-    } catch (error) {
-      console.error('Failed to create feature:', error);
-      toast.error('Failed to create feature. Please try again.');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create feature');
     } finally {
       setIsSavingFeature(false);
     }
@@ -197,9 +197,8 @@ export default function VehicleModal({
           { shouldDirty: true },
         );
       }
-    } catch (error) {
-      console.error('Failed to delete feature:', error);
-      toast.error('Failed to delete feature. It might be in use by other vehicles.');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete feature');
     }
   };
 
@@ -570,7 +569,7 @@ export default function VehicleModal({
                     className='relative aspect-video bg-gray-100 rounded-[6px] overflow-hidden border'
                   >
                     <img
-                      src={`http://localhost:5000${img.path}`}
+                    src={getAssetUrl(img.path)}
                       alt='vehicle'
                       className='w-full h-full object-cover'
                     />

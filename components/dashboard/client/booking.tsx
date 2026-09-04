@@ -18,7 +18,9 @@ import { useState, useMemo } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingResponse, BookingService } from '@/lib/api/booking.service';
 import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
 import toast from 'react-hot-toast';
+import { PaymentService } from '@/lib/api/payment.service';
 
 interface ExtendBookingModalProps {
   isOpen: boolean;
@@ -41,29 +43,24 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
   
   const currentTotal = Number(booking.totalAmount);
   const updatedTotal = currentTotal + newTotal;
+  const newReturnDate = new Date(booking.dropOffDate);
+  newReturnDate.setDate(newReturnDate.getDate() + extensionDays);
 
   const handleExtend = async () => {
     setIsExtending(true);
     try {
-      // Bypassing actual payment step per requirements
-      await BookingService.extendPayment(booking.id, {
-        amount: newTotal,
-        paymentMethod: 'LATER',
-        transactionId: 'EXT-' + Date.now(),
-        additionalDays: extensionDays
+      await BookingService.modifyBooking(booking.id, {
+        dropOffDate: newReturnDate.toISOString()
       });
-      toast.success('Booking extension request submitted successfully!');
+      const checkout = await PaymentService.createExtensionSession(booking.id);
       onSuccess();
-      onClose();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to extend booking');
+      window.location.assign(checkout.url);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to extend booking');
     } finally {
       setIsExtending(false);
     }
   };
-
-  const newReturnDate = new Date(booking.dropOffDate);
-  newReturnDate.setDate(newReturnDate.getDate() + extensionDays);
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4'>
@@ -89,7 +86,7 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
 
           <div className='bg-[#F6F6F6] border border-[#E5E7EB] rounded-[12px] p-5 flex items-center gap-5'>
             <div className='relative w-32 h-24 flex-shrink-0'>
-              <Image src={'/product/car.png'} alt="Vehicle" fill className='object-contain' />
+              <Image src='/product/car.png' alt='Vehicle' fill sizes='128px' className='object-contain' />
             </div>
             <div className='space-y-2'>
               <h4 className='text-[20px] font-bold text-[#0A1413] font-montserrat'>
@@ -119,7 +116,7 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
                 <div className='space-y-2'>
                   <label className='text-[14px] font-normal text-[#0A1413] font-nunito'>Rate</label>
                   <div className='bg-[#F6F6F6] border border-[#E5E7EB] rounded-[4px] px-3 py-2 text-[14px] text-[#0A1413] font-nunito'>
-                    ${Number(booking.totalAmount).toFixed(2)}
+                    KSh {Number(booking.totalAmount).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -168,7 +165,7 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
               <div className='bg-[#DAFFDF] rounded-[12px] p-5 space-y-3'>
                 <div className='flex justify-between items-center text-[14px] font-nunito'>
                   <span className='text-[#6B7280]'>Base Rental</span>
-                  <span className='text-[#0A1413] font-medium'>${currentTotal.toFixed(2)}</span>
+                  <span className='text-[#0A1413] font-medium'>KSh {currentTotal.toFixed(2)}</span>
                 </div>
                 <div className='flex justify-between items-center text-[14px] font-nunito'>
                   <span className='text-[#6B7280]'>Extension Duration</span>
@@ -176,16 +173,16 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
                 </div>
                 <div className='flex justify-between items-center text-[14px] font-nunito'>
                   <span className='text-[#6B7280]'>Daily Rate</span>
-                  <span className='text-[#0A1413] font-medium'>${dailyRate.toFixed(2)}</span>
+                  <span className='text-[#0A1413] font-medium'>KSh {dailyRate.toFixed(2)}</span>
                 </div>
                 <div className='flex justify-between items-center text-[14px] font-nunito'>
                   <span className='text-[#6B7280]'>Extension Cost</span>
-                  <span className='text-[#0A1413] font-medium'>${extensionCost.toFixed(2)}</span>
+                  <span className='text-[#0A1413] font-medium'>KSh {extensionCost.toFixed(2)}</span>
                 </div>
                 <div className='h-px bg-[#E5E7EB]' />
                 <div className='flex justify-between items-center text-[14px] font-nunito'>
                   <span className='text-[#6B7280]'>Taxes ({booking.taxPercentage}%)</span>
-                  <span className='text-[#0A1413] font-medium'>${taxAmount.toFixed(2)}</span>
+                  <span className='text-[#0A1413] font-medium'>KSh {taxAmount.toFixed(2)}</span>
                 </div>
                 <div className='h-px bg-[#E5E7EB]' />
                 <div className='flex justify-between items-center'>
@@ -193,10 +190,10 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
                     New Total
                   </span>
                   <div className='text-right'>
-                    <p className='text-[24px] font-bold text-[#3FA344] font-lato'>${updatedTotal.toFixed(2)}</p>
+                  <p className='text-[24px] font-bold text-[#3FA344] font-lato'>KSh {updatedTotal.toFixed(2)}</p>
                     <p className='text-[14px] font-nunito'>
-                      <span className='text-[#6B7280]'>Previous: ${currentTotal.toFixed(2)}</span>
-                      <span className='text-[#DC2626] ml-1'>(+${newTotal.toFixed(2)})</span>
+                  <span className='text-[#6B7280]'>Previous: KSh {currentTotal.toFixed(2)}</span>
+                  <span className='text-[#DC2626] ml-1'>(+KSh {newTotal.toFixed(2)})</span>
                     </p>
                   </div>
                 </div>
@@ -276,11 +273,7 @@ export default function MyBookings() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -346,7 +339,7 @@ export default function MyBookings() {
                   <tr key={booking.id} className='hover:bg-gray-50 transition-colors'>
                     <td className='px-3 py-2.5'>
                       <div className='relative w-10 h-7 rounded-[4px] overflow-hidden bg-gray-100'>
-                        <Image src={'/product/car.png'} alt="Vehicle" fill className='object-cover' />
+                        <Image src='/product/car.png' alt='Vehicle' fill sizes='40px' className='object-cover' />
                       </div>
                     </td>
                     <td className='px-3 py-2.5 text-[12px] font-semibold text-[#0A1413] font-lato'>{booking.referenceId}</td>
@@ -361,7 +354,7 @@ export default function MyBookings() {
                         {booking.bookingStatus}
                       </span>
                     </td>
-                    <td className='px-3 py-2.5 text-[12px] text-[#6B7280] font-lato'>${Number(booking.totalAmount).toFixed(2)}</td>
+                        <td className='px-3 py-2.5 text-[12px] text-[#6B7280] font-lato'>KSh {Number(booking.totalAmount).toFixed(2)}</td>
                     <td className='px-3 py-2.5 text-[12px] text-[#6B7280] font-lato'>
                       {activeTab === 'Active Rentals' ? calculateRemainingDays(booking.dropOffDate) : '-'}
                     </td>

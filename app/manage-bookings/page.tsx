@@ -19,6 +19,7 @@ import {
   BookingResponse,
   BookingService,
 } from '@/lib/api/booking.service';
+import { SectionSkeleton, Skeleton } from '@/components/ui/Skeleton';
 
 type BookingTab = 'All Bookings' | 'Upcoming' | 'Completed';
 
@@ -200,9 +201,7 @@ export default function ManageBookings() {
         </div>
 
         {isLoading ? (
-          <div className='flex min-h-72 items-center justify-center rounded-2xl border border-[#e2e8f0] bg-white'>
-            <Loader2 className='animate-spin text-[#43a047]' size={34} />
-          </div>
+          <SectionSkeleton rows={5} />
         ) : error ? (
           <div className='rounded-2xl border border-red-200 bg-white p-10 text-center'>
             <p className='font-semibold text-red-700'>{error}</p>
@@ -266,7 +265,13 @@ function BookingCard({
   return (
     <article className='flex flex-col gap-6 rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-sm lg:flex-row lg:p-7'>
       <div className='relative min-h-[180px] w-full shrink-0 overflow-hidden rounded-xl bg-[#f8fafc] p-4 lg:w-[260px]'>
-        <Image src='/product/car.png' alt={booking.vehicle?.name || 'Rental vehicle'} fill className='object-contain p-4' />
+        <Image
+          src='/product/car.png'
+          alt={booking.vehicle?.name || 'Rental vehicle'}
+          fill
+          sizes='(max-width: 1023px) 100vw, 260px'
+          className='object-contain p-4'
+        />
       </div>
       <div className='min-w-0 flex-1'>
         <div className='mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
@@ -339,7 +344,12 @@ function BookingDetailsModal({ booking, isLoading, onClose, onModify }: { bookin
   return (
     <ModalShell title={`Booking ${booking.referenceId}`} onClose={onClose}>
       <div className='space-y-6 p-6 text-[#0f172a]'>
-        {isLoading && <div className='flex items-center gap-2 text-sm text-[#64748b]'><Loader2 className='animate-spin' size={16} />Refreshing booking details…</div>}
+        {isLoading && (
+          <div className='space-y-2' role='status' aria-label='Refreshing booking details'>
+            <Skeleton className='h-4 w-48' />
+            <Skeleton className='h-3 w-72 max-w-full' />
+          </div>
+        )}
         <div className='flex flex-wrap items-start justify-between gap-4'>
           <div>
             <h3 className='text-lg font-bold'>{booking.vehicle?.name || 'Reserved Vehicle'}</h3>

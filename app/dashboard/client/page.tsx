@@ -17,7 +17,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Spinner } from '@/components/ui/Spinner';
+import { PageSkeleton } from '@/components/ui/Skeleton';
 import { useBookings } from '@/hooks/useBookings';
 import { useNotifications } from '@/hooks/useNotifications';
 import { UserService } from '@/lib/api/user.service';
@@ -41,7 +41,7 @@ export default function ClientDashboardPage() {
   useEffect(() => {
     UserService.getMe()
       .then((user) => setUserName(user?.name?.split(' ')[0] ?? ''))
-      .catch((error) => console.error('Failed to fetch user', error));
+      .catch(() => setUserName(''));
   }, []);
 
   const activeBookings = bookings
@@ -70,11 +70,7 @@ export default function ClientDashboardPage() {
     Math.max(0, Math.ceil((new Date(date).getTime() - today) / 86_400_000));
 
   if (bookingsLoading || notificationsLoading) {
-    return (
-      <div className='flex min-h-[60vh] items-center justify-center'>
-        <Spinner size='lg' />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -87,7 +83,14 @@ export default function ClientDashboardPage() {
           <p className='font-lato text-xs leading-[1.6] text-[#6b7280]'>{currentDate}</p>
         </div>
         <div className='relative h-24 w-40 overflow-hidden rounded-[10px]'>
-          <Image src='/dashboard/rental-car.jpg' alt='Rental car' fill priority className='object-cover' />
+          <Image
+            src='/dashboard/rental-car.jpg'
+            alt='Rental car'
+            fill
+            sizes='160px'
+            priority
+            className='object-cover'
+          />
         </div>
       </header>
 
@@ -148,7 +151,13 @@ export default function ClientDashboardPage() {
               upcomingBookings.map((booking) => (
                 <div key={booking.id} className='flex gap-3 p-3'>
                   <div className='relative h-[105px] w-[125px] shrink-0 overflow-hidden rounded-md'>
-                    <Image src='/dashboard/toyota-land-cruiser.jpg' alt='Toyota Land Cruiser' fill className='object-cover' />
+                    <Image
+                      src='/dashboard/toyota-land-cruiser.jpg'
+                      alt='Toyota Land Cruiser'
+                      fill
+                      sizes='125px'
+                      className='object-cover'
+                    />
                   </div>
                   <div className='min-w-0 font-lato'>
                     <h4 className='text-sm font-bold'>Booking {booking.referenceId}</h4>

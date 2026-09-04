@@ -1,25 +1,14 @@
 'use client';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
-  const bookingRef = searchParams.get('booking') || 'UC2026-XXXX';
-
-  const [bookingDetails, setBookingDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  // In a real scenario, we would fetch the exact booking details by referenceId.
-  // For now, we will simulate loading and show a standard success message.
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [bookingRef]);
+  const bookingRef = searchParams.get('booking');
+  const hasStripeSession = Boolean(searchParams.get('session_id'));
 
   return (
     <div className='w-full max-w-[700px] bg-white rounded-[20px] shadow-sm border border-[#E5E7EB] overflow-hidden'>
@@ -29,11 +18,12 @@ function CheckoutSuccessContent() {
           <CheckCircle2 size={40} className='text-white' />
         </div>
         <h1 className='text-[32px] font-bold text-[#0A1413] font-montserrat mb-3'>
-          Reservation Request Received!
+          {hasStripeSession ? 'Payment submitted successfully!' : 'Reservation received!'}
         </h1>
         <p className='text-[16px] text-[#4B5563] font-lato max-w-[480px] leading-relaxed'>
           Thank you for choosing Unicorn Rent a Car. Your reservation request has been successfully
-          submitted. We will contact you shortly to confirm availability and arrange payment.
+          submitted. Payment confirmation can take a few moments while our secure provider completes
+          processing.
         </p>
       </div>
 
@@ -44,7 +34,9 @@ function CheckoutSuccessContent() {
             <p className='text-[13px] text-[#6B7280] font-bold uppercase tracking-wide mb-1'>
               Booking Reference
             </p>
-            <p className='text-[24px] font-bold text-[#1A1A1A] font-montserrat'>#{bookingRef}</p>
+            <p className='text-[24px] font-bold text-[#1A1A1A] font-montserrat'>
+              {bookingRef ? `#${bookingRef}` : 'Available in My Bookings'}
+            </p>
           </div>
           <div className='mt-4 md:mt-0 px-4 py-2 bg-[#FEF3C7] text-[#D97706] rounded-[50px] text-[13px] font-bold tracking-wide uppercase'>
             Pending Confirmation
@@ -69,8 +61,8 @@ function CheckoutSuccessContent() {
                 2
               </div>
               <p className='text-[15px] text-[#4B5563] font-lato pt-1 leading-relaxed'>
-                You will receive an email and a phone call to confirm your reservation and discuss
-                payment options (M-Pesa, Cash, or Bank Transfer).
+                You will receive an email and dashboard notification when the payment webhook has
+                confirmed your reservation.
               </p>
             </li>
             <li className='flex gap-4'>
@@ -87,7 +79,7 @@ function CheckoutSuccessContent() {
         {/* Action Buttons */}
         <div className='flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100'>
           <Link
-            href={`/dashboard/client?booking=${bookingRef}`}
+            href='/dashboard/my-bookings'
             className='flex-1 bg-[#3FA34D] text-white h-[56px] rounded-[50px] flex items-center justify-center font-bold text-[16px] hover:bg-[#358a3a] transition-colors shadow-md'
           >
             View My Dashboard
@@ -107,7 +99,7 @@ function CheckoutSuccessContent() {
 export default function CheckoutSuccessPage() {
   return (
     <div className='min-h-screen bg-[#ffffff] flex flex-col items-center justify-center p-6 py-20'>
-      <Suspense fallback={<Spinner size='lg' centered className='h-[400px]' />}>
+      <Suspense fallback={<SectionSkeleton className='w-full max-w-[700px]' rows={5} />}>
         <CheckoutSuccessContent />
       </Suspense>
     </div>

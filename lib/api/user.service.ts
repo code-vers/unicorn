@@ -9,7 +9,7 @@ export interface UserDocument {
   type: string;
   name: string;
   path: string;
-  status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  status: 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED';
   createdAt: string;
   updatedAt: string;
 }
@@ -19,7 +19,7 @@ export interface UserResponse {
   name: string;
   email: string;
   role: 'USER' | 'ADMIN';
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  status: 'ACTIVE' | 'BLOCKED' | 'INACTIVE';
   photoUrl: string | null;
   phoneNumber: string | null;
   address: string | null;

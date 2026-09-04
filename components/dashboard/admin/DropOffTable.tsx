@@ -7,7 +7,7 @@ import { DropOffChargeService, DropOffChargeResponse } from '@/lib/api/dropOffCh
 import DropOffChargeModal from './DropOffChargeModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import type { DropOffChargePayload } from '@/lib/api/dropOffCharge.service';
-import { Spinner } from '@/components/ui/Spinner';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 
 const LIMIT = 10;
@@ -167,8 +167,8 @@ export default function DropOffTable() {
           {/* Table */}
           <div className='overflow-x-auto min-h-[300px] relative'>
             {isLoading && charges.length === 0 ? (
-              <div className='absolute inset-0 flex items-center justify-center bg-white/50 z-10'>
-                <Spinner size="md" />
+              <div className='absolute inset-0 z-10 bg-white'>
+                <TableSkeleton className='h-full rounded-none border-0' rows={6} />
               </div>
             ) : null}
             <table className='w-full text-left border-collapse min-w-[1100px]'>
@@ -221,7 +221,7 @@ export default function DropOffTable() {
                         {charge.chargeType ? charge.chargeType.replace('_', ' ') : <span className='text-[#A0AEC0]'>—</span>}
                       </td>
                       <td className='px-3 py-2 text-[12px] font-semibold text-[#1A202C] font-lato'>
-                        ${Number(charge.amount).toFixed(2)}
+                            KSh {Number(charge.amount).toFixed(2)}
                       </td>
                       <td className='px-3 py-2'>
                         <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-[5px] text-[10px] font-normal min-w-[55px] ${getStatusStyles(charge.status)}`}>

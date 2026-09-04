@@ -2,17 +2,13 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { Spinner } from '@/components/ui/Spinner';
+import { SectionSkeleton } from '@/components/ui/Skeleton';
 
 export default function MostBookedVehicles() {
   const { vehicleStats: data, isLoading, error } = useAnalytics();
 
   if (isLoading) {
-    return (
-      <div className='bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0px_1px_5px_0px_rgba(0,0,0,0.05)] p-6 h-[516px] flex items-center justify-center'>
-        <Spinner size="md" />
-      </div>
-    );
+    return <SectionSkeleton className='h-[516px]' rows={6} />;
   }
 
   if (error || !data || data.length === 0) {

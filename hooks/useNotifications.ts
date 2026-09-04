@@ -31,8 +31,8 @@ export const useNotifications = (limit: number = 10) => {
       setNotifications(prev => 
         prev.map(n => n.id === id ? { ...n, isRead: true } : n)
       );
-    } catch (err) {
-      console.error('Failed to mark notification as read', err);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to mark notification as read');
     }
   };
 
