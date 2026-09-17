@@ -108,12 +108,6 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
                   <p className="text-[14px] text-[#777777] mb-2">Fuel policy</p>
                   <p className="text-[18px] font-bold text-[#1A1A1A]">Same to same</p>
                 </div>
-                <div className="border-l-[3px] border-[#FF8F00] pl-4">
-                  <p className="text-[14px] text-[#777777] mb-2">Pick-up location</p>
-                  <p className="text-[18px] font-bold text-[#1A1A1A]">
-                    {vehicle?.location?.name ?? "Meet & Greet"}
-                  </p>
-                </div>
               </div>
 
               {/* Column 2: Included Features */}

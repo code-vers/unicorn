@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import * as z from 'zod';
-import { useLocations } from '../../../hooks/useLocations';
 import { FeatureResponse, FeatureService } from '../../../lib/api/feature.service';
 import { VehicleImage, VehicleResponse } from '../../../lib/api/vehicle.service';
 import { getAssetUrl } from '@/lib/asset-url';
@@ -30,10 +29,6 @@ const vehicleSchema = z.object({
     'SELF_DRIVEN',
   ]),
   brand: z.string().min(1, 'Brand is required'),
-  year: z
-    .number()
-    .min(1900)
-    .max(new Date().getFullYear() + 1),
   transmission: z.enum(['AUTOMATIC', 'MANUAL']),
   fuelType: z.enum(['PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID']),
   seatingCapacity: z.number().min(1),
@@ -43,7 +38,6 @@ const vehicleSchema = z.object({
   isFeatured: z.boolean().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
   availability: z.enum(['AVAILABLE', 'RENTED', 'MAINTENANCE']).optional(),
-  locationId: z.string().min(1, 'Location is required'),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -63,7 +57,6 @@ export default function VehicleModal({
   initialData,
   isLoading,
 }: VehicleModalProps) {
-  const { locations } = useLocations({ limit: 100 });
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<VehicleImage[]>([]);
   const [availableFeatures, setAvailableFeatures] = useState<FeatureResponse[]>([]);
@@ -107,7 +100,6 @@ export default function VehicleModal({
           name: initialData.name,
           category: initialData.category as any,
           brand: initialData.brand,
-          year: initialData.year,
           transmission: initialData.transmission as any,
           fuelType: initialData.fuelType as any,
           seatingCapacity: initialData.seatingCapacity,
@@ -117,7 +109,6 @@ export default function VehicleModal({
           isFeatured: initialData.isFeatured || false,
           status: initialData.status as any,
           availability: initialData.availability as any,
-          locationId: initialData.locationId,
         });
         setExistingImages(initialData.images || []);
         setImages([]);
@@ -126,7 +117,6 @@ export default function VehicleModal({
           name: '',
           category: 'SALOON',
           brand: '',
-          year: new Date().getFullYear(),
           transmission: 'AUTOMATIC',
           fuelType: 'PETROL',
           seatingCapacity: 4,
@@ -136,7 +126,6 @@ export default function VehicleModal({
           isFeatured: false,
           status: 'ACTIVE',
           availability: 'AVAILABLE',
-          locationId: '',
         });
         setImages([]);
         setExistingImages([]);
@@ -300,18 +289,6 @@ export default function VehicleModal({
                   <option value='SELF_DRIVEN'>Self Driven</option>
                 </select>
               </div>
-              <div>
-                <label className={labelClass}>Year</label>
-                <input
-                  type='number'
-                  {...register('year', { valueAsNumber: true })}
-                  placeholder='Enter year'
-                  className={inputClass}
-                />
-                {errors.year && (
-                  <p className='text-red-500 text-[10px] mt-1'>{errors.year.message}</p>
-                )}
-              </div>
             </div>
           </div>
 
@@ -341,6 +318,7 @@ export default function VehicleModal({
                   <option value='DIESEL'>Diesel</option>
                   <option value='ELECTRIC'>Electric</option>
                   <option value='HYBRID'>Hybrid</option>
+                  <option value='DIESEL_PETROL'>Diesel / Petrol</option>
                 </select>
               </div>
               <div>
@@ -376,20 +354,6 @@ export default function VehicleModal({
               Details & Features
             </h4>
             <div className='flex flex-col gap-[16px]'>
-              <div>
-                <label className={labelClass}>Current Location</label>
-                <select {...register('locationId')} className={selectClass} style={selectStyle}>
-                  <option value=''>Select location</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.locationId && (
-                  <p className='text-red-500 text-[10px] mt-1'>{errors.locationId.message}</p>
-                )}
-              </div>
               <div>
                 <label className={labelClass}>Description</label>
                 <textarea

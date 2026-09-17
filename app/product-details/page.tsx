@@ -85,18 +85,13 @@ const ProductDetailsContent: React.FC = () => {
   const dropOffDateIso = toBookingIso(dropOffDate, dropOffTime) ?? '';
 
   const runCalculate = useCallback(async () => {
-    // We need at minimum: vehicleId, both dates, and location IDs
-    // Locations may not be set yet; we use the vehicle's own location as a safe default
     if (!vehicleId || !pickupDateIso || !dropOffDateIso) return;
-
-    const effectivePickupId = pickupLocationId || vehicle?.locationId || "";
-    const effectiveDropOffId = dropOffLocationId || vehicle?.locationId || "";
-    if (!effectivePickupId || !effectiveDropOffId) return;
+    if (!pickupLocationId || !dropOffLocationId) return;
 
     const payload: BookingCalculatePayload = {
       vehicleId,
-      pickupLocationId: effectivePickupId,
-      dropOffLocationId: effectiveDropOffId,
+      pickupLocationId,
+      dropOffLocationId,
       pickupDate: pickupDateIso,
       dropOffDate: dropOffDateIso,
       hasGps,
@@ -122,7 +117,6 @@ const ProductDetailsContent: React.FC = () => {
     dropOffDateIso,
     pickupLocationId,
     dropOffLocationId,
-    vehicle?.locationId,
     hasGps,
     hasFullInsurance,
     hasAdditionalDriver,
@@ -179,8 +173,8 @@ const ProductDetailsContent: React.FC = () => {
       <DriverDetailsForm
         vehicle={vehicle}
         vehicleId={vehicleId}
-        pickupLocationId={pickupLocationId || vehicle?.locationId || ""}
-        dropOffLocationId={dropOffLocationId || vehicle?.locationId || ""}
+        pickupLocationId={pickupLocationId}
+        dropOffLocationId={dropOffLocationId}
         pickupDate={pickupDateIso}
         dropOffDate={dropOffDateIso}
         hasGps={hasGps}

@@ -14,7 +14,6 @@ export interface VehicleResponse {
   name: string;
   category: string;
   brand: string;
-  year: number;
   transmission: string;
   fuelType: string;
   seatingCapacity: number;
@@ -25,15 +24,9 @@ export interface VehicleResponse {
   status: 'ACTIVE' | 'INACTIVE';
   availability: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE';
   isFeatured: boolean;
-  locationId: string;
   createdAt: string;
   updatedAt: string;
   images?: VehicleImage[];
-  location?: {
-    id: string;
-    name: string;
-    city: string;
-  };
 }
 
 export interface VehicleQuery {
@@ -41,7 +34,6 @@ export interface VehicleQuery {
   category?: string;
   transmission?: string;
   fuelType?: string;
-  locationId?: string;
   availability?: string;
   status?: string;
   isFeatured?: string;
