@@ -30,7 +30,7 @@ const vehicleSchema = z.object({
   ]),
   brand: z.string().min(1, 'Brand is required'),
   transmission: z.enum(['AUTOMATIC', 'MANUAL']),
-  fuelType: z.enum(['PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID']),
+  fuelType: z.enum(['PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID', 'DIESEL_PETROL']),
   seatingCapacity: z.number().min(1),
   luggageCapacity: z.number().min(0, 'Luggage capacity cannot be negative').nullable().optional(),
   description: z.string().optional(),
