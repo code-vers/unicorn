@@ -533,7 +533,7 @@ export default function VehicleModal({
                     className='relative aspect-video bg-gray-100 rounded-[6px] overflow-hidden border'
                   >
                     <img
-                    src={getAssetUrl(img.path)}
+                      src={getAssetUrl(img.path)}
                       alt='vehicle'
                       className='w-full h-full object-cover'
                     />

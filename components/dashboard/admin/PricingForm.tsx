@@ -12,16 +12,12 @@ const defaultPricing: PricingPayload = {
   dailyRate: 0,
   weeklyRate: 0,
   monthlyRate: 0,
-  selfDriveRate: 0,
   chauffeurRate: 0,
-  seasonalMultiplier: 1,
-  extraDayCharge: 0,
-  lateReturnHourlyCharge: 0,
   securityDeposit: 0,
   deliveryCollectionCharge: 0,
   airportPickupDropCharge: 0,
-  extraMileageCharge: 0,
   discountPercentage: 0,
+  discountValidFrom: '',
   discountValidUntil: '',
   gpsCharge: 0,
   fullInsuranceCharge: 0,
@@ -66,13 +62,16 @@ export default function PricingForm() {
       const pricing = await PricingService.getPricing(vId);
       if (pricing) {
         // Format date string for input type="date" if it exists
-        const formattedDate = pricing.discountValidUntil 
+        const formattedValidUntil = pricing.discountValidUntil 
           ? new Date(pricing.discountValidUntil).toISOString().split('T')[0]
+          : '';
+        const formattedValidFrom = pricing.discountValidFrom
+          ? new Date(pricing.discountValidFrom).toISOString().split('T')[0]
           : '';
         
         const parsedPricing: Record<string, any> = { ...pricing };
         Object.keys(defaultPricing).forEach(key => {
-          if (key !== 'discountValidUntil' && parsedPricing[key] !== undefined) {
+          if (key !== 'discountValidUntil' && key !== 'discountValidFrom' && parsedPricing[key] !== undefined) {
             parsedPricing[key] = Number(parsedPricing[key]);
           }
         });
@@ -80,7 +79,8 @@ export default function PricingForm() {
         setFormData({
           ...defaultPricing,
           ...parsedPricing,
-          discountValidUntil: formattedDate
+          discountValidFrom: formattedValidFrom,
+          discountValidUntil: formattedValidUntil
         });
       } else {
         setFormData(defaultPricing);
@@ -104,17 +104,26 @@ export default function PricingForm() {
     setIsSaving(true);
     setMessage({ type: '', text: '' });
     try {
-      const payload: PricingPayload = {
+      const payload: PricingPayload & { id?: string; createdAt?: string; updatedAt?: string } = {
         ...formData,
         vehicleId: selectedVehicleId === 'GLOBAL' ? null : selectedVehicleId,
       };
+      
+      delete payload.id;
+      delete payload.createdAt;
+      delete payload.updatedAt;
       
       // Convert empty date string to null or undefined
       if (!payload.discountValidUntil) {
         payload.discountValidUntil = null;
       } else {
-        // Ensure it is proper datetime if required by backend, or just let backend handle YYYY-MM-DD
         payload.discountValidUntil = new Date(payload.discountValidUntil).toISOString();
+      }
+
+      if (!payload.discountValidFrom) {
+        payload.discountValidFrom = null;
+      } else {
+        payload.discountValidFrom = new Date(payload.discountValidFrom).toISOString();
       }
 
       await PricingService.savePricing(payload);
@@ -232,16 +241,6 @@ export default function PricingForm() {
               <div className='flex flex-col gap-4'>
                 <h3 className='text-[#0A1413] text-[18px] font-montserrat font-bold mb-2'>Service Type</h3>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Self-Drive Rate (KES/day)</label>
-                  <input
-                    type='number'
-                    name='selfDriveRate'
-                    value={formData.selfDriveRate}
-                    onChange={handleInputChange}
-                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
-                  />
-                </div>
-                <div className='flex flex-col gap-1'>
                   <label className='text-[#0A1413] text-[14px] font-nunito'>Chauffeur Rate (KES/day)</label>
                   <input
                     type='number'
@@ -251,42 +250,11 @@ export default function PricingForm() {
                     className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
                   />
                 </div>
-                <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Seasonal Rate Multiplier</label>
-                  <input
-                    type='number'
-                    step='0.1'
-                    name='seasonalMultiplier'
-                    value={formData.seasonalMultiplier}
-                    onChange={handleInputChange}
-                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
-                  />
-                </div>
               </div>
 
               {/* Additional Charges */}
               <div className='flex flex-col gap-4'>
                 <h3 className='text-[#0A1413] text-[18px] font-montserrat font-bold mb-2'>Additional Charges</h3>
-                <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Day (KES)</label>
-                  <input
-                    type='number'
-                    name='extraDayCharge'
-                    value={formData.extraDayCharge}
-                    onChange={handleInputChange}
-                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
-                  />
-                </div>
-                <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Late Return (KES/hour)</label>
-                  <input
-                    type='number'
-                    name='lateReturnHourlyCharge'
-                    value={formData.lateReturnHourlyCharge}
-                    onChange={handleInputChange}
-                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
-                  />
-                </div>
                 <div className='flex flex-col gap-1'>
                   <label className='text-[#0A1413] text-[14px] font-nunito'>Security Deposit (KES)</label>
                   <input
@@ -317,17 +285,7 @@ export default function PricingForm() {
                     className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
                   />
                 </div>
-                <div className='flex flex-col gap-1'>
-                  <label className='text-[#0A1413] text-[14px] font-nunito'>Extra Mileage (KES/km)</label>
-                  <input
-                    type='number'
-                    step='0.01'
-                    name='extraMileageCharge'
-                    value={formData.extraMileageCharge}
-                    onChange={handleInputChange}
-                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
-                  />
-                </div>
+
               </div>
             </div>
           </div>
@@ -343,6 +301,18 @@ export default function PricingForm() {
                     type='number'
                     name='discountPercentage'
                     value={formData.discountPercentage}
+                    onChange={handleInputChange}
+                    className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
+                  />
+                </div>
+              </div>
+              <div className='flex flex-col justify-end'>
+                <div className='flex flex-col gap-1'>
+                  <label className='text-[#0A1413] text-[14px] font-nunito'>Valid From</label>
+                  <input
+                    type='date'
+                    name='discountValidFrom'
+                    value={formData.discountValidFrom || ''}
                     onChange={handleInputChange}
                     className='w-full border border-[#9CA3AF] rounded-[4px] h-[43px] px-3 text-[14px] font-nunito text-[#6B7280] focus:outline-none focus:border-[#3FA34D]'
                   />
