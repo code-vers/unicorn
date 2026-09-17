@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { VehicleResponse } from "../../lib/api/vehicle.service";
 import { LocationResponse, LocationService } from "../../lib/api/location.service";
 import { getAssetUrl } from "../../lib/asset-url";
+import { BookingCalculateResponse } from "../../lib/api/booking.service";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface CarPropertiesSectionProps {
@@ -16,13 +17,15 @@ interface CarPropertiesSectionProps {
   setHasAdditionalDriver: (v: boolean) => void;
   hasChildSeat: boolean;
   setHasChildSeat: (v: boolean) => void;
+  priceBreakdown?: BookingCalculateResponse | null;
+  priceLoading?: boolean;
 }
 
 const ADDONS = [
-  { key: "hasGps" as const, label: "GPS Navigation", hint: "Live turn-by-turn navigation device" },
-  { key: "hasFullInsurance" as const, label: "Full Insurance", hint: "Comprehensive collision and theft cover" },
-  { key: "hasAdditionalDriver" as const, label: "Additional Driver", hint: "Add an extra authorised driver" },
-  { key: "hasChildSeat" as const, label: "Child Seat", hint: "Compliant safety seat for children" },
+  { key: "hasGps" as const, label: "GPS Navigation", hint: "Live turn-by-turn navigation device", priceKey: "gpsCharge" as const },
+  { key: "hasFullInsurance" as const, label: "Full Insurance", hint: "Comprehensive collision and theft cover", priceKey: "fullInsuranceCharge" as const },
+  { key: "hasAdditionalDriver" as const, label: "Additional Driver", hint: "Add an extra authorised driver", priceKey: "additionalDriverCharge" as const },
+  { key: "hasChildSeat" as const, label: "Child Seat", hint: "Compliant safety seat for children", priceKey: "childSeatCharge" as const },
 ] as const;
 
 type AddonKey = "hasGps" | "hasFullInsurance" | "hasAdditionalDriver" | "hasChildSeat";
@@ -38,6 +41,8 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
   setHasAdditionalDriver,
   hasChildSeat,
   setHasChildSeat,
+  priceBreakdown,
+  priceLoading,
 }) => {
   const price = vehicle?.pricing?.dailyRate
     ? Number(vehicle.pricing.dailyRate).toLocaleString()
@@ -124,8 +129,9 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
             <div>
               <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-4">Optional Extras</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ADDONS.map(({ key, label, hint }) => {
+                {ADDONS.map(({ key, label, hint, priceKey }) => {
                   const checked = addonValues[key];
+                  const addonPrice = vehicle?.pricing ? (vehicle.pricing as any)[priceKey] : null;
                   return (
                     <button
                       key={key}
@@ -145,7 +151,12 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
                         {checked && <Check size={12} strokeWidth={3} className="text-white" />}
                       </div>
                       <div>
-                        <p className="text-[15px] font-bold text-[#1A1A1A] leading-tight">{label}</p>
+                        <p className="text-[15px] font-bold text-[#1A1A1A] leading-tight">
+                          {label}
+                          {addonPrice ? (
+                            <span className="text-[#43A047] ml-2 text-[13px]">(+Ksh {Number(addonPrice).toLocaleString()})</span>
+                          ) : null}
+                        </p>
                         <p className="text-[12px] text-[#777777] mt-0.5">{hint}</p>
                       </div>
                     </button>
@@ -158,8 +169,18 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
           {/* RIGHT: PRICE CARD */}
           <div className="lg:w-[320px] shrink-0">
             <div className="bg-[#F3F5F6] rounded-[12px] p-8 text-center sticky top-8">
-              <h2 className="text-[26px] font-bold text-[#1A1A1A] mb-1">Ksh {price}</h2>
-              <p className="text-[14px] text-[#777777] mb-6">Per day</p>
+              <h2 className="text-[26px] font-bold text-[#1A1A1A] mb-1">
+                {priceLoading ? (
+                  <span className="text-[18px]">Calculating...</span>
+                ) : priceBreakdown ? (
+                  `Ksh ${Number(priceBreakdown.totalAmount).toLocaleString()}`
+                ) : (
+                  `Ksh ${price}`
+                )}
+              </h2>
+              <p className="text-[14px] text-[#777777] mb-6">
+                {priceBreakdown ? "Total" : "Per day"}
+              </p>
 
               <div className="w-full h-[1px] bg-[#E0E0E0] mb-8" />
 

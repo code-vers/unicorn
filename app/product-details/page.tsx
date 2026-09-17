@@ -167,6 +167,8 @@ const ProductDetailsContent: React.FC = () => {
         setHasAdditionalDriver={setHasAdditionalDriver}
         hasChildSeat={hasChildSeat}
         setHasChildSeat={setHasChildSeat}
+        priceBreakdown={priceBreakdown}
+        priceLoading={priceLoading}
       />
 
       {/* Driver details form + live price breakdown + submit */}
