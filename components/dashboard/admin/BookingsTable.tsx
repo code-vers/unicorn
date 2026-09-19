@@ -1,24 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BookingService, BookingResponse } from '@/lib/api/booking.service';
-import { Eye, Check, Trash2, Search, Filter, Download, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Eye, Check, Trash2, Search, Filter, Download, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 
 
 export default function BookingsTable() {
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewingBookingId, setViewingBookingId] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingResponse | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const detailsRequestId = useRef(0);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
       const data = await BookingService.getAllBookings();
       setBookings(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load bookings');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load bookings');
     } finally {
       setLoading(false);
     }
@@ -33,9 +37,35 @@ export default function BookingsTable() {
       await BookingService.updateBookingStatus(id, status);
       // Optimistic update
       setBookings(prev => prev.map(b => b.id === id ? { ...b, bookingStatus: status } : b));
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update status');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update status');
     }
+  };
+
+  const handleViewBooking = async (id: string) => {
+    const requestId = ++detailsRequestId.current;
+    setViewingBookingId(id);
+    setSelectedBooking(null);
+    setDetailsLoading(true);
+
+    try {
+      const booking = await BookingService.getBookingById(id);
+      if (requestId === detailsRequestId.current) setSelectedBooking(booking);
+    } catch (err) {
+      if (requestId === detailsRequestId.current) {
+        setViewingBookingId(null);
+        toast.error(err instanceof Error ? err.message : 'Failed to load booking details');
+      }
+    } finally {
+      if (requestId === detailsRequestId.current) setDetailsLoading(false);
+    }
+  };
+
+  const closeDetails = () => {
+    detailsRequestId.current += 1;
+    setViewingBookingId(null);
+    setSelectedBooking(null);
+    setDetailsLoading(false);
   };
 
   const getStatusStyles = (status: string) => {
@@ -168,7 +198,13 @@ export default function BookingsTable() {
                   </td>
                   <td className='px-3 py-2 pr-5'>
                     <div className='flex items-center justify-center gap-2'>
-                      <button className='p-1.5 text-[#3FA34D] bg-[#EBF7ED] rounded-[5px] hover:bg-[#d5eedb] transition-colors' title="View">
+                      <button
+                        type='button'
+                        onClick={() => void handleViewBooking(booking.id)}
+                        className='p-1.5 text-[#3FA34D] bg-[#EBF7ED] rounded-[5px] hover:bg-[#d5eedb] transition-colors'
+                        title='View booking'
+                        aria-label={`View booking ${booking.referenceId}`}
+                      >
                         <Eye size={12} />
                       </button>
                       
@@ -214,6 +250,92 @@ export default function BookingsTable() {
           </button>
         </div>
       </div>
+
+      {viewingBookingId && (
+        <BookingDetailsDialog
+          booking={selectedBooking}
+          isLoading={detailsLoading}
+          onClose={closeDetails}
+        />
+      )}
+    </div>
+  );
+}
+
+function BookingDetailsDialog({
+  booking,
+  isLoading,
+  onClose,
+}: {
+  booking: BookingResponse | null;
+  isLoading: boolean;
+  onClose: () => void;
+}) {
+  const customerName = booking?.driverDetails
+    ? `${booking.driverDetails.firstName} ${booking.driverDetails.lastName}`
+    : booking?.user?.name || 'Unknown';
+  const formatDate = (value: string) => new Date(value).toLocaleString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  const formatAmount = (value: string) => `KSH ${Number(value).toLocaleString()}`;
+
+  return (
+    <div
+      className='fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 p-4'
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='booking-details-title'
+      onKeyDown={(event) => { if (event.key === 'Escape') onClose(); }}
+    >
+      <div className='max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl'>
+        <div className='sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4'>
+          <h2 id='booking-details-title' className='text-xl font-bold text-gray-900'>
+            Booking {booking?.referenceId || 'details'}
+          </h2>
+          <button type='button' onClick={onClose} autoFocus aria-label='Close booking details' className='rounded-lg p-2 text-gray-500 hover:bg-gray-100'>
+            <X size={20} />
+          </button>
+        </div>
+        {isLoading ? (
+          <p className='p-6 text-sm text-gray-600' role='status'>Loading booking details...</p>
+        ) : booking ? (
+          <div className='grid gap-5 p-6 text-sm sm:grid-cols-2'>
+            <Detail label='Customer' value={customerName} />
+            <Detail label='Contact' value={booking.driverDetails?.phone || booking.driverDetails?.email || booking.user?.email || 'N/A'} />
+            <Detail label='Vehicle' value={booking.vehicle?.name || 'Unknown Vehicle'} />
+            <Detail label='Booking status' value={booking.bookingStatus} />
+            <Detail label='Pickup' value={`${formatDate(booking.pickupDate)} · ${booking.pickupLocation?.name || 'N/A'}`} />
+            <Detail label='Drop-off' value={`${formatDate(booking.dropOffDate)} · ${booking.dropOffLocation?.name || 'N/A'}`} />
+            <Detail label='Payment status' value={booking.paymentStatus} />
+            <Detail label='Amount paid' value={formatAmount(booking.amountPaid)} />
+            <Detail label='Rental cost' value={formatAmount(booking.rentalCost)} />
+            <Detail label='Total amount' value={formatAmount(booking.totalAmount)} />
+            <div className='sm:col-span-2'>
+              <p className='mb-2 text-gray-500'>Add-ons</p>
+              <p className='font-semibold text-gray-900'>
+                {[
+                  booking.hasGps && 'GPS',
+                  booking.hasFullInsurance && 'Full insurance',
+                  booking.hasAdditionalDriver && 'Additional driver',
+                  booking.hasChildSeat && 'Child seat',
+                ].filter(Boolean).join(', ') || 'None'}
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <div className='flex justify-end border-t border-gray-200 px-6 py-4'>
+          <button type='button' onClick={onClose} className='rounded-lg border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50'>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className='text-gray-500'>{label}</p>
+      <p className='mt-1 font-semibold text-gray-900'>{value}</p>
     </div>
   );
 }
