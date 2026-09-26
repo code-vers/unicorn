@@ -259,9 +259,6 @@ export default function VehiclesTable() {
                 <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[102px] uppercase'>
                   Brand
                 </th>
-                <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[86px] uppercase'>
-                  Year
-                </th>
                 <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[120px] uppercase'>
                   Transmission
                 </th>
@@ -274,9 +271,6 @@ export default function VehiclesTable() {
                 <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[114px] uppercase'>
                   Availability
                 </th>
-                <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[110px] uppercase'>
-                  Location
-                </th>
                 <th className='text-[#A0AEC0] text-[12px] font-normal font-lato py-[5px] w-[152px] px-[14px] uppercase'>
                   Actions
                 </th>
@@ -285,7 +279,7 @@ export default function VehiclesTable() {
             <tbody className='divide-y divide-[#F4F6F8]'>
               {vehicles.length === 0 && !isLoading ? (
                 <tr>
-                  <td colSpan={11} className='text-center py-10 text-gray-500 font-lato'>
+                  <td colSpan={9} className='text-center py-10 text-gray-500 font-lato'>
                     No vehicles found.
                   </td>
                 </tr>
@@ -339,16 +333,13 @@ export default function VehiclesTable() {
                       {vehicle.brand}
                     </td>
                     <td className='text-[#6B7280] text-[12px] font-lato py-[15px]'>
-                      {vehicle.year}
-                    </td>
-                    <td className='text-[#6B7280] text-[12px] font-lato py-[15px]'>
                       {formatText(vehicle.transmission)}
                     </td>
                     <td className='text-[#6B7280] text-[12px] font-lato py-[15px] px-[14px] text-center'>
                       {vehicle.seatingCapacity}
                     </td>
                     <td className='text-[#6B7280] text-[12px] font-lato py-[15px] font-bold'>
-                      AED {vehicle.pricing?.dailyRate}
+                      KES {vehicle.pricing?.dailyRate}
                     </td>
                     <td className='py-[15px]'>
                       <button
@@ -364,9 +355,6 @@ export default function VehiclesTable() {
                       >
                         {formatText(vehicle.availability)}
                       </button>
-                    </td>
-                    <td className='text-[#6B7280] text-[12px] font-lato py-[15px]'>
-                      {vehicle.location?.name || 'Unassigned'}
                     </td>
                     <td className='px-[14px] py-[11px]'>
                       <div className='flex gap-[4px]'>

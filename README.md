@@ -1,140 +1,181 @@
 <div align="center">
-  
-# 🦄 Unicorn Frontend Architecture
 
-**Next-Generation React Application Foundation**
+# 🦄 Unicorn Frontend
+
+**Car Rental Management System — Next.js Frontend**
 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-*A blazing fast, accessible, and scalable frontend built with Next.js 16, React 19, and Tailwind CSS v4, engineered for high-performance and seamless user experiences.*
+A modern, responsive car rental web application built with Next.js 16, React 19, and Tailwind CSS v4.
 
 </div>
 
 ---
 
 ## 📖 Table of Contents
-- [System Architecture](#-system-architecture)
-- [Core Features](#-core-features)
+
+- [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
-- [Local Development Setup](#-local-development-setup)
-- [Environment Configuration](#-environment-configuration)
-- [Design System & UI](#-design-system--ui)
-- [CI/CD & Deployment](#-cicd--deployment)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Available Scripts](#-available-scripts)
+- [Features](#-features)
+- [API Integration](#-api-integration)
 
 ---
 
-## 🏗 System Architecture
+## 🛠 Tech Stack
 
-This application leverages the modern **Next.js App Router** paradigm, providing advanced layout composition, Server Components by default, and streamlined data fetching capabilities. It acts as the primary presentation layer, deeply integrated with the Unicorn Backend services.
-
-### Application Flow
-
-```mermaid
-graph TD
-    Client[Client Browser] --> Next(Next.js App Router)
-    Next --> SC[React Server Components]
-    Next --> CC[React Client Components]
-    SC --> API(Backend REST API)
-    CC --> State(Client State Management)
-    CC -.-> Tailwind(Tailwind CSS v4 Engine)
-```
-
----
-
-## 🚀 Core Features
-
-- **App Router Architecture**: Utilizes Next.js 16 nested routes (`/app`) for highly optimized, layout-driven UI structures.
-- **Data Visualization**: Integrated with `recharts` for dynamic, real-time data plotting and dashboard analytics.
-- **Responsive & Utility-First Styling**: Powered by the cutting-edge Tailwind CSS v4 engine for instantaneous, zero-runtime styling.
-- **Rich Iconography**: Implementing both `lucide-react` and `react-icons` for a scalable vector graphic pipeline.
-- **TypeScript First**: Strict structural typing ensuring end-to-end type safety and robust developer experience.
+| Technology | Purpose |
+|------------|---------|
+| [Next.js 16](https://nextjs.org/) | React framework with App Router |
+| [React 19](https://react.dev/) | UI library |
+| [TypeScript](https://www.typescriptlang.org/) | Type-safe development |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first styling |
+| [Axios](https://axios-http.com/) | HTTP client for API calls |
+| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) | Form handling and validation |
+| [Recharts](https://recharts.org/) | Data visualization / charts |
+| [Lucide React](https://lucide.dev/) + React Icons | Icon library |
+| [React Hot Toast](https://react-hot-toast.com/) | Toast notifications |
+| [Vitest](https://vitest.dev/) | Testing framework |
 
 ---
 
 ## 📂 Project Structure
 
-The codebase is logically segmented to enforce modularity and reusability:
-
 ```text
-.
 ├── app/
-│   ├── about-us/          # Corporate information routing
-│   ├── contact-us/        # Inquiry & support forms
-│   ├── dashboard/         # Analytics and user control panel
-│   ├── manage-bookings/   # Booking administration interface
-│   ├── product/           # Product listing & catalog
-│   ├── product-details/   # Granular product inspection
-│   ├── globals.css        # Global Tailwind injections
-│   ├── layout.tsx         # Root server layout
-│   └── page.tsx           # Entry point
-├── components/            # Reusable React components (Atoms, Molecules, Organisms)
-├── lib/                   # Utility functions & API clients
-├── types/                 # TypeScript declaration bounds
-└── public/                # Static assets (images, fonts, etc.)
+│   ├── (auth)/                 # Authentication routes (login, register, forgot-password, reset-password)
+│   ├── about-us/               # About page
+│   ├── contact-us/             # Contact page
+│   ├── checkout/               # Booking checkout & payment flow (success / cancel)
+│   ├── dashboard/
+│   │   ├── (admin)/            # Admin dashboard (bookings, vehicles, drivers, customers, reports, etc.)
+│   │   ├── (client)/           # Client dashboard (my-bookings, profile, trip-management, etc.)
+│   │   └── client/             # Client-specific layout pages
+│   ├── manage-bookings/        # Booking management interface
+│   ├── product/                # Vehicle listing / catalog
+│   ├── product-details/        # Vehicle detail view
+│   ├── layout.tsx              # Root layout
+│   ├── page.tsx                # Home page
+│   └── globals.css             # Global styles & Tailwind imports
+├── components/                 # Reusable UI components
+│   ├── dashboard/              # Admin & client dashboard components
+│   ├── ui/                     # Shared UI primitives (Skeleton, etc.)
+│   └── ...
+├── lib/                        # Utility functions & API service classes
+│   └── api/                    # Axios instances & backend service wrappers
+├── hooks/                      # Custom React hooks
+├── contexts/                   # React context providers
+├── types/                      # Shared TypeScript type definitions
+├── public/                     # Static assets (images, fonts, etc.)
+├── next.config.ts              # Next.js configuration
+├── tailwind.config.ts          # Tailwind CSS configuration
+└── package.json
 ```
 
 ---
 
-## ⚙️ Local Development Setup
+## 🚀 Getting Started
 
-### 1. System Requirements
-- `Node.js` >= 20.x.x (Required for Next.js 16+)
-- `npm` >= 10.x.x or `pnpm` / `yarn`
+### Prerequisites
 
-### 2. Initialization
-```bash
-# Navigate to the frontend directory
-cd unicorn
+- **Node.js** >= 20.x
+- **npm** >= 10.x (or `pnpm` / `yarn`)
 
-# Resolve dependencies (Clean install)
-npm ci
-```
-
----
-
-## 🔧 Environment Configuration
-
-A `.env.local` file is required for running the application. It maps to backend services and handles client-side keys.
-
-```env
-# Application Settings
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# Backend API Bindings
-NEXT_PUBLIC_API_BASE_URL="http://localhost:3000/api/v1"
-
-# Telemetry/Analytics (If applicable)
-NEXT_PUBLIC_ANALYTICS_ID="<your_analytics_hash>"
-```
-
----
-
-## 🎨 Design System & UI
-
-This project employs a robust UI configuration mapped through **Tailwind v4**.
-- **Icons**: Sourced from `Lucide` and `react-icons` for comprehensive coverage.
-- **Charts**: Built via `recharts` to render scalable SVG analytics.
-- **Styling Pipeline**: Global PostCSS parsing mapped directly into `globals.css` with a focus on modern CSS nesting and hardware-accelerated transitions.
-
----
-
-## 🚢 CI/CD & Deployment
-
-The application is heavily optimized for edge networks and Vercel-like deployment architectures.
-
-### Production Compilation
-Transpile the React Server Components and compile standard static assets:
+### Installation
 
 ```bash
-# Resolve dependencies
-npm ci
+cd unicorn/frontend
 
-# Execute Next.js Compiler
-npm run build
-
-# Start the production Node server
-npm start
+# Install dependencies
+npm install
 ```
+
+### Environment Setup
+
+Create a `.env.local` file from the example:
+
+```bash
+cp .env.example .env.local
+```
+
+### Start Development Server
+
+```bash
+npm run dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🔧 Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_BASE_URL` | Backend REST API base URL | `http://localhost:5000/api/v1` |
+| `NEXT_PUBLIC_ASSET_BASE_URL` | Static asset / upload server URL | `http://localhost:5000` |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL | `http://localhost:3000` |
+
+> **Note:** Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser.
+
+---
+
+## 📜 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start Next.js development server |
+| `npm run build` | Build production bundle |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run TypeScript compiler (no emit) |
+| `npm test` | Run Vitest tests |
+| `npm run check` | Run lint + test + typecheck + build (CI) |
+
+---
+
+## ✨ Features
+
+- **Authentication**: Login, register, password reset, email verification
+- **Vehicle Browsing**: Search, filter, and view detailed vehicle listings
+- **Booking Flow**: Multi-step checkout with Stripe payment integration
+- **Client Dashboard**: Manage personal bookings, payments, documents, profile, and support tickets
+- **Admin Dashboard**: Full admin panel for managing bookings, vehicles, drivers, locations, pricing, reports, customer support, and system settings
+- **Real-time Charts**: Analytics and reporting powered by Recharts
+- **Responsive Design**: Mobile-first layouts using Tailwind CSS v4
+- **Form Validation**: Schema-driven forms with Zod and React Hook Form
+- **Toast Notifications**: User feedback via React Hot Toast
+
+---
+
+## 🔌 API Integration
+
+The frontend communicates with the Unicorn Backend via RESTful API endpoints.
+
+- **Base URL**: Configured via `NEXT_PUBLIC_API_BASE_URL`
+- **Authentication**: JWT-based (access token + refresh token) stored in HTTP-only cookies
+- **API Services**: Located in `lib/api/` — organized service classes for each domain (auth, booking, vehicle, payment, etc.)
+
+Example service structure:
+
+```typescript
+// lib/api/booking.service.ts
+class BookingService {
+  static async getAllBookings() { ... }
+  static async getBookingById(id: string) { ... }
+  static async updateBookingStatus(id: string, status: string) { ... }
+}
+```
+
+---
+
+<div align="center">
+
+Built with ❤️ for the Unicorn Car Rental Platform
+
+</div>

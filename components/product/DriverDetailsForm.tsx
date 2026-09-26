@@ -61,6 +61,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
 
   // ── Submission State ────────────────────────────────────────────────────────
   const [submitting, setSubmitting] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ── Price display helpers ───────────────────────────────────────────────────
@@ -68,6 +69,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
     n !== undefined && n !== null ? `KSH ${n.toFixed(2)}` : "—";
 
   const handleSubmit = async () => {
+    setHasAttemptedSubmit(true);
     if (!firstName || !lastName || !email || !phone) {
       setError("Please fill in all required driver details.");
       return;
@@ -154,6 +156,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                 type="email"
                 value={email}
                 onChange={setEmail}
+                error={hasAttemptedSubmit && !email ? "This field is required" : undefined}
               />
               <InputGroup
                 label="Phone *"
@@ -161,18 +164,21 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                 type="tel"
                 value={phone}
                 onChange={setPhone}
+                error={hasAttemptedSubmit && !phone ? "This field is required" : undefined}
               />
               <InputGroup
                 label="First Name *"
                 placeholder="Enter first name"
                 value={firstName}
                 onChange={setFirstName}
+                error={hasAttemptedSubmit && !firstName ? "This field is required" : undefined}
               />
               <InputGroup
                 label="Last Name *"
                 placeholder="Enter last name"
                 value={lastName}
                 onChange={setLastName}
+                error={hasAttemptedSubmit && !lastName ? "This field is required" : undefined}
               />
             </div>
 
@@ -236,18 +242,21 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                   placeholder="Street address"
                   value={billingAddress}
                   onChange={setBillingAddress}
+                  error={hasAttemptedSubmit && !billingAddress ? "This field is required" : undefined}
                 />
                 <InputGroup
                   label="City *"
                   placeholder="City"
                   value={billingCity}
                   onChange={setBillingCity}
+                  error={hasAttemptedSubmit && !billingCity ? "This field is required" : undefined}
                 />
                 <InputGroup
                   label="Country *"
                   placeholder="Country"
                   value={billingCountry}
                   onChange={setBillingCountry}
+                  error={hasAttemptedSubmit && !billingCountry ? "This field is required" : undefined}
                 />
                 <InputGroup
                   label="State / County"
@@ -391,12 +400,14 @@ const InputGroup = ({
   type = "text",
   value,
   onChange,
+  error,
 }: {
   label: string;
   placeholder: string;
   type?: string;
   value: string;
   onChange: (v: string) => void;
+  error?: string;
 }) => (
   <div className="flex flex-col gap-2">
     <label className="text-[15px] font-bold text-[#1A1A1A]">{label}</label>
@@ -405,8 +416,9 @@ const InputGroup = ({
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-[52px] px-4 bg-white border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] placeholder:text-[#9CA3AF]"
+      className={`w-full h-[52px] px-4 bg-white border ${error ? 'border-[#DC2626]' : 'border-[#E5E7EB] focus:border-[#43A047]'} rounded-[6px] text-[14px] text-[#1A1A1A] outline-none placeholder:text-[#9CA3AF]`}
     />
+    {error && <p className="text-[12px] text-[#DC2626]">{error}</p>}
   </div>
 );
 

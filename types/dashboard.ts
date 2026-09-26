@@ -59,12 +59,10 @@ export interface Vehicle {
   name: string;
   category: string;
   brand: string;
-  year: number;
   transmission: 'Automatic' | 'Manual';
   seating: number;
   dailyRate: number;
   availability: 'Available' | 'Rented';
-  location: string;
 }
 
 export interface TodayAtGlance {

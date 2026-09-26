@@ -24,7 +24,6 @@ const dropOffChargeSchema = z.object({
   chargeType: z.enum(['FIXED', 'PER_KM']).optional().or(z.literal('')),
   amount: z.string().min(1, 'Amount is required').refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, 'Amount must be a valid positive number'),
   distanceKm: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), 'Distance must be greater than zero'),
-  seasonalMultiplier: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), 'Must be a valid positive number'),
   status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
 }).refine((data) => data.pickupLocationId !== data.dropOffLocationId, {
   message: 'Pickup and drop-off locations cannot be the same.',
@@ -59,7 +58,6 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
       chargeType: 'FIXED',
       amount: '0',
       distanceKm: '',
-      seasonalMultiplier: '',
       status: 'ACTIVE',
     },
   });
@@ -90,7 +88,6 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         chargeType: initialData.chargeType ?? 'FIXED',
         amount: String(initialData.amount),
         distanceKm: initialData.distanceKm != null ? String(initialData.distanceKm) : '',
-        seasonalMultiplier: initialData.seasonalMultiplier != null ? String(initialData.seasonalMultiplier) : '',
         status: initialData.status,
       });
     } else if (!isOpen) {
@@ -102,7 +99,6 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
         chargeType: 'FIXED',
         amount: '0',
         distanceKm: '',
-        seasonalMultiplier: '',
         status: 'ACTIVE',
       });
     }
@@ -122,7 +118,6 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
       ...(values.vehicleCategory ? { vehicleCategory: values.vehicleCategory as VehicleCategory } : {}),
       ...(values.vehicleId ? { vehicleId: values.vehicleId } : {}),
       ...(values.chargeType ? { chargeType: values.chargeType as ChargeType } : {}),
-      ...(values.seasonalMultiplier ? { seasonalMultiplier: parseFloat(values.seasonalMultiplier) } : {}),
       ...(values.status ? { status: values.status } : {}),
     };
     onSubmit(payload);
@@ -242,24 +237,8 @@ export default function DropOffChargeModal({ isOpen, onClose, onSubmit, initialD
               </div>
             )}
 
-            {/* Seasonal Multiplier & Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[12px] font-bold text-gray-700 font-lato mb-1">Seasonal Multiplier <span className="text-gray-400 font-normal">(optional)</span></label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  {...register('seasonalMultiplier')}
-                  onInput={(e) => {
-                    let val = e.currentTarget.value.replace(/[^0-9.]/g, '');
-                    const parts = val.split('.');
-                    if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
-                    e.currentTarget.value = val;
-                  }}
-                  className={inputClass(false)}
-                  placeholder="e.g. 1.5"
-                />
-              </div>
+            {/* Status */}
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-[12px] font-bold text-gray-700 font-lato mb-1">Status</label>
                 <select {...register('status')} className={inputClass(false)}>
