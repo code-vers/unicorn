@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { BookingService, BookingResponse } from '@/lib/api/booking.service';
-import { Eye, Check, Trash2, Search, Filter, Download, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
+import { Eye, Check, Trash2, Search, Filter, Download, ChevronLeft, ChevronRight, ChevronDown, X, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 
@@ -14,6 +14,7 @@ export default function BookingsTable() {
   const [viewingBookingId, setViewingBookingId] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<BookingResponse | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
   const detailsRequestId = useRef(0);
 
   const fetchBookings = async () => {
@@ -33,12 +34,15 @@ export default function BookingsTable() {
   }, []);
 
   const handleUpdateStatus = async (id: string, status: 'CONFIRMED' | 'CANCELLED') => {
+    setUpdatingBookingId(id);
     try {
       await BookingService.updateBookingStatus(id, status);
-      // Optimistic update
       setBookings(prev => prev.map(b => b.id === id ? { ...b, bookingStatus: status } : b));
+      toast.success(`Booking ${status.toLowerCase()} successfully`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to update status');
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
@@ -59,6 +63,82 @@ export default function BookingsTable() {
     } finally {
       if (requestId === detailsRequestId.current) setDetailsLoading(false);
     }
+  };
+
+  const exportToCSV = () => {
+    if (bookings.length === 0) {
+      toast.error('No bookings to export');
+      return;
+    }
+
+    const headers = [
+      'Reference ID',
+      'Customer Name',
+      'Customer Email',
+      'Customer Phone',
+      'Vehicle',
+      'Pickup Date',
+      'Dropoff Date',
+      'Pickup Location',
+      'Dropoff Location',
+      'Rental Cost',
+      'Total Amount',
+      'Amount Paid',
+      'Payment Status',
+      'Booking Status',
+      'Created At',
+    ];
+
+    const escapeCSV = (value: string | number | null | undefined) => {
+      const str = String(value ?? '');
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const rows = bookings.map((booking) => {
+      const customerName = booking.driverDetails
+        ? `${booking.driverDetails.firstName} ${booking.driverDetails.lastName}`
+        : (booking.user?.name || '');
+      const customerEmail = booking.driverDetails?.email || booking.user?.email || '';
+      const customerPhone = booking.driverDetails?.phone || '';
+      const vehicleName = booking.vehicle?.name || '';
+      const pickupLocation = booking.pickupLocation?.name || '';
+      const dropoffLocation = booking.dropOffLocation?.name || '';
+      const formatDate = (dateStr: string) =>
+        dateStr ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '';
+
+      return [
+        booking.referenceId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        vehicleName,
+        formatDate(booking.pickupDate),
+        formatDate(booking.dropOffDate),
+        pickupLocation,
+        dropoffLocation,
+        `KSH ${Number(booking.rentalCost).toLocaleString()}`,
+        `KSH ${Number(booking.totalAmount).toLocaleString()}`,
+        `KSH ${Number(booking.amountPaid).toLocaleString()}`,
+        booking.paymentStatus,
+        booking.bookingStatus,
+        formatDate(booking.createdAt),
+      ].map(escapeCSV).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `bookings_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Bookings exported successfully');
   };
 
   const closeDetails = () => {
@@ -125,7 +205,10 @@ export default function BookingsTable() {
             <Filter size={12} /> Filter
           </button>
           
-          <button className='flex items-center gap-1.5 px-2 py-1.5 bg-[#F4F6F8] border border-[#E8ECF0] rounded-[7px] text-[12px] text-[#718096] hover:bg-gray-100 font-lato transition-colors'>
+          <button
+            onClick={exportToCSV}
+            className='flex items-center gap-1.5 px-2 py-1.5 bg-[#F4F6F8] border border-[#E8ECF0] rounded-[7px] text-[12px] text-[#718096] hover:bg-gray-100 font-lato transition-colors'
+          >
             <Download size={12} /> Export
           </button>
         </div>
@@ -210,16 +293,22 @@ export default function BookingsTable() {
                       
                       {booking.bookingStatus === 'PENDING' && (
                         <>
-                          <button 
+                          <button
                             onClick={() => handleUpdateStatus(booking.id, 'CONFIRMED')}
-                            className='p-1.5 text-[#3FA34D] bg-[#EBF7ED] border border-[#3FA34D] rounded-[5px] hover:bg-[#3FA34D] hover:text-white transition-colors' 
+                            disabled={updatingBookingId === booking.id}
+                            className='p-1.5 text-[#3FA34D] bg-[#EBF7ED] border border-[#3FA34D] rounded-[5px] hover:bg-[#3FA34D] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                             title="Approve"
                           >
-                            <Check size={12} />
+                            {updatingBookingId === booking.id ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <Check size={12} />
+                            )}
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleUpdateStatus(booking.id, 'CANCELLED')}
-                            className='p-1.5 text-[#DC2626] bg-[#FFF0F0] border border-[#DC2626] rounded-[5px] hover:bg-[#DC2626] hover:text-white transition-colors' 
+                            disabled={updatingBookingId === booking.id}
+                            className='p-1.5 text-[#DC2626] bg-[#FFF0F0] border border-[#DC2626] rounded-[5px] hover:bg-[#DC2626] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                             title="Reject"
                           >
                             <Trash2 size={12} />
