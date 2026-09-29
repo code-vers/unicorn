@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Avialbale Vehicles', href: '/product' },
+    { name: 'Available Vehicles', href: '/product' },
     { name: 'About Us', href: '/about-us' },
     { name: 'Manage Bookings', href: '/manage-bookings' },
     { name: 'Contact Us', href: '/contact-us' },
@@ -35,9 +35,8 @@ const Navbar: React.FC = () => {
             return (
               <Link key={link.name} href={link.href}>
                 <p
-                  className={`text-[14px] transition ${
-                    isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
-                  }`}
+                  className={`text-[14px] transition ${isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
+                    }`}
                 >
                   {link.name}
                 </p>
@@ -107,9 +106,8 @@ const Navbar: React.FC = () => {
               return (
                 <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)}>
                   <p
-                    className={`text-[16px] font-medium transition ${
-                      isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
-                    }`}
+                    className={`text-[16px] font-medium transition ${isActive ? 'text-[#0A1413]' : 'text-[#6B7280] hover:text-[#0A1413]'
+                      }`}
                   >
                     {link.name}
                   </p>
