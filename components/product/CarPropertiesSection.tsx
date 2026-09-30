@@ -109,21 +109,19 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
             <div className="flex mb-10 border-b border-[#43A047]/20">
               <button
                 onClick={() => setActiveTab("properties")}
-                className={`px-10 py-4 text-[16px] font-semibold rounded-t-[4px] transition-colors ${
-                  activeTab === "properties"
-                    ? "bg-[#43A047] text-white"
-                    : "bg-transparent text-[#43A047] hover:bg-[#43A047]/10"
-                }`}
+                className={`px-10 py-4 text-[16px] font-semibold rounded-t-[4px] transition-colors ${activeTab === "properties"
+                  ? "bg-[#43A047] text-white"
+                  : "bg-transparent text-[#43A047] hover:bg-[#43A047]/10"
+                  }`}
               >
                 Properties Overview
               </button>
               <button
                 onClick={() => setActiveTab("rental-terms")}
-                className={`px-10 py-4 text-[16px] font-semibold rounded-t-[4px] transition-colors ${
-                  activeTab === "rental-terms"
-                    ? "bg-[#43A047] text-white"
-                    : "bg-transparent text-[#43A047] hover:bg-[#43A047]/10"
-                }`}
+                className={`px-10 py-4 text-[16px] font-semibold rounded-t-[4px] transition-colors ${activeTab === "rental-terms"
+                  ? "bg-[#43A047] text-white"
+                  : "bg-transparent text-[#43A047] hover:bg-[#43A047]/10"
+                  }`}
               >
                 Rental Terms
               </button>
@@ -157,28 +155,6 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Drive Type Selection */}
-                <div className="mb-8">
-                  <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-4">Drive Type</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <DriveTypeOption
-                      icon={<Car size={20} />}
-                      label="Self Drive"
-                      hint="Drive the vehicle yourself"
-                      selected={!isChauffeurDriven}
-                      onClick={() => setIsChauffeurDriven(false)}
-                    />
-                    <DriveTypeOption
-                      icon={<User size={20} />}
-                      label="Chauffeur Driven"
-                      hint="Professional driver provided"
-                      selected={isChauffeurDriven}
-                      onClick={() => setIsChauffeurDriven(true)}
-                      price={vehicle?.pricing?.chauffeurRate ? `+${fmt(Number(vehicle.pricing.chauffeurRate))}/day` : undefined}
-                    />
-                  </div>
-                </div>
-
                 {/* Add-on Extras */}
                 <div>
                   <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-4">Optional Extras</h3>
@@ -191,16 +167,14 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
                           key={key}
                           type="button"
                           onClick={() => addonSetters[key](!checked)}
-                          className={`flex items-start gap-4 p-4 rounded-[10px] border-2 text-left transition-all duration-150 ${
-                            checked
-                              ? "border-[#43A047] bg-[#F0FAF0]"
-                              : "border-[#E5E7EB] bg-white hover:border-[#43A047]/40"
-                          }`}
+                          className={`flex items-start gap-4 p-4 rounded-[10px] border-2 text-left transition-all duration-150 ${checked
+                            ? "border-[#43A047] bg-[#F0FAF0]"
+                            : "border-[#E5E7EB] bg-white hover:border-[#43A047]/40"
+                            }`}
                         >
                           <div
-                            className={`mt-0.5 w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-colors ${
-                              checked ? "border-[#43A047] bg-[#43A047]" : "border-[#D1D5DB]"
-                            }`}
+                            className={`mt-0.5 w-5 h-5 rounded-[4px] border-2 flex items-center justify-center shrink-0 transition-colors ${checked ? "border-[#43A047] bg-[#43A047]" : "border-[#D1D5DB]"
+                              }`}
                           >
                             {checked && <Check size={12} strokeWidth={3} className="text-white" />}
                           </div>
@@ -220,6 +194,28 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
                 </div>
               </>
             )}
+
+            {/* Drive Type Selection */}
+            <div className="mt-8">
+              <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-4">Drive Type</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DriveTypeOption
+                  icon={<Car size={20} />}
+                  label="Self Drive"
+                  hint="Drive the vehicle yourself"
+                  selected={!isChauffeurDriven}
+                  onClick={() => setIsChauffeurDriven(false)}
+                />
+                <DriveTypeOption
+                  icon={<User size={20} />}
+                  label="Chauffeur Driven"
+                  hint="Professional driver provided"
+                  selected={isChauffeurDriven}
+                  onClick={() => setIsChauffeurDriven(true)}
+                  price={vehicle?.pricing?.chauffeurRate ? `+${fmt(Number(vehicle.pricing.chauffeurRate))}/day` : undefined}
+                />
+              </div>
+            </div>
 
             {/* Rental Terms Tab */}
             {activeTab === "rental-terms" && (
@@ -364,16 +360,14 @@ const DriveTypeOption: React.FC<DriveTypeOptionProps> = ({ icon, label, hint, se
   <button
     type="button"
     onClick={onClick}
-    className={`flex items-start gap-4 p-4 rounded-[10px] border-2 text-left transition-all duration-150 ${
-      selected
-        ? "border-[#43A047] bg-[#F0FAF0]"
-        : "border-[#E5E7EB] bg-white hover:border-[#43A047]/40"
-    }`}
+    className={`flex items-start gap-4 p-4 rounded-[10px] border-2 text-left transition-all duration-150 ${selected
+      ? "border-[#43A047] bg-[#F0FAF0]"
+      : "border-[#E5E7EB] bg-white hover:border-[#43A047]/40"
+      }`}
   >
     <div
-      className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-        selected ? "border-[#43A047]" : "border-[#D1D5DB]"
-      }`}
+      className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${selected ? "border-[#43A047]" : "border-[#D1D5DB]"
+        }`}
     >
       {selected && <div className="w-2.5 h-2.5 rounded-full bg-[#43A047]" />}
     </div>

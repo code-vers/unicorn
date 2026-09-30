@@ -72,10 +72,15 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
 
   const handleSubmit = async () => {
     setHasAttemptedSubmit(true);
-    if (!firstName || !lastName || !email || !phone) {
-      setError("Please fill in all required driver details.");
-      return;
+
+    // Driver details are only required for self-drive bookings
+    if (!isChauffeurDriven) {
+      if (!firstName || !lastName || !email || !phone) {
+        setError("Please fill in all required driver details.");
+        return;
+      }
     }
+
     if (!pickupLocationId || !dropOffLocationId) {
       setError("Please select pick-up and drop-off locations.");
       return;
@@ -90,11 +95,17 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
         : undefined;
 
+    // For chauffeur-driven bookings, use placeholder driver details
+    const driverFirstName = isChauffeurDriven ? "Chauffeur" : firstName;
+    const driverLastName = isChauffeurDriven ? "Service" : lastName;
+    const driverEmail = isChauffeurDriven ? "chauffeur@unicorn.co.ke" : email;
+    const driverPhone = isChauffeurDriven ? "0000000000" : phone;
+
     const billingInfo = {
-      firstName: billingSameAsDriver ? firstName : firstName,
-      lastName: billingSameAsDriver ? lastName : lastName,
-      email: billingSameAsDriver ? email : email,
-      phone: billingSameAsDriver ? phone : phone,
+      firstName: billingSameAsDriver ? driverFirstName : driverFirstName,
+      lastName: billingSameAsDriver ? driverLastName : driverLastName,
+      email: billingSameAsDriver ? driverEmail : driverEmail,
+      phone: billingSameAsDriver ? driverPhone : driverPhone,
       address: billingAddress,
       city: billingCity || (billingSameAsDriver ? "" : ""),
       country: billingCountry,
@@ -123,12 +134,12 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         hasAdditionalDriver,
         hasChildSeat,
         driverDetails: {
-          firstName,
-          lastName,
-          email,
-          phone,
-          dateOfBirth,
-          message: message || undefined,
+          firstName: driverFirstName,
+          lastName: driverLastName,
+          email: driverEmail,
+          phone: driverPhone,
+          dateOfBirth: isChauffeurDriven ? undefined : dateOfBirth,
+          message: isChauffeurDriven ? undefined : (message || undefined),
         },
         billingInfo,
       });
@@ -147,97 +158,118 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         <div className="flex flex-col lg:flex-row gap-10 items-start">
           {/* --- LEFT SIDE: FORM --- */}
           <div className="flex-1 w-full">
-            <h2 className="text-[28px] font-bold text-[#1A1A1A] mb-8">
-              Enter driver details
-            </h2>
 
-            {/* Basic Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-6">
-              <InputGroup
-                label="Email *"
-                placeholder="Enter email"
-                type="email"
-                value={email}
-                onChange={setEmail}
-                error={hasAttemptedSubmit && !email ? "This field is required" : undefined}
-              />
-              <InputGroup
-                label="Phone *"
-                placeholder="Enter phone number"
-                type="tel"
-                value={phone}
-                onChange={setPhone}
-                error={hasAttemptedSubmit && !phone ? "This field is required" : undefined}
-              />
-              <InputGroup
-                label="First Name *"
-                placeholder="Enter first name"
-                value={firstName}
-                onChange={setFirstName}
-                error={hasAttemptedSubmit && !firstName ? "This field is required" : undefined}
-              />
-              <InputGroup
-                label="Last Name *"
-                placeholder="Enter last name"
-                value={lastName}
-                onChange={setLastName}
-                error={hasAttemptedSubmit && !lastName ? "This field is required" : undefined}
-              />
-            </div>
+            {/* Driver Detail Fields — only for Self Drive */}
+            {!isChauffeurDriven && (
+              <>
+                <h2 className="text-[28px] font-bold text-[#1A1A1A] mb-8">
+                  Enter driver details
+                </h2>
 
-            {/* Date of Birth */}
-            <div className="mb-6">
-              <label className="block text-[15px] font-bold text-[#1A1A1A] mb-3">
-                Date of Birth
-              </label>
-              <div className="grid grid-cols-3 gap-4">
-                <SelectGroup
-                  placeholder="DAY"
-                  value={dobDay}
-                  onChange={setDobDay}
-                  options={Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"))}
-                />
-                <SelectGroup
-                  placeholder="MONTH"
-                  value={dobMonth}
-                  onChange={setDobMonth}
-                  options={["01","02","03","04","05","06","07","08","09","10","11","12"]}
-                />
-                <SelectGroup
-                  placeholder="YEAR"
-                  value={dobYear}
-                  onChange={setDobYear}
-                  options={Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 18 - i))}
-                />
+                {/* Basic Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-6">
+                  <InputGroup
+                    label="Email *"
+                    placeholder="Enter email"
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
+                    error={hasAttemptedSubmit && !email ? "This field is required" : undefined}
+                  />
+                  <InputGroup
+                    label="Phone *"
+                    placeholder="Enter phone number"
+                    type="tel"
+                    value={phone}
+                    onChange={setPhone}
+                    error={hasAttemptedSubmit && !phone ? "This field is required" : undefined}
+                  />
+                  <InputGroup
+                    label="First Name *"
+                    placeholder="Enter first name"
+                    value={firstName}
+                    onChange={setFirstName}
+                    error={hasAttemptedSubmit && !firstName ? "This field is required" : undefined}
+                  />
+                  <InputGroup
+                    label="Last Name *"
+                    placeholder="Enter last name"
+                    value={lastName}
+                    onChange={setLastName}
+                    error={hasAttemptedSubmit && !lastName ? "This field is required" : undefined}
+                  />
+                </div>
+
+                {/* Date of Birth */}
+                <div className="mb-6">
+                  <label className="block text-[15px] font-bold text-[#1A1A1A] mb-3">
+                    Date of Birth
+                  </label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <SelectGroup
+                      placeholder="DAY"
+                      value={dobDay}
+                      onChange={setDobDay}
+                      options={Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"))}
+                    />
+                    <SelectGroup
+                      placeholder="MONTH"
+                      value={dobMonth}
+                      onChange={setDobMonth}
+                      options={["01","02","03","04","05","06","07","08","09","10","11","12"]}
+                    />
+                    <SelectGroup
+                      placeholder="YEAR"
+                      value={dobYear}
+                      onChange={setDobYear}
+                      options={Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 18 - i))}
+                    />
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div className="mb-8">
+                  <label className="block text-[15px] font-bold text-[#1A1A1A] mb-3">
+                    Message to Car Supplier
+                  </label>
+                  <textarea
+                    placeholder="YOUR MESSAGE..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full h-[140px] p-4 bg-white border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] uppercase placeholder:text-[#9CA3AF]"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Chauffeur info banner */}
+            {isChauffeurDriven && (
+              <div className="mb-8 p-5 bg-[#F0FAF0] border border-[#43A047]/30 rounded-[10px]">
+                <h2 className="text-[20px] font-bold text-[#1A1A1A] mb-2">
+                  Chauffeur Driven Booking
+                </h2>
+                <p className="text-[14px] text-[#555555] leading-[1.7]">
+                  A professional driver will be assigned to you. No driver details are required from your side.
+                  Simply complete the billing information below to proceed.
+                </p>
               </div>
-            </div>
-
-            {/* Message */}
-            <div className="mb-8">
-              <label className="block text-[15px] font-bold text-[#1A1A1A] mb-3">
-                Message to Car Supplier
-              </label>
-              <textarea
-                placeholder="YOUR MESSAGE..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full h-[140px] p-4 bg-white border border-[#E5E7EB] rounded-[6px] text-[14px] text-[#1A1A1A] outline-none focus:border-[#43A047] uppercase placeholder:text-[#9CA3AF]"
-              />
-            </div>
+            )}
 
             {/* Billing Info */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[18px] font-bold text-[#1A1A1A]">Billing Information</h3>
-                <label className="flex items-center gap-2 cursor-pointer text-[13px] text-[#555]">
-                  <input
-                    type="checkbox"
-                    checked={billingSameAsDriver}
-                    onChange={(e) => setBillingSameAsDriver(e.target.checked)}
-                    className="w-4 h-4 accent-[#43A047]"
-                  />
-                  Same as driver details
-                </label>
+                {!isChauffeurDriven && (
+                  <label className="flex items-center gap-2 cursor-pointer text-[13px] text-[#555]">
+                    <input
+                      type="checkbox"
+                      checked={billingSameAsDriver}
+                      onChange={(e) => setBillingSameAsDriver(e.target.checked)}
+                      className="w-4 h-4 accent-[#43A047]"
+                    />
+                    Same as driver details
+                  </label>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <InputGroup
@@ -347,6 +379,15 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                   {/* Fees */}
                   <div className="mb-4 space-y-3">
                     <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">TAXES & FEES</p>
+                    {priceBreakdown.chauffeurFee > 0 && (
+                      <FeeRow label="Chauffeur charge" value={fmt(priceBreakdown.chauffeurFee)} />
+                    )}
+                    {priceBreakdown.deliveryFee > 0 && (
+                      <FeeRow label="Delivery / collection" value={fmt(priceBreakdown.deliveryFee)} />
+                    )}
+                    {priceBreakdown.airportFee > 0 && (
+                      <FeeRow label="Airport fee" value={fmt(priceBreakdown.airportFee)} />
+                    )}
                     <FeeRow label="Pick-up fee" value={fmt(priceBreakdown.pickupFee)} />
                     <FeeRow label="Drop-off fee" value={fmt(priceBreakdown.dropOffFee)} />
                     {priceBreakdown.addonsCost > 0 && (
