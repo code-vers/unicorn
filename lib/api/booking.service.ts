@@ -8,6 +8,7 @@ export interface BookingCalculatePayload {
   dropOffLocationId: string;
   pickupDate: string;
   dropOffDate: string;
+  isChauffeurDriven?: boolean;
   hasGps?: boolean;
   hasFullInsurance?: boolean;
   hasAdditionalDriver?: boolean;
@@ -47,6 +48,9 @@ export interface BookingCalculateResponse {
   rentalCost: number;
   pickupFee: number;
   dropOffFee: number;
+  chauffeurFee: number;
+  airportFee: number;
+  deliveryFee: number;
   addonsCost: number;
   subtotal: number;
   taxPercentage: number;
@@ -66,6 +70,10 @@ export interface BookingResponse {
   rentalCost: string;
   pickupFee: string;
   dropOffFee: string;
+  chauffeurFee: string;
+  airportFee: string;
+  deliveryFee: string;
+  isChauffeurDriven: boolean;
   hasGps: boolean;
   hasFullInsurance: boolean;
   hasAdditionalDriver: boolean;

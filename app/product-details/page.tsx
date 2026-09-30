@@ -74,6 +74,7 @@ const ProductDetailsContent: React.FC = () => {
   const [hasFullInsurance, setHasFullInsurance] = useState(false);
   const [hasAdditionalDriver, setHasAdditionalDriver] = useState(false);
   const [hasChildSeat, setHasChildSeat] = useState(false);
+  const [isChauffeurDriven, setIsChauffeurDriven] = useState(false);
 
   // ── Live price calculation ────────────────────────────────────────────────────
   const [priceBreakdown, setPriceBreakdown] =
@@ -94,6 +95,7 @@ const ProductDetailsContent: React.FC = () => {
       dropOffLocationId,
       pickupDate: pickupDateIso,
       dropOffDate: dropOffDateIso,
+      isChauffeurDriven,
       hasGps,
       hasFullInsurance,
       hasAdditionalDriver,
@@ -117,6 +119,7 @@ const ProductDetailsContent: React.FC = () => {
     dropOffDateIso,
     pickupLocationId,
     dropOffLocationId,
+    isChauffeurDriven,
     hasGps,
     hasFullInsurance,
     hasAdditionalDriver,
@@ -159,6 +162,8 @@ const ProductDetailsContent: React.FC = () => {
       {/* Vehicle properties + add-on toggles */}
       <CarPropertiesSection
         vehicle={vehicle}
+        isChauffeurDriven={isChauffeurDriven}
+        setIsChauffeurDriven={setIsChauffeurDriven}
         hasGps={hasGps}
         setHasGps={setHasGps}
         hasFullInsurance={hasFullInsurance}
@@ -179,6 +184,7 @@ const ProductDetailsContent: React.FC = () => {
         dropOffLocationId={dropOffLocationId}
         pickupDate={pickupDateIso}
         dropOffDate={dropOffDateIso}
+        isChauffeurDriven={isChauffeurDriven}
         hasGps={hasGps}
         hasFullInsurance={hasFullInsurance}
         hasAdditionalDriver={hasAdditionalDriver}

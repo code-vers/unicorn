@@ -17,6 +17,7 @@ interface DriverDetailsFormProps {
   dropOffLocationId: string;
   pickupDate: string;
   dropOffDate: string;
+  isChauffeurDriven: boolean;
   hasGps: boolean;
   hasFullInsurance: boolean;
   hasAdditionalDriver: boolean;
@@ -33,6 +34,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
   dropOffLocationId,
   pickupDate,
   dropOffDate,
+  isChauffeurDriven,
   hasGps,
   hasFullInsurance,
   hasAdditionalDriver,
@@ -115,6 +117,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         dropOffLocationId,
         pickupDate,
         dropOffDate,
+        isChauffeurDriven,
         hasGps,
         hasFullInsurance,
         hasAdditionalDriver,
