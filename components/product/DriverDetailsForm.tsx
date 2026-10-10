@@ -390,8 +390,12 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                     {priceBreakdown.airportFee > 0 && (
                       <FeeRow label="Airport fee" value={fmt(priceBreakdown.airportFee)} />
                     )}
-                    <FeeRow label="Pick-up fee" value={fmt(priceBreakdown.pickupFee)} />
-                    <FeeRow label="Drop-off fee" value={fmt(priceBreakdown.dropOffFee)} />
+                    {priceBreakdown.pickupFee > 0 && (
+                      <FeeRow label="Pick-up fee" value={fmt(priceBreakdown.pickupFee)} />
+                    )}
+                    {priceBreakdown.dropOffFee > 0 && (
+                      <FeeRow label="Drop-off fee" value={fmt(priceBreakdown.dropOffFee)} />
+                    )}
                     {priceBreakdown.addonsCost > 0 && (
                       <FeeRow label="Optional extras" value={fmt(priceBreakdown.addonsCost)} />
                     )}
