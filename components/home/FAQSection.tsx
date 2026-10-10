@@ -3,35 +3,37 @@ import React from "react";
 const FAQSection: React.FC = () => {
   const faqs = [
     {
-      question: "How old do I need to be to rent a car from Unicorn?",
-      answer:
-        "Generally, for most of our cars, the main driver needs to be at least 23 years old and have held a valid driver's licence for at least two years. For some of our larger or luxury vehicles, the minimum age might be 25. If you're a younger driver, give us a ring, and we can let you know the best options for you!",
+      question: "What documents do I need to pick up the car?",
+      answer: "You will need a valid driving license (held for at least 3 years), a Passport or National ID, a credit card in the driver's name, and your booking voucher. An International Driving Permit (IDP) is required if your license is not in English. Please note, we do not accept digital/e-licenses."
     },
     {
-      question: "Can I rent a car from Unicorn without a credit card?",
-      answer:
-        "For the security deposit, a credit card in the main driver's name is the usual way to go. Some specific locations or car types might require vehicle rental for the agreed period, unlimited mileage (so you can explore freely!) Standard insurance like Collision Damage Waiver and Theft have an option for a cash deposit or debit card, but there could be different conditions. The best thing to do is chat with us directly before you book - we'll explain everything clearly for your situation.",
+      question: "What is your fuel and mileage policy?",
+      answer: "We offer unlimited mileage on our rentals! For fuel, we operate on a 'Same-to-Same' policy—simply return the car with the exact same amount of fuel it had at pick-up to avoid a $25 refuelling service charge."
     },
     {
-      question: "What happens if the car breaks down during my rental?",
-      answer:
-        "Don't worry; we've got your back! All great essentials: free cancellation if your plans change, easy amendments to your booking, theft protection, and a collision damage waiver for peace of mind. Oh, and unlimited mileage on most of our rentals so you can explore freely! We like to keep things straightforward; our cars are well-maintained. But if something unexpected happens, we offer 24-hour support. Just give us a call.",
+      question: "Are there any age restrictions for renting a car?",
+      answer: "Yes, the minimum age to rent a car with us is 25 years, and the maximum age is 80 years. Drivers must also have a minimum of 3 years of driving experience."
     },
     {
-      question: "Do you offer cars with a driver?",
-      answer:
-        "Yes, we have skilled and professional chauffeurs who know assistance or arranging a replacement vehicle if needed.",
+      question: "How does airport pick-up work?",
+      answer: "We provide a hassle-free 'Meet and Greet' service. Our agent will be waiting for you at the arrivals terminal (after baggage claim) holding a sign with your name on it."
     },
     {
-      question: "What's your fuel policy? And how about mileage?",
-      answer:
-        "We keep it super simple! For fuel, it's a 'full-to-full' policy - you pick it up the car with a full tank, and you just bring it back full. No complicated calculations! And the best part? Most of our rentals come with unlimited mileage, so you can drive as much as you need.",
+      question: "Do you allow additional drivers?",
+      answer: "Yes, you can add up to 2 additional drivers! The first additional driver is completely free. A second additional driver can be added for just $15 per day."
     },
     {
-      question: "What documents will I need when I come to pick up my car?",
-      answer:
-        "You'll need your valid driver's licence (and an International Driving Permit if your licence isn't in English; it depends on availability and might have an extra fee). The best way is to ask us when you're planning your trip (a good idea), some official photo ID like your passport or national ID, and the credit card used for the booking/deposit. If you booked online, having your booking confirmation handy (on your phone is fine) helps too!",
+      question: "Can I drive the car across the border?",
+      answer: "Yes, cross-border travel is permitted to Tanzania and Uganda for a one-time fee of $350. We require at least 2 working days' advance notice to arrange the necessary paperwork."
     },
+    {
+      question: "What happens if I return the car late?",
+      answer: "We offer a generous 2-hour grace period for returns. If the vehicle is dropped off later than the grace period, an extra day's rental charge will apply."
+    },
+    {
+      question: "Are pets or smoking allowed in the vehicles?",
+      answer: "To ensure our cars stay fresh and clean for all customers, we have a strict no-smoking and no-pets policy. A cleaning fee of $50 applies for smoking, and $100 for pets."
+    }
   ];
 
   return (
