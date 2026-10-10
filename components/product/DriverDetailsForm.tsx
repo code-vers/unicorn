@@ -22,6 +22,7 @@ interface DriverDetailsFormProps {
   hasFullInsurance: boolean;
   hasAdditionalDriver: boolean;
   hasChildSeat: boolean;
+  activeTab: "properties" | "rental-terms";
   priceBreakdown: BookingCalculateResponse | null;
   priceLoading: boolean;
 }
@@ -39,6 +40,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
   hasFullInsurance,
   hasAdditionalDriver,
   hasChildSeat,
+  activeTab,
   priceBreakdown,
   priceLoading,
 }) => {
@@ -153,7 +155,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
   };
 
   return (
-    <div className="bg-white">
+    <div className={activeTab === "rental-terms" ? "hidden" : "bg-white"}>
       <div className="max-w-[1440px] mx-auto p-6 bg-white">
         <div className="flex flex-col lg:flex-row gap-10 items-start">
           {/* --- LEFT SIDE: FORM --- */}
@@ -216,7 +218,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                       placeholder="MONTH"
                       value={dobMonth}
                       onChange={setDobMonth}
-                      options={["01","02","03","04","05","06","07","08","09","10","11","12"]}
+                      options={["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]}
                     />
                     <SelectGroup
                       placeholder="YEAR"

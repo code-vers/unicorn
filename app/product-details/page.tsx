@@ -75,6 +75,7 @@ const ProductDetailsContent: React.FC = () => {
   const [hasAdditionalDriver, setHasAdditionalDriver] = useState(false);
   const [hasChildSeat, setHasChildSeat] = useState(false);
   const [isChauffeurDriven, setIsChauffeurDriven] = useState(false);
+  const [activeTab, setActiveTab] = useState<"properties" | "rental-terms">("properties");
 
   // ── Live price calculation ────────────────────────────────────────────────────
   const [priceBreakdown, setPriceBreakdown] =
@@ -162,6 +163,8 @@ const ProductDetailsContent: React.FC = () => {
       {/* Vehicle properties + add-on toggles */}
       <CarPropertiesSection
         vehicle={vehicle}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         isChauffeurDriven={isChauffeurDriven}
         setIsChauffeurDriven={setIsChauffeurDriven}
         hasGps={hasGps}
@@ -179,6 +182,7 @@ const ProductDetailsContent: React.FC = () => {
       {/* Driver details form + live price breakdown + submit */}
       <DriverDetailsForm
         vehicle={vehicle}
+        activeTab={activeTab}
         vehicleId={vehicleId}
         pickupLocationId={pickupLocationId}
         dropOffLocationId={dropOffLocationId}
