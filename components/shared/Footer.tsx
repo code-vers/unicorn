@@ -10,6 +10,7 @@ import {
   HiOutlineLocationMarker,
   HiOutlinePhone,
 } from "react-icons/hi";
+import Link from "next/link";
 
 const Footer: React.FC = () => {
   return (
@@ -41,13 +42,20 @@ const Footer: React.FC = () => {
           <div>
             <h3 className='text-[20px] font-bold mb-6'>Quick Links</h3>
             <ul className='space-y-4'>
-              {["Home", "About Us", "Manage Booking", "Contact Us"].map(
+              {[
+                { name: "Home", href: "/" },
+                { name: "About Us", href: "/about-us" },
+                { name: "Manage Booking", href: "/manage-bookings" },
+                { name: "Contact Us", href: "/contact-us" },
+              ].map(
                 (link) => (
                   <li
-                    key={link}
+                    key={link.name}
                     className='flex items-center group cursor-pointer text-gray-300 hover:text-white transition-colors'>
                     <HiChevronRight className='mr-2 text-gray-500' />
-                    <span className='text-[15px]'>{link}</span>
+                    <Link href={link.href} className='text-[15px]'>
+                      {link.name}
+                    </Link>
                   </li>
                 ),
               )}
@@ -59,17 +67,19 @@ const Footer: React.FC = () => {
             <h3 className='text-[20px] font-bold mb-6'>Legal</h3>
             <ul className='space-y-4'>
               {[
-                "Privacy Policy",
-                "Cookie Policy",
-                "Terms & Conditions",
-                "Our Guarantee",
-                "Help Page",
+                { name: "Privacy Policy", href: "#" },
+                { name: "Cookie Policy", href: "#" },
+                { name: "Terms & Conditions", href: "/terms-and-conditions" },
+                { name: "Our Guarantee", href: "#" },
+                { name: "Help Page", href: "#" },
               ].map((link) => (
                 <li
-                  key={link}
+                  key={link.name}
                   className='flex items-center group cursor-pointer text-gray-300 hover:text-white transition-colors'>
                   <HiChevronRight className='mr-2 text-gray-500' />
-                  <span className='text-[15px]'>{link}</span>
+                  <Link href={link.href} className='text-[15px]'>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
