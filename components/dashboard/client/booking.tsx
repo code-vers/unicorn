@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingResponse, BookingService } from '@/lib/api/booking.service';
 import { Spinner } from '@/components/ui/Spinner';
@@ -225,13 +225,26 @@ const ExtendBookingModal = ({ isOpen, onClose, booking, onSuccess }: ExtendBooki
 export default function MyBookings() {
   const { bookings, isLoading, refresh } = useBookings();
   const [activeTab, setActiveTab] = useState('Active Rentals');
+  const tabSelectedByUser = useRef(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<BookingResponse | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
 
-  const tabs = ['Active Rentals', 'Upcoming', 'Past History'];
+  const tabs = ['Active Rentals', 'Payment Pending', 'Upcoming', 'Past History'];
+
+  useEffect(() => {
+    if (
+      !tabSelectedByUser.current &&
+      bookings.some(
+        (booking) =>
+          booking.bookingStatus === 'PENDING' && booking.paymentStatus === 'PENDING'
+      )
+    ) {
+      setActiveTab('Payment Pending');
+    }
+  }, [bookings]);
 
   const filteredBookings = useMemo(() => {
     const today = new Date().getTime();
@@ -241,8 +254,14 @@ export default function MyBookings() {
     // Filter by tab
     if (activeTab === 'Active Rentals') {
       filtered = filtered.filter(b => b.bookingStatus === 'CONFIRMED' || b.bookingStatus === 'ONGOING');
+    } else if (activeTab === 'Payment Pending') {
+      filtered = filtered.filter(
+        (booking) => booking.bookingStatus === 'PENDING' && booking.paymentStatus === 'PENDING'
+      );
     } else if (activeTab === 'Upcoming') {
-      filtered = filtered.filter(b => b.bookingStatus === 'PENDING' && new Date(b.pickupDate).getTime() > today);
+      filtered = filtered.filter(b =>
+        b.bookingStatus === 'CONFIRMED' && new Date(b.pickupDate).getTime() > today
+      );
     } else if (activeTab === 'Past History') {
       filtered = filtered.filter(b => b.bookingStatus === 'COMPLETED' || b.bookingStatus === 'CANCELLED');
     }
@@ -289,7 +308,11 @@ export default function MyBookings() {
         {tabs.map((tab) => (
           <button
             key={tab}
-            onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+            onClick={() => {
+              tabSelectedByUser.current = true;
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
             className={`px-4 py-1.5 rounded-[4px] text-[14px] font-bold font-lato transition-all ${
               activeTab === tab ? 'bg-[#EBF7ED] text-[#3FA344]' : 'text-[#0A1413] hover:bg-gray-50'
             }`}
@@ -351,7 +374,7 @@ export default function MyBookings() {
                         booking.bookingStatus === 'COMPLETED' ? 'bg-gray-100 text-gray-600' :
                         booking.bookingStatus === 'CANCELLED' ? 'bg-red-50 text-red-600' : 'bg-yellow-50 text-yellow-600'
                       }`}>
-                        {booking.bookingStatus}
+                        {booking.paymentStatus === 'PENDING' ? 'PAYMENT PENDING' : booking.bookingStatus}
                       </span>
                     </td>
                         <td className='px-3 py-2.5 text-[12px] text-[#6B7280] font-lato'>KSh {Number(booking.totalAmount).toFixed(2)}</td>
