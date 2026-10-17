@@ -10,6 +10,9 @@ import { PaymentService, type PaymentRecord } from '@/lib/api/payment.service';
 const formatCurrency = (value: string | number) =>
   new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES' }).format(Number(value));
 
+const refundStatus = (status: PaymentRecord['paymentStatus']) =>
+  status === 'REFUND_PENDING' || status === 'REFUNDED' ? status : '—';
+
 export default function Payments() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [query, setQuery] = useState('');
@@ -81,11 +84,13 @@ export default function Payments() {
               <tr>
                 <th className='px-4 py-3'>Booking</th>
                 <th className='px-4 py-3'>Vehicle</th>
-                <th className='px-4 py-3'>Transaction</th>
+                <th className='px-4 py-3'>Payment Reference</th>
+                <th className='px-4 py-3'>Provider</th>
                 <th className='px-4 py-3'>Date</th>
                 <th className='px-4 py-3'>Method</th>
                 <th className='px-4 py-3'>Amount</th>
                 <th className='px-4 py-3'>Status</th>
+                <th className='px-4 py-3'>Refund</th>
               </tr>
             </thead>
             <tbody className='divide-y divide-[#F4F6F8]'>
@@ -94,15 +99,17 @@ export default function Payments() {
                   <td className='px-4 py-3 font-semibold'>{payment.booking.referenceId}</td>
                   <td className='px-4 py-3'>{payment.booking.vehicle.name}</td>
                   <td className='px-4 py-3'>{payment.transactionId ?? 'Pending'}</td>
+                  <td className='px-4 py-3'>{payment.provider}</td>
                   <td className='px-4 py-3'>{new Date(payment.createdAt).toLocaleDateString()}</td>
                   <td className='px-4 py-3'>{payment.paymentMethod}</td>
                   <td className='px-4 py-3'>{formatCurrency(payment.amount)}</td>
                   <td className='px-4 py-3'>{payment.paymentStatus}</td>
+                  <td className='px-4 py-3'>{refundStatus(payment.paymentStatus)}</td>
                 </tr>
               ))}
               {filteredPayments.length === 0 && (
                 <tr>
-                  <td colSpan={7} className='px-4 py-10 text-center text-[#6B7280]'>
+                  <td colSpan={9} className='px-4 py-10 text-center text-[#6B7280]'>
                     No payment transactions found.
                   </td>
                 </tr>

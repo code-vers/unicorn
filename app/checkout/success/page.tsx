@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const bookingRef = searchParams.get('booking');
-  const hasStripeSession = Boolean(searchParams.get('session_id'));
+  const hasPaystackReference = Boolean(searchParams.get('reference'));
 
   return (
     <div className='w-full max-w-[700px] bg-white rounded-[20px] shadow-sm border border-[#E5E7EB] overflow-hidden'>
@@ -18,7 +18,7 @@ function CheckoutSuccessContent() {
           <CheckCircle2 size={40} className='text-white' />
         </div>
         <h1 className='text-[32px] font-bold text-[#0A1413] font-montserrat mb-3'>
-          {hasStripeSession ? 'Payment submitted successfully!' : 'Reservation received!'}
+          {hasPaystackReference ? 'Payment submitted successfully!' : 'Reservation received!'}
         </h1>
         <p className='text-[16px] text-[#4B5563] font-lato max-w-[480px] leading-relaxed'>
           Thank you for choosing Unicorn Rent a Car. Your reservation request has been successfully

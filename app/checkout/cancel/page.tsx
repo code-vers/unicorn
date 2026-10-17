@@ -12,6 +12,8 @@ function CheckoutCancelledContent() {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get('booking_id');
   const bookingReference = searchParams.get('booking');
+  const paymentType = searchParams.get('payment_type');
+  const isExtension = paymentType === 'EXTENSION';
   const cancellationStarted = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(Boolean(bookingId));
@@ -45,13 +47,15 @@ function CheckoutCancelledContent() {
       {isCancelling ? (
         <div className='mt-5 flex items-center gap-3 text-slate-600'>
           <Spinner size='sm' />
-          Releasing the temporary vehicle hold…
+          {isExtension ? 'Cancelling the extension payment…' : 'Releasing the temporary vehicle hold…'}
         </div>
       ) : error ? (
         <p className='mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700'>{error}</p>
       ) : (
         <p className='mt-4 text-slate-600'>
-          {bookingId
+          {isExtension
+            ? `No extension payment${bookingReference ? ` for booking ${bookingReference}` : ''} was completed. Your existing booking has not changed.`
+            : bookingId
             ? `No booking${bookingReference ? ` ${bookingReference}` : ''} was confirmed, and the vehicle hold has been released.`
             : 'No payment was taken. Your existing confirmed booking has not changed.'}
         </p>

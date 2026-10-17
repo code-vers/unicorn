@@ -10,10 +10,14 @@ import { PaymentService, type PaymentRecord } from '@/lib/api/payment.service';
 const formatCurrency = (amount: string) =>
   new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES' }).format(Number(amount));
 
+const refundStatus = (status: PaymentRecord['paymentStatus']) =>
+  status === 'REFUND_PENDING' || status === 'REFUNDED' ? status : '—';
+
 export default function PaymentsTable() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
 
   useEffect(() => {
     PaymentService.getMyPayments()
@@ -23,6 +27,19 @@ export default function PaymentsTable() {
       )
       .finally(() => setLoading(false));
   }, []);
+
+  const reviewPayment = async (paymentId: string, action: 'CONFIRM' | 'REFUND') => {
+    setReviewingId(paymentId);
+    try {
+      const updated = await PaymentService.reviewPayment(paymentId, action);
+      setPayments((current) => current.map((payment) => (payment.id === paymentId ? updated : payment)));
+      toast.success(action === 'CONFIRM' ? 'Payment confirmed.' : 'Refund requested.');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Unable to review payment');
+    } finally {
+      setReviewingId(null);
+    }
+  };
 
   const filteredPayments = useMemo(() => {
     const search = query.trim().toLowerCase();
@@ -56,11 +73,14 @@ export default function PaymentsTable() {
             <tr>
               <th className='px-4 py-3'>Booking</th>
               <th className='px-4 py-3'>Vehicle</th>
-              <th className='px-4 py-3'>Transaction</th>
+              <th className='px-4 py-3'>Payment Reference</th>
+              <th className='px-4 py-3'>Provider</th>
               <th className='px-4 py-3'>Method</th>
               <th className='px-4 py-3'>Amount</th>
               <th className='px-4 py-3'>Status</th>
+              <th className='px-4 py-3'>Refund</th>
               <th className='px-4 py-3'>Date</th>
+              <th className='px-4 py-3'>Review</th>
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-100'>
@@ -69,15 +89,41 @@ export default function PaymentsTable() {
                 <td className='px-4 py-3 font-semibold'>{payment.booking.referenceId}</td>
                 <td className='px-4 py-3'>{payment.booking.vehicle.name}</td>
                 <td className='px-4 py-3'>{payment.transactionId ?? 'Pending'}</td>
+                <td className='px-4 py-3'>{payment.provider}</td>
                 <td className='px-4 py-3'>{payment.paymentMethod}</td>
                 <td className='px-4 py-3'>{formatCurrency(payment.amount)}</td>
                 <td className='px-4 py-3'>{payment.paymentStatus}</td>
+                <td className='px-4 py-3'>{refundStatus(payment.paymentStatus)}</td>
                 <td className='px-4 py-3'>{new Date(payment.createdAt).toLocaleDateString()}</td>
+                <td className='px-4 py-3'>
+                  {payment.paymentStatus === 'REVIEW_REQUIRED' ? (
+                    <div className='flex gap-2'>
+                      <button
+                        type='button'
+                        onClick={() => reviewPayment(payment.id, 'CONFIRM')}
+                        disabled={reviewingId === payment.id}
+                        className='rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50'
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() => reviewPayment(payment.id, 'REFUND')}
+                        disabled={reviewingId === payment.id}
+                        className='rounded bg-red-600 px-2 py-1 text-white disabled:opacity-50'
+                      >
+                        Refund
+                      </button>
+                    </div>
+                  ) : (
+                    '—'
+                  )}
+                </td>
               </tr>
             ))}
             {filteredPayments.length === 0 && (
               <tr>
-                <td colSpan={7} className='px-4 py-10 text-center text-gray-500'>
+                <td colSpan={10} className='px-4 py-10 text-center text-gray-500'>
                   No transactions found.
                 </td>
               </tr>

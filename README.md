@@ -143,7 +143,7 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 
 - **Authentication**: Login, register, password reset, email verification
 - **Vehicle Browsing**: Search, filter, and view detailed vehicle listings
-- **Booking Flow**: Multi-step checkout with Stripe payment integration
+- **Booking Flow**: Multi-step checkout with Paystack M-PESA and card payment integration
 - **Client Dashboard**: Manage personal bookings, payments, documents, profile, and support tickets
 - **Admin Dashboard**: Full admin panel for managing bookings, vehicles, drivers, locations, pricing, reports, customer support, and system settings
 - **Real-time Charts**: Analytics and reporting powered by Recharts

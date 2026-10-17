@@ -85,9 +85,15 @@ export interface BookingResponse {
   amountPaid: string;
   bookingStatus:
     "PENDING" | "CONFIRMED" | "ONGOING" | "COMPLETED" | "CANCELLED";
-  paymentStatus: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
-  checkoutSessionId?: string | null;
-  checkoutExpiresAt?: string | null;
+  paymentStatus:
+    | "PENDING"
+    | "SUCCESS"
+    | "FAILED"
+    | "REFUNDED"
+    | "REVIEW_REQUIRED"
+    | "REFUND_PENDING";
+  paymentReference?: string | null;
+  paymentExpiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
   vehicle?: {
@@ -139,7 +145,7 @@ export interface BookingCheckoutResponse {
   booking: BookingResponse;
   checkout: {
     url: string;
-    sessionId: string;
+    reference: string;
   };
 }
 
