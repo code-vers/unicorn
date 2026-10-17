@@ -1,3 +1,6 @@
+//this is not actual terms and conditions, just a placeholder for now. The actual terms and conditions will be provided by the legal team.
+
+
 import React from "react";
 
 export default function TermsAndConditionsPage() {

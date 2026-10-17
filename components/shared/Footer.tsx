@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
               {[
                 { name: "Privacy Policy", href: "#" },
                 { name: "Cookie Policy", href: "#" },
-                { name: "Terms & Conditions", href: "/terms-and-conditions" },
+                { name: "Terms & Conditions", href: "#" },
                 { name: "Our Guarantee", href: "#" },
                 { name: "Help Page", href: "#" },
               ].map((link) => (

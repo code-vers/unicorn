@@ -32,8 +32,6 @@ const ADDONS = [
 ] as const;
 
 type AddonKey = "hasGps" | "hasFullInsurance" | "hasAdditionalDriver" | "hasChildSeat";
-type TabId = "properties" | "rental-terms";
-
 // ── Component ─────────────────────────────────────────────────────────────────
 const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
   vehicle,
@@ -221,67 +219,7 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
 
             {/* Rental Terms Tab */}
             {activeTab === "rental-terms" && (
-              <div className="space-y-6 text-[14px] text-[#444444] leading-[1.8]">
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Car Rental Terms & Conditions</h4>
-                  <p>EEZEE RENTAL CARS LTD. is a franchisee incorporated in the Republic of Kenya (hereinafter called "the company") under GreenMotion International Car and Van Rental hereby agrees to let on hire to the person whose name appears overleaf (hereinafter called The Renter) the motor vehicle described overleaf (together with all tyres, tools, spares and accessories carried with it) is hereinafter called "the vehicle" subject to the terms and conditions contained overleaf and hereunder.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Delivery and Return</h4>
-                  <p>The Renter acknowledges that the vehicle is in good overall condition and without apparent defects and that the Renter will return it to the company together with all documents relating thereto in the same condition as when received to the place and during normal business hours on the date specified overleaf or to such place and such other time as the Company may direct.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Conditions of Use</h4>
-                  <p>The Renter covenants and agrees that the Renter shall not during the period of hire do or attempt to do or permit to be done in relation to the Vehicle any of the following acts: Permit the vehicle to be driven by any other person other than the Renter or another person designated by the Renter and approved of in writing by the Company in the space provided overleaf; by any person not in possession of a valid driving license recognized in the Republic of Kenya; by any person while such person is under the influence of alcohol, hallucinatory drug, narcotic, barbiturates or any other substance impairing the driver&apos;s consciousness or ability to react.</p>
-                  <p className="mt-2">Permit the vehicle to be used for any transportation of persons or goods for hire of reward; in any rally speed test or contest; for propelling or towing any vehicle trailer or other object; in contravention of any traffic regulations; on roads which are not all-weather roads outside Kenya.</p>
-                  <p className="mt-2">Sell pledge charge or otherwise part with the possession of the vehicle otherwise than to the Company or do or permit to be done any act which may prejudice or endanger the file of the Company to the Vehicle. Make or cause or permit to be done any repair adjustment or alteration to the Vehicle on any part thereof without the consent in writing of the Company.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Collision Damage Waiver (CDW) / Insurance / TPW</h4>
-                  <p>CDW, TW are options available for an additional charge which when offered and accepted at the time of rental waives or reduces the customer&apos;s liability for loss of or damage to rental car provided the car is used in accordance with all the terms and conditions of the rental agreement. In all cases the customers liability. Excess Liability Waiver (ELW) option is available for an additional charge per day. Tyres, tubes, windows and tools are not included.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Charges</h4>
-                  <p>The Renter hereby agrees to pay or reimburse to the company or demand the following sums: The charge set out overleaf or if so let out the Company&apos;s current Tariff for the Vehicle in question at the beginning of the rental and it is hereby expressly agreed that the distance travelled shall be conclusively determined by the reading of the standard distance recording device fitted to the vehicle.</p>
-                  <p className="mt-2">Any charges for refueling collision damage waiver personal accident insurance and any other standard or miscellaneous charges at the rates shown in this agreement or in the Company current tariff. Any taxes on the rental or the amount charged by the Company as reimbursement for them. Any fines penalties legal costs and fees and other expenses incurrent in collecting payments due from the Renter under the Agreement or imposed on the Company by law arising from the use of the vehicle while on rental to the Renter. Interest at 3% per month on charges remaining unpaid after 30 days from date of income.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Damages to the Vehicle</h4>
-                  <p>Regardless of fault, the Renter is responsible for loss of or damage to the car resulting from any cause other than accidental file or acts of nature (for example, collision, rollover, theft or vandalism). If the car is used as permitted by this agreement, this responsibility is limited to the value of the car at the time it is lost or damaged less its salvage value, appraisal fees or recovery cost.</p>
-                  <p className="mt-2">If the Renter accepts collision damage waiver, which is not insurance, at the beginning of rental, such loss or damage unless it results from: The international loss or damage to the car by the Renter or by the additional driver. The Renter&apos;s use or the additional driver&apos;s use as prohibited by paragraph 2 above or recklessly, abusively wantonly or with gross negligence including if the Renter leaves the car and fails to remove the keys or lock all doors and the trunk.</p>
-                  <p className="mt-2">Where loss or damage to the vehicle occurs while the vehicle is being used operated or driven or in control of any person in breach of any of the terms of this agreement or of any laws or regulations for the time being in force in the republic of Kenya the Renter shall pay to the company arising from the said loss or damage together with all incidental costs and expenses. The liability of the Renter may be entitled from any third party.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Accidents</h4>
-                  <p>In the event of an accident or occurrence which might be prejudicial to the company taking place the Renter hereby undertakes: Not to admit liability for such accident. To report such accident to the police and to the company not later than twenty four (24) hours from the time of the accident or occurrence taking place. To complete an accurate accident report at the Company and to provide full details of the identities of other parties involved in the accident, witnesses and police officers.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Insurance</h4>
-                  <p>The company shall insure the vehicle so as to comply with the laws of the republic of Kenya relating to compulsory insurance of motor vehicle and shall if required make a copy of the said policy available to the Renter for inspection PROVIDED ALWAYS THAT the said cover shall not extend to the property of the Renter.</p>
-                  <p className="mt-2">In the event of any sum becoming unrecoverable under the said policy in whole or in part in consequence of any act or default of the Renter, the Renter shall pay to the Company all damage suffered by reason of the Company being unable to recover the loss or damage suffered by it.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Indemnity</h4>
-                  <p>The company shall not be responsible for the damage suffered by the Renter or by third parties arising in connection with the operation of the vehicle or loss or damage to the Renter&apos;s property left in the vehicle or loss or inconvenience resulting from delays in delivery breakdown or other causes beyond the control of the company.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Liability for Fines, Penalties & Forfeitures</h4>
-                  <p>Without prejudice to the above provisions the Renter shall be solely liable and responsible for all fines, penalties and forfeitures imposed by reason any breach by the Renter or any other person in control of the vehicle of any law by law or other regulations of any competent authority, and Renter shall on completion of the rental hand over to the Company all demands, summons, processes and notification in connection with or arising out of the commissions of any offence in relation the use of the vehicle and notifications of any penalties and charges incurred by the Renter during the period of hire.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Variation of Terms</h4>
-                  <p>No waiver or variation of the terms hereof shall be binding on the company unless authorized in writing and signed by a director of the company.</p>
-                </div>
-                <div>
-                  <h4 className="text-[16px] font-bold text-[#1A1A1A] mb-2">Disputes</h4>
-                  <p>It is understood and agreed that any dispute or claims arising under this Agreement shall be subject to the sole jurisdiction of the court of Kenya.</p>
-                </div>
-                <div className="bg-[#FFF4E5] p-5 rounded-[8px] mt-4">
-                  <p className="text-[13px] text-[#444444]">
-                    <strong className="text-[#1A1A1A]">Declaration:</strong> I the undersigned warrant the above particulars are true. I am renting the above vehicle in good condition and I&apos;m liable to pay for any damages caused to this car. I fully understand that I am the only person authorized to drive this vehicle (unless otherwise speeded above) and undertake to return this vehicle by not later than the date stated above. This rental is subject to the Company&apos;s terms and conditions as set out on the reverse of this customer copy of this agreement with conditions. I have read and agreed by my signature to accept as the conditions of this agreement with the company. Interest will be 3% per month on charge remaining unpaid after 30 days.
-                  </p>
-                </div>
-              </div>
+              <RentalTermsAccordion />
             )}
           </div>
 
@@ -359,6 +297,223 @@ const CarPropertiesSection: React.FC<CarPropertiesSectionProps> = ({
 };
 
 /* --- SUB-COMPONENTS --- */
+
+const RentalTermsAccordion = () => {
+  const [openTerm, setOpenTerm] = useState("driver-licence");
+  const toggleTerm = (id: string) => setOpenTerm((current) => (current === id ? "" : id));
+
+  const terms = [
+    {
+      id: "driver-licence",
+      title: "Driver & Licence",
+      content: (
+        <>
+          <p>When you pick the car up, you&apos;ll need:</p>
+          <ul className="list-disc space-y-1 pl-6">
+            <li>Passport or national ID card</li>
+            <li>Driving licence</li>
+            <li>Credit card</li>
+          </ul>
+          <p>All drivers must be aged between 23 and 70 with at least 5 years&apos; driving experience.</p>
+        </>
+      ),
+    },
+    {
+      id: "damage-excess",
+      title: "Damage Excess",
+      content: (
+        <>
+          <p>If the car&apos;s bodywork gets damaged, you&apos;re covered by the Collision Damage Waiver. This means that the most you&apos;ll pay towards repairs is the damage excess.</p>
+          <p>This cover is only valid if you stick to the terms of the rental agreement. It doesn&apos;t cover other parts of the car (e.g. windows, wheels, interior or undercarriage), or charges (e.g. for towing or off-road time), or anything in the car (e.g. child seats, GPS devices or personal belongings).</p>
+        </>
+      ),
+    },
+    {
+      id: "security-deposit",
+      title: "Security Deposit",
+      content: (
+        <>
+          <p>At pick-up, the main driver will leave a refundable security deposit on their credit card. Cash and debit cards are not accepted. The counter staff will confirm how much this will be.</p>
+          <p className="font-bold text-[#1A1A1A]">Accepted Cards</p>
+          <ul className="list-disc space-y-1 pl-6">
+            <li>MasterCard</li>
+            <li>Visa</li>
+          </ul>
+          <p className="font-semibold italic">Note: This company will not accept prepaid, recharge or virtual credit cards — or any card on which the relevant characters are not raised (embossed).</p>
+        </>
+      ),
+    },
+    {
+      id: "fuel-policy",
+      title: "Fuel Policy",
+      content: <p>When you pick your car up, the fuel tank will be full or partly full. You will leave a deposit to cover the cost of the fuel: the counter staff will block this money on your credit card. Just before you return your car, please replace the fuel you&apos;ve used.</p>,
+    },
+    {
+      id: "mileage",
+      title: "Mileage",
+      content: <p>Your rental includes unlimited free kilometres if the rental is above a week. Any rental below 7 days is limited to 200 kms a day and an extra charge is applicable.</p>,
+    },
+    {
+      id: "full-rental-terms",
+      title: "Full Rental Terms",
+      content: <FullRentalTerms />,
+    },
+  ];
+
+  return (
+    <div className="border-t border-[#E5E7EB] text-[16px] leading-[1.6] text-[#444444]">
+      {terms.map(({ id, title, content }) => {
+        const isOpen = openTerm === id;
+        const headingId = id + "-heading";
+        const panelId = id + "-panel";
+
+        return (
+          <section key={id} className="border-b border-[#E5E7EB]">
+            <h3 id={headingId}>
+              <button
+                type="button"
+                onClick={() => toggleTerm(id)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                className="w-full py-4 text-left text-[16px] font-bold uppercase text-[#1F2937] transition-colors hover:text-[#FF6B14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B14] focus-visible:ring-inset"
+              >
+                {title}
+              </button>
+            </h3>
+            {isOpen && (
+              <div id={panelId} role="region" aria-labelledby={headingId} className="space-y-4 pb-6">
+                {content}
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
+};
+
+const FullRentalTerms = () => (
+  <article className="space-y-6">
+    <section className="space-y-3">
+      <p className="font-bold text-[#1A1A1A]">Insurance, Covers and Waivers</p>
+      <TermsSubheading>Collision Damage Waiver (CDW)</TermsSubheading>
+      <p>If the car&apos;s bodywork gets damaged, the most you&apos;ll pay towards repairs covered by the Collision Damage Waiver is the damage excess. This cover is only valid if you stick to the terms of the rental agreement. It doesn&apos;t cover other parts of the car (e.g. glass, wheels, interior, roof or undercarriage), or charges (e.g. towing or off-road time), or anything in the car (e.g. child seats, GPS devices or personal belongings).</p>
+      <TermsSubheading>Third-Party Liability (TPL)</TermsSubheading>
+      <p>This covers the driver&apos;s liability for injuries and property damage which are covered by the policy. It does not cover injuries to the driver or damage to the rental car. This cover is only valid if you stick to the terms of the rental agreement.</p>
+      <TermsSubheading>Theft Protection (TP)</TermsSubheading>
+      <p>If the car is stolen, the most you&apos;ll pay towards replacement costs covered by the policy is the theft excess. This cover is only valid if you stick to the terms of the rental agreement.</p>
+      <TermsSubheading>Personal Accident Insurance (PAI)</TermsSubheading>
+      <p>In the event of an accident, this insurance covers medical and legal costs for injuries which are covered by the policy, including death and loss of limb(s). This cover is only valid if you stick to the terms of the rental agreement.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Included at no extra cost</TermsSubheading>
+      <ul className="list-disc space-y-1 pl-6">
+        <li>Airport Surcharge</li>
+        <li>Emergency Roadside Assistance</li>
+        <li>Premium Location Surcharge</li>
+      </ul>
+      <TermsSubheading>Mileage / Kilometers</TermsSubheading>
+      <p>Your rental includes unlimited free kilometers for one week rental and is limited to 200 kms a day for rentals that are less than 7 days. Changing the length of your rental can affect how many kilometers you can drive for free and how much you will pay for each additional kilometer.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Not Included in the Rental Price</TermsSubheading>
+      <TermsSubheading>Local Charges</TermsSubheading>
+      <p>This section shows charges that you&apos;ll pay at the counter because of where you&apos;re picking your car up, who&apos;s driving, and where you go during your rental. It doesn&apos;t show other over-the-counter costs, such as charges for fuel, child seats or additional services.</p>
+      <p>You are responsible for any charges and fines, including tolls, congestion charges, speeding tickets and parking or traffic fines.</p>
+      <TermsSubheading>After your rental</TermsSubheading>
+      <p>If you&apos;ve incurred any charges, such as speeding tickets or unpaid congestion charges, we will try to contact you when the authorities ask who was driving. This could be months after your rental — and you&apos;ll have to pay the company&apos;s administration fee as well as the original charge.</p>
+      <TermsSubheading>One-Way Rentals</TermsSubheading>
+      <p>If you arrange to pick the car up in one location and drop it off in another, Unicorn will charge a one-way fee to cover the cost of returning the car to the original location. Prior notification is required for all one-way rentals. If you drop the car off at a location other than the one originally agreed, you will incur a penalty.</p>
+      <TermsSubheading>Other Fees</TermsSubheading>
+      <p><strong>Valeting Fee:</strong> Unicorn will charge you if the car needs more than a reasonable amount of cleaning after your rental.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>What you need at pick-up</TermsSubheading>
+      <TermsSubheading>Acceptable forms of payment</TermsSubheading>
+      <p>You are required to have a credit card for this booking. The main driver must have a credit card in their own name with enough available funds to cover the excess/deposit amount, local fees, extra equipment and anything purchased at the car hire counter. Cash and debit cards are not accepted.</p>
+      <p><strong>Accepted Credit Cards:</strong> MasterCard and Visa.</p>
+      <p><strong>Please Note:</strong> This company will not accept prepaid, recharge or virtual credit cards — or any card on which the relevant characters are not raised (embossed). Visa Danker cards and Chinese UnionPay credit cards are not accepted.</p>
+      <TermsSubheading>Licence Requirements</TermsSubheading>
+      <p>When picking the car up, the main driver and any additional drivers will need to provide a full driving licence in their name. All drivers must have held their driving licence for at least 5 years. Where a national licence has a photocard licence and a secondary paper counterpart licence, both parts are required.</p>
+      <TermsSubheading>Forms of Identification</TermsSubheading>
+      <p>A passport or identity card is required.</p>
+      <TermsSubheading>Rental Voucher / eVoucher</TermsSubheading>
+      <p>When you pick your car up, the counter staff will need to see your voucher, which you receive when your booking is confirmed. At pick-up, Unicorn requires either a printed copy of the customer&apos;s voucher or an eVoucher. If this is not presented, we may not allow the car to be picked up or may charge again for the rental.</p>
+      <TermsSubheading>Age Requirements</TermsSubheading>
+      <p>The minimum age limit for this car is 23 and the maximum age limit is 70. Unicorn&apos;s age-related charges and restrictions apply to all additional drivers.</p>
+      <TermsSubheading>Arrival Details</TermsSubheading>
+      <p><strong>Flight Details:</strong> If you are arriving by plane, please tell us your flight number so we can pass it on to your driver, ideally at least 3 days before pick-up. We cannot be held responsible if a problem with your flight stops you picking up your car.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Deposits, Excess and Cover</TermsSubheading>
+      <TermsSubheading>Deposit / Excess</TermsSubheading>
+      <p>Unicorn will require a security deposit of US$ 1,000.00 when you pick your car up. The deposit will be returned after the rental, as long as all conditions have been met. The car has a damage excess ranging between US$ 1,653.00 and US$ 3,500.00 including tax, depending on the vehicle model, and a theft excess of US$ 3,500.00 including tax.</p>
+      <p>Due to fluctuating foreign exchange rates and other possible banking charges, Unicorn Rent A Car Limited cannot be held responsible for any difference between the amount paid and the amount refunded.</p>
+      <TermsSubheading>Unicorn Rent A Car Limited Cover — Full Protection</TermsSubheading>
+      <p>If you purchase Unicorn Rent A Car Limited&apos;s Full Protection waiver product before you pick the car up, we will waive your liability (and refund you) for:</p>
+      <ul className="list-disc space-y-1 pl-6">
+        <li>damage to the rental car&apos;s exterior or mechanical components, including bodywork, roof, undercarriage, windows, mirrors, wheels, tyres, engine, clutch, battery and locks;</li>
+        <li>immobilisation charges while the car is being repaired;</li>
+        <li>roadside assistance charges resulting from a breakdown or accident;</li>
+        <li>charges for locking yourself out of the rental car or losing its key(s);</li>
+        <li>Theft Protection claims and related administration fees.</li>
+      </ul>
+      <p>Full Protection does not waive liability for repairs, roadside assistance or other services not approved by us; cleaning charges or interior damage unless caused by a collision; or damage to/loss of child seats, GPS devices or other extra equipment.</p>
+      <p>All drivers must abide by the rental agreement. Full Protection will not refund costs arising from dangerous, careless or negligent driving, refuelling errors, or driving under the influence of drugs or alcohol. A deposit may still be blocked on your credit card to cover potential damage or loss, subject to these terms.</p>
+      <p>If you buy Full Protection, you will receive the policy documentation by email. We cannot issue a refund merely because you do not make a claim.</p>
+      <TermsSubheading>Optional Covers and Waivers available at counter</TermsSubheading>
+      <p><strong>Super Collision Damage Waiver (SCDW)</strong> reduces the driver&apos;s liability if the rental car is damaged, subject to the rental agreement. The driver is generally responsible only for the excess, which may be set at zero. This protection applies to all authorised drivers.</p>
+      <TermsSubheading>Cover Arrangements</TermsSubheading>
+      <p>At pick-up, the counter staff may offer additional products in relation to your excess or deposit. Please read the terms of any cover you receive when signing the rental agreement. Policies normally exclude windscreens, glass, wheels, tyres, undercarriage, interior, personal belongings, towing charges, off-road time and hired extra equipment. Cover is invalidated by negligence, refuelling errors or breaking the rental agreement.</p>
+      <TermsSubheading>Administration Charges</TermsSubheading>
+      <p>Damage will be charged by Unicorn Rent A Car Limited after drop-off and will incur a Damage Administration fee in addition to the amount deducted from the excess. An Immobilisation Charge is payable after an accident and is calculated against the car group and number of repair days.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Fuel Policy Options</TermsSubheading>
+      <TermsSubheading>Full to Full</TermsSubheading>
+      <p>When you pick your car up, the fuel tank will be full or partly full. You will leave a deposit to cover the fuel cost, which will be blocked on your credit card. Before return, please replace the fuel you&apos;ve used. If you return the car with less fuel, Unicorn may keep some or all of your deposit and charge a non-refundable fuel service charge of US$ 23.20 including tax.</p>
+      <TermsSubheading>Extra Services (Payable at Counter)</TermsSubheading>
+      <p><strong>Cross-Border and Boundary rules:</strong> Cross-border travel is not allowed at the moment.</p>
+      <p><strong>Deliveries and Collections:</strong> If requested in advance, Unicorn may agree to deliver the car at the start of the rental. The cost will be confirmed after booking and catered for when signing the rental agreement.</p>
+      <p><strong>Taxes &amp; Fees:</strong> Additional services are subject to applicable sales taxes and location fees.</p>
+      <TermsSubheading>Extra Equipment (Payable at Counter)</TermsSubheading>
+      <p>Additional extras should be requested at booking and paid for at pick-up. Availability is not guaranteed and prices may change. Additional extras are subject to applicable sales and location taxes, and customers may need to leave a deposit at the counter.</p>
+      <TermsSubheading>Additional Drivers</TermsSubheading>
+      <p>The cost to add an additional driver is US$ 50.00 including tax, per day. Unicorn&apos;s age-related charges and restrictions apply to all additional drivers.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Important Information</TermsSubheading>
+      <p>Please read the Terms &amp; Conditions in full before pick-up. You must take the required documents, including your driving licence, identification and payment card. By making this booking, you confirm that you have read and accept our Terms &amp; Conditions. At pick-up, you will need to sign a rental agreement; please read it carefully and ask about anything that is not clear before signing.</p>
+      <p>If you are dissatisfied with any aspect of your rental, discuss it with us at the time. If you need help during your rental, please contact us.</p>
+      <p><strong>Information Regarding Exchange Rates and Fees:</strong> We cannot be held responsible for exchange-rate fluctuations or fees charged by your bank or card issuer. The amount on your statement may differ from the amount shown when booking; refunds will be for the amount initially charged.</p>
+      <p><strong>Accident or Breakdown:</strong> Call us immediately and report a breakdown, accident or mechanical difficulty to the nearest police station within 48 hours. We must authorise repairs or replacement cars. For accidents, a police report and an incident report from our counter are required.</p>
+      <p><strong>Roadside Assistance:</strong> Emergency roadside assistance may be available for an extra charge. <strong>Lost Keys:</strong> replacement keys will be charged. <strong>Seatbelt:</strong> drivers and passengers must wear seatbelts where fitted. All cars are non-smoking; fines apply if this policy is not followed.</p>
+      <p><strong>Price Calculation:</strong> prices are based on the agreed pick-up and drop-off times and dates. No refund is given for unused time if you pick up later or return earlier.</p>
+      <p>At pick-up, you may choose a different car from the one reserved; an additional premium may apply, even if the replacement is smaller. If the car rolls over onto its roof, an additional fee may apply on top of the excess.</p>
+    </section>
+
+    <section className="space-y-3">
+      <TermsSubheading>Cancellations, No Shows &amp; Amendments</TermsSubheading>
+      <TermsSubheading>No-Show</TermsSubheading>
+      <p>A no-show is when you cancel without telling us before the rental starts, fail to pick the car up at the arranged time and date, fail to provide the required documents, or fail to provide a credit card in the main driver&apos;s name with enough available funds. In these cases, you will receive no refund of the money paid.</p>
+      <p>Unicorn Rent A Car Limited reserves the right to refuse the car to any customer who does not arrive on time with the necessary documentation and enough funds for the deposit. Unless the rental was cancelled in advance, the customer is not entitled to a refund.</p>
+      <TermsSubheading>Amendments (changes to your booking)</TermsSubheading>
+      <p>You can make changes before you are due to pick the car up. If pick-up is less than 48 hours away, please call us. There is no fee for changes made less than 2 weeks before the start date, but changes may affect the rental price. No refund is given for unused days if you pick up later or return earlier than arranged.</p>
+      <TermsSubheading>Company Registration Details</TermsSubheading>
+      <p>Unicorn Rent A Car Limited, registered office at 66 Muthithi Road, Westlands, Nairobi, Kenya.</p>
+    </section>
+  </article>
+);
+
+const TermsSubheading = ({ children }: { children: React.ReactNode }) => (
+  <p className="font-bold text-[#1A1A1A]">{children}</p>
+);
 
 const FeatureItem = ({ label }: { label: string }) => (
   <div className="flex items-center gap-4">
